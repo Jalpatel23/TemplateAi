@@ -13,6 +13,10 @@ login page
 register page
 forgot password
 
+routing for signin
+routing for admin access (order of middleware is important )
+(due to wrong order i got error)
+
 
 home page
 
@@ -22,4 +26,4 @@ connect pages with backend
 
 
 
-v6 done
+v7 done

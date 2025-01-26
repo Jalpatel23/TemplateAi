@@ -1,4 +1,4 @@
-import userModel from './userModel.js';
+import userModel from "./../models/userModel.js"
 import {comparePassword, hashPassword,} from './../helpers/authHelper.js';
 import JWT from "jsonwebtoken";
 
@@ -22,7 +22,7 @@ export const registerController = async (req,res) => {
 
 
         const hashedPassowrd = await hashPassword(password);
-        const user=await new userModel({name,email, phone,password:hashedPassowrd,}).save()
+        const user=await new userModel({name,email, phone,password:hashedPassowrd,}).save();
 
 
         res.status(201).send({
@@ -95,3 +95,13 @@ export const loginController=async(req,res)=>{
 }
 
 
+//test mate nu che aa
+export const testController = (req, res) => {
+    try {
+        res.send("this route is protected");
+    } 
+    catch (error) {
+        console.log(error)
+        res.send({error})
+    }
+}
