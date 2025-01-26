@@ -1,8 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
-import connectDB from "./db.js";
-import authRoutes from "./authRoute.js";
+import connectDB from "./config/db.js";
+import authRoutes from "./routes/authRoute.js";
 
 
 dotenv.config()

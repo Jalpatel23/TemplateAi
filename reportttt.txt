@@ -1,11 +1,25 @@
-dataset connect
-dataset storing and checking
-mongo db
-mongoose
-see al dependencies
-logo design
+dataset connected using moongose
+dataset storing and checking using mongodb
+made users schema with username,email, phone, password
 
+
+login controller made
+signup controller made
+using bcrypt to encrypt password
+
+
+logo design
 login page
 register page
 forgot password
+
+
 home page
+
+
+connect pages with backend
+
+
+
+
+v6 done
