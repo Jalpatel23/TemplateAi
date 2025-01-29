@@ -1,26 +1,49 @@
+w3
+set development environment
+gatered resources
+made repo
+
+
+
+w4
 dataset connected using moongose
 dataset storing and checking using mongodb
 made users schema with username,email, phone, password
+making signup controller
+testing backend development using postman
 
 
-login controller made
-signup controller made
+
+w5
+making login controller 
 using bcrypt to encrypt password
-
-
-logo design
-login page
-register page
-forgot password
-
 routing for signin
 routing for admin access (order of middleware is important )
 (due to wrong order i got error)
+using postman tool for checking error
 
 
+
+w6
+doing frontend development
+Designing a logo for my website
+Making login page
+Making register page
+
+
+
+left:
+using jsonwebtoken to get token for verifying users
+
+
+
+
+
+
+header
+footer
 home page
-
-
+password reset 
 connect pages with backend
 
 
