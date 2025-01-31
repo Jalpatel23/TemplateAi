@@ -3,16 +3,12 @@ set development environment
 gatered resources
 made repo
 
-
-
 w4
 dataset connected using moongose
 dataset storing and checking using mongodb
 made users schema with username,email, phone, password
 making signup controller
 testing backend development using postman
-
-
 
 w5
 making login controller 
@@ -22,30 +18,44 @@ routing for admin access (order of middleware is important )
 (due to wrong order i got error)
 using postman tool for checking error
 
-
-
 w6
 doing frontend development
 Designing a logo for my website
 Making login page
 Making register page
+left:using jsonwebtoken to get token for verifying users
+
+
+w7
+designed header page
+designed footer page
+made a layout which has header and footer included
+and all other page will use layout component
+installed react-router-dom package for routing in header
+(colour ni problem, )
 
 
 
-left:
-using jsonwebtoken to get token for verifying users
 
-
-
-
-
-
-header
-footer
 home page
 password reset 
 connect pages with backend
 
+
+
+
+
+
+header which search options for text filter sathe
+home page par searchbar ne badhuu dekkhai butt koi search button par click kare to login thavu pade 
+    or image upload kare to login or 5 vakhat katra vadhar
+    or points thi search karai and login thava thi points made 
+    and share karva thi points made profile banava thi points madee
+    ask for payment when points are over
+
+user profile on top left
+add profile image in db
+initials of user if image not uploaded and only first two initials or 1
 
 
 
