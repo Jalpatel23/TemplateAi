@@ -191,88 +191,88 @@ const Home = () => {
 
   return (
     <Layout>
-    <div style={styles.container}>
-      <main style={styles.main}>
-        <div style={styles.messageContainer}>
-          <div style={styles.welcomeMessage}>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <div style={{ ...styles.avatar, ...styles.claudeAvatar }}> jp </div>
-              <p style={{ margin: 0 }}>Hello user</p>
+      <div style={styles.container}>
+        <main style={styles.main}>
+          <div style={styles.messageContainer}>
+            <div style={styles.welcomeMessage}>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                <div style={{ ...styles.avatar, ...styles.claudeAvatar }}> jp </div>
+                <p style={{ margin: 0 }}>Hello user</p>
+              </div>
             </div>
-          </div>
 
-          {messages.map((message, index) => (
-            <div 
-              key={index} 
-              style={{
-                ...styles.message,
-                ...(message.role === 'assistant' ? styles.assistantMessage : {})
-              }}
-            >
+            {messages.map((message, index) => (
               <div 
+                key={index} 
                 style={{
-                  ...styles.avatar,
-                  ...(message.role === 'assistant' ? styles.claudeAvatar : styles.userAvatar)
+                  ...styles.message,
+                  ...(message.role === 'assistant' ? styles.assistantMessage : {})
                 }}
               >
-                {message.role === 'assistant' ? 'C' : 'Y'}
-              </div>
-              
-              <div style={styles.messageContent}>
-                <div>{message.content}</div>
+                <div 
+                  style={{
+                    ...styles.avatar,
+                    ...(message.role === 'assistant' ? styles.claudeAvatar : styles.userAvatar)
+                  }}
+                >
+                  {message.role === 'assistant' ? 'C' : 'Y'}
+                </div>
                 
-                {message.role === 'assistant' && (
-                  <div style={styles.feedbackButtons}>
-                    <button style={styles.feedbackButton}>
-                      <ThumbsUp size={16} color="#6b7280" />
-                    </button>
-                    <button style={styles.feedbackButton}>
-                      <ThumbsDown size={16} color="#6b7280" />
-                    </button>
-                  </div>
-                )}
+                <div style={styles.messageContent}>
+                  <div>{message.content}</div>
+                  
+                  {message.role === 'assistant' && (
+                    <div style={styles.feedbackButtons}>
+                      <button style={styles.feedbackButton}>
+                        <ThumbsUp size={16} color="#6b7280" />
+                      </button>
+                      <button style={styles.feedbackButton}>
+                        <ThumbsDown size={16} color="#6b7280" />
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-          <div ref={messagesEndRef} />
-        </div>
-      </main>
+            ))}
+            <div ref={messagesEndRef} />
+          </div>
+        </main>
 
-      <footer style={styles.footer}>
-        <div style={styles.footerContent}>
-          <form onSubmit={handleSubmit} style={styles.form}>
-            <textarea
-              ref={textAreaRef}
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onFocus={() => setIsFocused(true)}
-              onBlur={() => setIsFocused(false)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmit(e);
-                }
-              }}
-              placeholder="Message..."
-              style={{
-                ...styles.textarea,
-                ...(isFocused ? styles.textareaFocus : {})
-              }}
-            />
-            <button
-              type="submit"
-              disabled={!inputValue.trim()}
-              style={{
-                ...styles.sendButton,
-                ...(inputValue.trim() ? styles.sendButtonEnabled : styles.sendButtonDisabled)
-              }}
-            >
-              <Send size={20} />
-            </button>
-          </form>
-        </div>
-      </footer>
-    </div>
+        <footer style={styles.footer}>
+          <div style={styles.footerContent}>
+            <form onSubmit={handleSubmit} style={styles.form}>
+              <textarea
+                ref={textAreaRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
+                placeholder="Message..."
+                style={{
+                  ...styles.textarea,
+                  ...(isFocused ? styles.textareaFocus : {})
+                }}
+              />
+              <button
+                type="submit"
+                disabled={!inputValue.trim()}
+                style={{
+                  ...styles.sendButton,
+                  ...(inputValue.trim() ? styles.sendButtonEnabled : styles.sendButtonDisabled)
+                }}
+              >
+                <Send size={20} />
+              </button>
+            </form>
+          </div>
+        </footer>
+      </div>
     </Layout>
   );
 };
