@@ -6,9 +6,11 @@ import logo from "./../images/logo.png"
 import 'bootstrap/dist/css/bootstrap.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "mdb-react-ui-kit/dist/css/mdb.min.css";
+import Layout from '../components/layout';
 
 function Login() {
   return (
+    <Layout>
     <MDBContainer fluid>
 
       {/* <div className="p-5 bg-image" style={{backgroundImage: 'url(https://mdbootstrap.com/img/new/textures/full/171.jpg)', height: '300px'}}></div> */}
@@ -36,6 +38,7 @@ function Login() {
       </MDBCard>
 
     </MDBContainer>
+    </Layout>
   );
 }
 

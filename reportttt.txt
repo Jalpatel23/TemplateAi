@@ -30,14 +30,15 @@ w7
 designed header page
 designed footer page
 made a layout which has header and footer included
-and all other page will use layout component
-installed react-router-dom package for routing in header
-(colour ni problem, )
+and all other page will use this layout component
+(colour ni problem)
+designed home page
+designed error page
+installed react-router-dom package for routing all the webpages
 
 
 
 
-home page
 password reset 
 connect pages with backend
 
@@ -46,7 +47,7 @@ connect pages with backend
 
 
 
-header which search options for text filter sathe
+header ane search options for text filter sathe
 home page par searchbar ne badhuu dekkhai butt koi search button par click kare to login thavu pade 
     or image upload kare to login or 5 vakhat katra vadhar
     or points thi search karai and login thava thi points made 
@@ -56,7 +57,7 @@ home page par searchbar ne badhuu dekkhai butt koi search button par click kare 
 user profile on top left
 add profile image in db
 initials of user if image not uploaded and only first two initials or 1
+ 
 
 
-
-v7 done
+v8 done

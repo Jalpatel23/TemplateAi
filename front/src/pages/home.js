@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, ThumbsUp, ThumbsDown } from 'lucide-react';
+import Layout from '../components/layout';
 
 const styles = {
   container: {
@@ -189,6 +190,7 @@ const Home = () => {
   };
 
   return (
+    <Layout>
     <div style={styles.container}>
       <main style={styles.main}>
         <div style={styles.messageContainer}>
@@ -271,6 +273,7 @@ const Home = () => {
         </div>
       </footer>
     </div>
+    </Layout>
   );
 };
 
