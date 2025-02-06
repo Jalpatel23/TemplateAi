@@ -98,7 +98,7 @@ export const loginController=async(req,res)=>{
 //test mate nu che aa
 export const testController = (req, res) => {
     try {
-        res.send("this route is protected");
+        res.send("this route is protected for admin");
     } 
     catch (error) {
         console.log(error)

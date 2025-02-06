@@ -26,7 +26,7 @@ export default function App() {
             {/* <MDBCollapse navbar open={openNav}> */}
             
             <MDBNavbarItem className="ms-5 px-4">
-              <MDBNavbarLink active aria-current='page' href='#' >Home</MDBNavbarLink>
+              <MDBNavbarLink active aria-current='page' href='/' >Home</MDBNavbarLink>
             </MDBNavbarItem>
             <MDBNavbarItem className="px-4">
               <MDBNavbarLink href='#'>Profile</MDBNavbarLink>
@@ -36,6 +36,12 @@ export default function App() {
             </MDBNavbarItem>
             <MDBNavbarItem className="px-4">
               <MDBNavbarLink href='#' >history</MDBNavbarLink>
+            </MDBNavbarItem>
+            <MDBNavbarItem className="px-4">
+              <MDBNavbarLink href='/signup'>SignUp</MDBNavbarLink>
+            </MDBNavbarItem>
+            <MDBNavbarItem className="px-4">
+              <MDBNavbarLink href='/login'>Login</MDBNavbarLink>
             </MDBNavbarItem>
             {/* <MDBNavbarItem>
               <MDBNavbarLink disabled href='#' tabIndex={-1} aria-disabled='true'>Disabled</MDBNavbarLink>

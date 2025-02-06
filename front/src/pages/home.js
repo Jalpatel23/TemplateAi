@@ -215,7 +215,7 @@ const Home = () => {
                     ...(message.role === 'assistant' ? styles.claudeAvatar : styles.userAvatar)
                   }}
                 >
-                  {message.role === 'assistant' ? 'C' : 'Y'}
+                  {message.role === 'assistant' ? 'AI' : 'Y'}
                 </div>
                 
                 <div style={styles.messageContent}>
