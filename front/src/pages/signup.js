@@ -10,7 +10,7 @@ import "mdb-react-ui-kit/dist/css/mdb.min.css";
 
 function Signup() {
   return (
-    <Layout>
+    <Layout title={'Signup'}>
       <MDBContainer fluid>
 
         {/* <div className="p-5 bg-image" style={{backgroundImage: 'url(https://mdbootstrap.com/img/new/textures/full/171.jpg)', height: '300px'}}></div> */}

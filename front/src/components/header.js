@@ -1,11 +1,10 @@
+// eslint-disable-next-line
+import {MDBContainer,MDBNavbar,MDBNavbarBrand,MDBNavbarToggler,MDBNavbarNav,MDBNavbarItem,MDBNavbarLink,MDBCollapse,MDBIcon} from 'mdb-react-ui-kit';
 import 'bootstrap/dist/css/bootstrap.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "mdb-react-ui-kit/dist/css/mdb.min.css";
-
 import Logo from './../images/logo.png'
-import React, { useState } from 'react';
-// eslint-disable-next-line
-import {MDBContainer,MDBNavbar,MDBNavbarBrand,MDBNavbarToggler,MDBNavbarNav,MDBNavbarItem,MDBNavbarLink,MDBCollapse,MDBIcon} from 'mdb-react-ui-kit';
+import React from 'react';
 
 export default function App() {
 

@@ -190,7 +190,7 @@ const Home = () => {
   };
 
   return (
-    <Layout>
+    <Layout title={'Hate Speech Detection'}>
       <div style={styles.container}>
         <main style={styles.main}>
           <div style={styles.messageContainer}>

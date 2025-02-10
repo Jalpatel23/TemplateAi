@@ -7,7 +7,7 @@ const NotFoundPage = () => {
   const navigate = useNavigate();
 
   return (
-    <Layout>
+    <Layout title={'Page not found'}>
       <div className="d-flex flex-column align-items-center justify-content-center vh-100 text-center bg-light">
         <h1 className="display-1 fw-bold text-primary">404</h1>
         <h2 className="fs-3 fw-semibold mt-3">Page Not Found</h2>

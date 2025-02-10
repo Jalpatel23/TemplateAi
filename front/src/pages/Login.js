@@ -10,7 +10,7 @@ import Layout from '../components/layout';
 
 function Login() {
   return (
-    <Layout>
+    <Layout title={'Login'}>
       <MDBContainer fluid>
 
         {/* <div className="p-5 bg-image" style={{backgroundImage: 'url(https://mdbootstrap.com/img/new/textures/full/171.jpg)', height: '300px'}}></div> */}
