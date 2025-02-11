@@ -1,14 +1,46 @@
-import React from 'react';
 // eslint-disable-next-line 
-import {MDBBtn,MDBContainer,MDBCard,MDBCardBody,MDBCol,MDBRow,MDBInput,MDBCheckbox,MDBIcon} from 'mdb-react-ui-kit';
+import {MDBBtn,MDBContainer,MDBCard,MDBCardBody,MDBCol,MDBRow,MDBInput,MDBCheckbox,MDBIcon,MDBAlert} from 'mdb-react-ui-kit';
 import logo from "./../images/logo.png"
-
+import React, { useState } from 'react';
 import Layout from './../components/layout.js'
 import 'bootstrap/dist/css/bootstrap.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "mdb-react-ui-kit/dist/css/mdb.min.css";
+import axios from 'axios';
+import {useNavigate} from 'react-router-dom';
 
 function Signup() {
+  const [name, setName]= useState("");
+  const [email, setEmail]=useState("");
+  const [password, setPassword]= useState("");
+  const [phone, setPhone]= useState("");
+  const navigate=useNavigate();
+  // eslint-disable-next-line
+  const [notification, setNotification] = useState({ message: "", type: "" });
+
+  //form function
+  const handleSubmit=async(e)=>{
+    e.preventDefault()
+    try{
+      const res = await axios.post('/api/v1/auth/register',
+        {name, email, password, phone})
+
+      if(res && res.data.success){
+        setNotification({message: res.data.message, type: "success"});
+        setTimeout(()=>{
+          navigate("/login");
+        },2000);
+      } 
+      else {
+        setNotification({ message: res.data.message, type: "danger" });
+      }
+    }
+    catch(error) {
+      console.log(error);
+      setNotification({ message: "Something went wrong!", type: "danger" });
+}
+  }
+
   return (
     <Layout title={'Signup'}>
       <MDBContainer fluid>
@@ -25,14 +57,14 @@ function Signup() {
 
 
 
-            <MDBInput wrapperClass='mb-4' label='Full name' id='form1' type='text'/>
-            <MDBInput wrapperClass='mb-4' label='Email' id='form1' type='email'/>
-            <MDBInput wrapperClass='mb-4' label='Phone number' id='form1' type='text'/>
-            <MDBInput wrapperClass='mb-4' label='Password' id='form1' type='password'/>
+            <MDBInput wrapperClass='mb-4' label='Full name' id='form1' type='text' value={name} onChange={(e)=>setName(e.target.value)} required/>
+            <MDBInput wrapperClass='mb-4' label='Email' id='form1' type='email' value={email} onChange={(e)=>setEmail(e.target.value)} required/>
+            <MDBInput wrapperClass='mb-4' label='Phone number' id='form1' type='tel' value={phone} onChange={(e)=>setPhone(e.target.value)} required/>
+            <MDBInput wrapperClass='mb-4' label='Password' id='form1' type='password' value={password} onChange={(e)=>setPassword(e.target.value)} required/>
 
             
 
-            <MDBBtn className='w-100 mb-4' size='md'>sign up</MDBBtn>
+            <MDBBtn className='w-100 mb-4' size='md' onClick={handleSubmit}>Sign Up</MDBBtn>
 
           </MDBCardBody>
         </MDBCard>

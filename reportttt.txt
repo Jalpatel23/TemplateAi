@@ -25,7 +25,6 @@ Making login page
 Making register page
 left:using jsonwebtoken to get token for verifying users
 
-
 w7
 designed header page
 designed footer page
@@ -36,9 +35,23 @@ designed home page
 designed error page
 installed react-router-dom package for routing all the webpages
 
+w8
+made the website seo frendly by using react-helmate package 
+installed concurrently package to run frontend and backend simountaniously
+connected the signup pagw with backend to add user data from frontend
 
 
 
+
+
+
+
+
+
+
+
+//signup if condition ma res && res.data.succes karyu che me par res.data.success aaj aavse
+//controll ma 3 message and 1 error validation che
 password reset 
 connect pages with backend
 
@@ -60,4 +73,4 @@ initials of user if image not uploaded and only first two initials or 1
  
 
 
-v10 done
+v11 almost done
