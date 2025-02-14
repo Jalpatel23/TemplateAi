@@ -40,6 +40,8 @@ made the website seo frendly by using react-helmate package
 installed concurrently package to run frontend and backend simountaniously
 connected the signup pagw with backend to add user data from frontend
 
+w9
+added required validations in login and signup 
 
 
 
@@ -47,8 +49,7 @@ connected the signup pagw with backend to add user data from frontend
 
 
 
-
-
+aceternity
 
 //signup if condition ma res && res.data.succes karyu che me par res.data.success aaj aavse
 //controll ma 3 message and 1 error validation che
@@ -72,5 +73,9 @@ add profile image in db
 initials of user if image not uploaded and only first two initials or 1
  
 
+figma ni link add karvani
 
-v11 almost done
+
+
+v11 done
+v12 started a little

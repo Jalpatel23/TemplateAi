@@ -16,7 +16,7 @@ export const registerController = async (req,res) => {
         if (existingUser){
             return res.status(200).send({
                 success:false,
-                message:"account exists please login"
+                message:"account already exists with this mail"
             })
         }
 
@@ -64,7 +64,7 @@ export const loginController=async(req,res)=>{
         if (!match) {
             return res.status(200).send({
                 success: false,
-                message: "Invalid Passwordddddd",
+                message: "Invalid Password",
             })
         }
         

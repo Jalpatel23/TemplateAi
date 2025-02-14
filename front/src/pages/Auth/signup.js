@@ -1,5 +1,5 @@
 // eslint-disable-next-line 
-import {MDBBtn,MDBContainer,MDBCard,MDBCardBody,MDBCol,MDBRow,MDBInput,MDBCheckbox,MDBIcon,MDBAlert} from 'mdb-react-ui-kit';
+import {MDBBtn,MDBContainer,MDBCard,MDBCardBody,MDBCol,MDBRow,MDBInput,MDBCheckbox,MDBIcon,MDBTypography} from 'mdb-react-ui-kit';
 import logo from "./../../images/logo.png"
 import React, { useState } from 'react';
 import Layout from './../../components/layout.js'
@@ -15,7 +15,6 @@ function Signup() {
   const [password, setPassword]= useState("");
   const [phone, setPhone]= useState("");
   const navigate=useNavigate();
-  // eslint-disable-next-line
   const [notification, setNotification] = useState({ message: "", type: "" });
 
   //form function
@@ -31,44 +30,54 @@ function Signup() {
           navigate("/login");
         },2000);
       } 
-      else {
-        setNotification({ message: res.data.message, type: "danger" });
+      else{
+        setNotification({ message: res.data.message, type: "danger"});
       }
     }
-    catch(error) {
+    catch(error){
       console.log(error);
-      setNotification({ message: "Something went wrong!", type: "danger" });
-}
+      setNotification({ 
+        message: error.response?.data?.message || "Something went wrong!", 
+        type: "danger" 
+      });
+    }
   }
 
   return (
     <Layout title={'Signup'}>
       <MDBContainer fluid>
-
-        {/* <div className="p-5 bg-image" style={{backgroundImage: 'url(https://mdbootstrap.com/img/new/textures/full/171.jpg)', height: '300px'}}></div> */}
         <br></br><br></br><br></br><br></br>
         <MDBCard className='mx-5 mb-5 p-5 shadow-5 mx-auto' style={{width:'500px', background: 'hsla(0, 0%, 100%, 0.8)', backdropFilter: 'blur(30px)'}}>
           <MDBCardBody className='p-5 text-center'>
+            {notification.message && (
+              <div 
+                className={`alert alert-${notification.type} alert-dismissible fade show mb-4`}
+                role="alert"
+              >
+                <MDBTypography tag='div' className='mb-0'>
+                  {notification.message}
+                </MDBTypography>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setNotification({ message: "", type: "" })}
+                ></button>
+              </div>
+            )}
 
             <h1 className="fw-bold mb-4">SIGN UP NOW</h1>
 
-
             <img src={logo} style={{width: '185px'}} alt="logo" className=" mb-4"/>
-
-
 
             <MDBInput wrapperClass='mb-4' label='Full name' id='form1' type='text' value={name} onChange={(e)=>setName(e.target.value)} required/>
             <MDBInput wrapperClass='mb-4' label='Email' id='form1' type='email' value={email} onChange={(e)=>setEmail(e.target.value)} required/>
             <MDBInput wrapperClass='mb-4' label='Phone number' id='form1' type='tel' value={phone} onChange={(e)=>setPhone(e.target.value)} required/>
             <MDBInput wrapperClass='mb-4' label='Password' id='form1' type='password' value={password} onChange={(e)=>setPassword(e.target.value)} required/>
 
-            
-
             <MDBBtn className='w-100 mb-4' size='md' onClick={handleSubmit}>Sign Up</MDBBtn>
 
           </MDBCardBody>
         </MDBCard>
-
       </MDBContainer>
     </Layout>
   );
