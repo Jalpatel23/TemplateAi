@@ -1,12 +1,11 @@
-import React from 'react';
 // eslint-disable-next-line 
 import {MDBBtn,MDBContainer,MDBCard,MDBCardBody,MDBCol,MDBRow,MDBInput,MDBCheckbox,MDBIcon} from 'mdb-react-ui-kit';
-import logo from "./../images/logo.png"
-
+import React from 'react';
+import logo from "./../../images/logo.png"
 import 'bootstrap/dist/css/bootstrap.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "mdb-react-ui-kit/dist/css/mdb.min.css";
-import Layout from '../components/layout';
+import Layout from '../../components/layout';
 
 function Login() {
   return (

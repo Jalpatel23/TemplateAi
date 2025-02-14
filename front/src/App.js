@@ -1,6 +1,6 @@
 import {Routes,Route} from 'react-router-dom';
-import Login from './pages/login.js';
-import Signup from './pages/signup.js';
+import Login from './pages/Auth/login.js';
+import Signup from './pages/Auth/signup.js';
 import Home from './pages/home.js'
 import Error404 from './pages/pagenotfound.js';
 

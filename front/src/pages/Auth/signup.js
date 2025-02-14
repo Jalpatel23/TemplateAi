@@ -1,8 +1,8 @@
 // eslint-disable-next-line 
 import {MDBBtn,MDBContainer,MDBCard,MDBCardBody,MDBCol,MDBRow,MDBInput,MDBCheckbox,MDBIcon,MDBAlert} from 'mdb-react-ui-kit';
-import logo from "./../images/logo.png"
+import logo from "./../../images/logo.png"
 import React, { useState } from 'react';
-import Layout from './../components/layout.js'
+import Layout from './../../components/layout.js'
 import 'bootstrap/dist/css/bootstrap.css';
 import "bootstrap/dist/css/bootstrap.min.css";
 import "mdb-react-ui-kit/dist/css/mdb.min.css";
