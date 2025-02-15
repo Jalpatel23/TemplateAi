@@ -1,4 +1,4 @@
-// eslint-disable-next-line 
+// eslint-disable-next-line
 import {MDBBtn,MDBContainer,MDBCard,MDBCardBody,MDBCol,MDBRow,MDBInput,MDBCheckbox,MDBIcon,MDBTypography} from 'mdb-react-ui-kit';
 import React, { useState } from 'react';
 import logo from "./../../images/logo.png"
@@ -8,13 +8,15 @@ import "mdb-react-ui-kit/dist/css/mdb.min.css";
 import Layout from '../../components/layout';
 import axios from 'axios';
 import {useNavigate} from 'react-router-dom';
+import { useAuth } from '../../context/auth';
 
 function Login() {
   const [email, setEmail]=useState("");
   const [password, setPassword]= useState("");
   const navigate=useNavigate();
   const [notification, setNotification] = useState({ message: "", type: "" });
-  
+  const [auth, setAuth]=useAuth();
+
   //form function
   const handleSubmit=async(e)=>{
     e.preventDefault()
@@ -22,13 +24,29 @@ function Login() {
       const res = await axios.post('/api/v1/auth/Login',
         {email, password})
 
-      if(res && res.data.success){
-        setNotification({message: res.data.message || "Login successful!", type: "success"});
-        setTimeout(()=>{
+      if(res?.data?.success){
+        // First update localStorage
+        localStorage.setItem('auth', JSON.stringify(res.data));
+        
+        // Then update auth context
+        setAuth({
+          ...auth,
+          user: res.data.user,
+          token: res.data.token
+        });
+
+        // Show success message
+        setNotification({
+          message: res.data.message || "Login successful!", 
+          type: "success"
+        });
+
+        // Navigate after a delay
+        setTimeout(() => {
           navigate("/");
-        },2000);
+        }, 2000);
       } 
-      else{
+      else {
         setNotification({ 
           message: res.data.message || "Login failed. Please check your credentials.", 
           type: "danger" 

@@ -41,8 +41,11 @@ installed concurrently package to run frontend and backend simountaniously
 connected the signup pagw with backend to add user data from frontend
 
 w9
-added required validations in login and signup 
-
+made wireframe using firga which had all the navigation details
+added required validations in login and signup with popup that shows errors
+saving user data in localstorage 
+and accesing that localstorage to get user information
+corrected header for before and after login
 
 
 
@@ -75,7 +78,7 @@ initials of user if image not uploaded and only first two initials or 1
 
 figma ni link add karvani
 
-
+jash ne puch user data localstorage ma store karyo
 
 v11 done
 v12 started a little

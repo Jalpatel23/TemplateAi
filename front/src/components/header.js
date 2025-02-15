@@ -5,8 +5,19 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "mdb-react-ui-kit/dist/css/mdb.min.css";
 import Logo from './../images/logo.png'
 import React from 'react';
+import { useAuth } from '../context/auth';
 
 export default function App() {
+  const [auth,setAuth]=useAuth();
+
+  const handleLogout=()=>{
+    setAuth({
+      ...auth,
+      user: null,
+      token: "",
+    })
+    localStorage.removeItem("auth");
+  }
 
   return (
     <MDBNavbar expand='lg' light bgColor='light' className='fw-bold'>
@@ -28,20 +39,35 @@ export default function App() {
               <MDBNavbarLink active aria-current='page' href='/' >Home</MDBNavbarLink>
             </MDBNavbarItem>
             <MDBNavbarItem className="px-4">
-              <MDBNavbarLink href='#'>Profile</MDBNavbarLink>
-            </MDBNavbarItem >
-            <MDBNavbarItem className="px-4">
               <MDBNavbarLink href='#' >Pricing</MDBNavbarLink>
             </MDBNavbarItem>
-            <MDBNavbarItem className="px-4">
-              <MDBNavbarLink href='#' >history</MDBNavbarLink>
-            </MDBNavbarItem>
-            <MDBNavbarItem className="px-4">
-              <MDBNavbarLink href='/signup'>SignUp</MDBNavbarLink>
-            </MDBNavbarItem>
-            <MDBNavbarItem className="px-4">
-              <MDBNavbarLink href='/login'>Login</MDBNavbarLink>
-            </MDBNavbarItem>
+            
+            {
+              !auth.user ? (
+                <>
+                  
+                  <MDBNavbarItem className="px-4">
+                    <MDBNavbarLink href='/signup'>SignUp</MDBNavbarLink>
+                  </MDBNavbarItem>
+                  <MDBNavbarItem className="px-4">
+                    <MDBNavbarLink href='/login'>Login</MDBNavbarLink>
+                  </MDBNavbarItem>
+                </>
+              ):(
+                <>
+                  <MDBNavbarItem className="px-4">
+                    <MDBNavbarLink href='/profile'>Profile</MDBNavbarLink>
+                  </MDBNavbarItem >
+                  <MDBNavbarItem className="px-4">
+                    <MDBNavbarLink href='/history' >history</MDBNavbarLink>
+                  </MDBNavbarItem>
+                  <MDBNavbarItem className="px-4">
+                    <MDBNavbarLink href='/login' onClick={handleLogout}>Logout</MDBNavbarLink>
+                  </MDBNavbarItem>
+                </>
+              )
+            }
+            
             {/* <MDBNavbarItem>
               <MDBNavbarLink disabled href='#' tabIndex={-1} aria-disabled='true'>Disabled</MDBNavbarLink>
             </MDBNavbarItem> */}

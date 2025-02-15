@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Send, ThumbsUp, ThumbsDown } from 'lucide-react';
 import Layout from '../components/layout';
 
+import { useAuth } from '../context/auth';
+
 const styles = {
   container: {
     display: 'flex',
@@ -143,6 +145,7 @@ const Home = () => {
   const [isFocused, setIsFocused] = useState(false);
   const messagesEndRef = useRef(null);
   const textAreaRef = useRef(null);
+  const [auth, setAuth]=useAuth();
 
   const adjustTextAreaHeight = () => {
     const textarea = textAreaRef.current;
@@ -191,6 +194,7 @@ const Home = () => {
 
   return (
     <Layout title={'Hate Speech Detection'}>
+      <pre>{JSON.stringify(auth,null,4)} </pre>
       <div style={styles.container}>
         <main style={styles.main}>
           <div style={styles.messageContainer}>
