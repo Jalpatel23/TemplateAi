@@ -46,6 +46,7 @@ added required validations in login and signup with popup that shows errors
 saving user data in localstorage 
 and accesing that localstorage to get user information
 corrected header for before and after login
+added routing of webpages so that only logged in users can access some content(like profile,history, etc...)
 
 
 
@@ -79,6 +80,8 @@ initials of user if image not uploaded and only first two initials or 1
 figma ni link add karvani
 
 jash ne puch user data localstorage ma store karyo
+others about file directories
 
-v11 done
-v12 started a little
+
+
+v13 done

@@ -12,4 +12,9 @@ router.post('/login',loginController);
 
 router.get('/test',requireSignIn,isAdmin,testController );//order change na karto
 
+//route to prevent not logedin user for accesing things
+router.get("/user-auth", requireSignIn, (req,res)=>{
+    res.status(200).send({ok:true})
+})
+
 export default router;
