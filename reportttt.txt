@@ -54,8 +54,7 @@ added routing of webpages so that only logged in users can access some content(l
 
 
 aceternity
-
-//signup if condition ma res && res.data.succes karyu che me par res.data.success aaj aavse
+// signup and login ma 
 //controll ma 3 message and 1 error validation che
 password reset 
 connect pages with backend
@@ -72,15 +71,14 @@ home page par searchbar ne badhuu dekkhai butt koi search button par click kare 
     and share karva thi points made profile banava thi points madee
     ask for payment when points are over
 
-user profile on top left
+user profile icon on top left
 add profile image in db
-initials of user if image not uploaded and only first two initials or 1
- 
-
 figma ni link add karvani
 
-jash ne puch user data localstorage ma store karyo
-others about file directories
+
+
+
+jash ne puch about file directories
 
 
 

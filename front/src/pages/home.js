@@ -145,7 +145,14 @@ const Home = () => {
   const [isFocused, setIsFocused] = useState(false);
   const messagesEndRef = useRef(null);
   const textAreaRef = useRef(null);
-  const [auth, setAuth]=useAuth();
+  const [auth] = useAuth();
+  const username = auth?.user?.name || "Guest";
+  
+  const getInitials = (name) => {
+    if (!name) return "G";
+    const words = name.trim().split(" ");
+    return words.map(word => word[0].toUpperCase()).join("").slice(0, 2);
+  };
 
   const adjustTextAreaHeight = () => {
     const textarea = textAreaRef.current;
@@ -200,8 +207,8 @@ const Home = () => {
           <div style={styles.messageContainer}>
             <div style={styles.welcomeMessage}>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <div style={{ ...styles.avatar, ...styles.claudeAvatar }}> jp </div>
-                <p style={{ margin: 0 }}>Hello user</p>
+                <div style={{ ...styles.avatar, ...styles.claudeAvatar }}> HSD </div>
+                <p style={{ margin: 0 }}>Hello {username}</p>
               </div>
             </div>
 
@@ -219,7 +226,7 @@ const Home = () => {
                     ...(message.role === 'assistant' ? styles.claudeAvatar : styles.userAvatar)
                   }}
                 >
-                  {message.role === 'assistant' ? 'AI' : 'Y'}
+                  {message.role === 'assistant' ? 'HSD' : getInitials(username)}
                 </div>
                 
                 <div style={styles.messageContent}>
