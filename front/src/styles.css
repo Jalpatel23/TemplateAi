@@ -1,0 +1,61 @@
+.new-chat-btn {
+  background-color: black;
+  color: white;
+  width: 40px;
+  height: 40px;
+  border-radius: 5px;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.3s ease-in-out;
+}
+
+/* Glow effect on hover */
+.new-chat-btn:hover {
+  box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.9);
+}
+
+/* Remove glow when focus is lost */
+.new-chat-btn:focus,
+.new-chat-btn:active {
+  box-shadow: none;
+}
+
+
+
+.sidebar-button {
+  background-color: black !important;
+  color: white !important;
+  width: 100%;
+  text-align: left;
+  transition: box-shadow 0.3s ease-in-out, background-color 0.3s ease-in-out;
+  border: none !important;
+}
+
+/* Glow effect on hover */
+.sidebar-button:hover {
+  box-shadow: 0px 0px 10px rgba(255, 255, 255, 0.8), 0px 0px 20px rgba(255, 255, 255, 0.6);
+  background-color: #222 !important;
+}
+
+
+
+
+
+.resizer {
+  width: 5px;
+  cursor: ew-resize;
+  height: 100%;
+  position: absolute;
+  right: 0;
+  top: 0;
+  background-color: #666;
+  user-select: none; /* Prevents text selection */
+}
+
+/* Disable text selection on the entire page when resizing */
+.no-select {
+  user-select: none;
+}
+

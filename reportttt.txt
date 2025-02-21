@@ -82,4 +82,33 @@ jash ne puch about file directories
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+main:
+https://www.figma.com/design/qlsTTJVE8MkRVCiZpl66Xr/Chatbot---Chat-Window-UI-Design---Modern-Chatbot-(Community)?node-id=0-1&p=f&t=GvqnE32DbJP111UE-0
+
+
+login and signup mate
+https://www.figma.com/design/fPwjaTutlvRco1Eollkh0Z/BotBuzz-AI-chat-app-(Community) 
+
+
+
+
+
+
+
+
+
+
+
 v13 done

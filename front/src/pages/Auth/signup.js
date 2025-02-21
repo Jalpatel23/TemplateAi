@@ -71,7 +71,22 @@ function Signup() {
 
             <MDBInput wrapperClass='mb-4' label='Full name' id='form1' type='text' value={name} onChange={(e)=>setName(e.target.value)} required/>
             <MDBInput wrapperClass='mb-4' label='Email' id='form1' type='email' value={email} onChange={(e)=>setEmail(e.target.value)} required/>
-            <MDBInput wrapperClass='mb-4' label='Phone number' id='form1' type='tel' value={phone} onChange={(e)=>setPhone(e.target.value)} required/>
+            
+            <MDBInput
+              wrapperClass="mb-4"
+              label="Phone number"
+              id="form1"
+              type="tel"
+              inputMode="numeric"
+              value={phone}
+              onChange={(e) => {
+                const numericValue = e.target.value.replace(/\D/g, ""); // Remove non-numeric characters
+                setPhone(numericValue);
+              }}
+              required
+          />
+
+            
             <MDBInput wrapperClass='mb-4' label='Password' id='form1' type='password' value={password} onChange={(e)=>setPassword(e.target.value)} required/>
 
             <MDBBtn className='w-100 mb-4' size='md' onClick={handleSubmit}>Sign Up</MDBBtn>

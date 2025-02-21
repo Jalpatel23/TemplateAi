@@ -6,11 +6,13 @@ import Error404 from './pages/pagenotfound.js';
 import ForgotPass from './pages/Auth/forgotpass.js';
 import Profile from './pages/profile.js';
 import PrivateRoute from './routes/private.js';
+import ChatApp from './pages/temp.js';
 
 function App() {
   return (
     <>
       <Routes>
+        <Route path='/temp' element={<ChatApp/>}/>
         <Route path='/' element={<Home/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/signup' element={<Signup/>}/>
