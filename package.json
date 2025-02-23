@@ -7,7 +7,7 @@
     "start": "node server.js",
     "server": "nodemon server.js",
     "front": "npm start --prefix ./front",
-    "dev": "concurrently \"npm run server\" \"npm run front\""
+    "jp": "concurrently \"npm run server\" \"npm run front\""
   },
   "keywords": [],
   "author": "",
