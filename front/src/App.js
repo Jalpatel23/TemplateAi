@@ -7,11 +7,12 @@ import ForgotPass from './pages/Auth/forgotpass.js';
 import Profile from './pages/profile.js';
 import PrivateRoute from './routes/private.js';
 import ChatApp from './pages/temp.js';
-
+import ChatApp2 from './pages/temp2.js';
 function App() {
   return (
     <>
       <Routes>
+        <Route path='/temp2' element={<ChatApp2/>}/>
         <Route path='/temp' element={<ChatApp/>}/>
         <Route path='/' element={<Home/>}/>
         <Route path='/login' element={<Login/>}/>
