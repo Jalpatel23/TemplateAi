@@ -48,6 +48,13 @@ and accesing that localstorage to get user information
 corrected header for before and after login
 added routing of webpages so that only logged in users can access some content(like profile,history, etc...)
 
+w10
+made signup and login page entirely different. 
+made a homepage with a dark theme.
+made proper validation during signup in front end and backend both.
+
+
+
 
 
 
@@ -110,5 +117,11 @@ https://www.figma.com/design/fPwjaTutlvRco1Eollkh0Z/BotBuzz-AI-chat-app-(Communi
 
 
 
-write 14 by mistake in previous commit
 v14 forgot password and dropdown menu ma login and profile and logout che
+
+v15 made admin dashboard for user and admin
+    and made protected route.(watch video to make protected route for paid users)
+    such that same button opens different webpages and user cannot access adminpage
+    made products, create products, etc...
+
+v16 

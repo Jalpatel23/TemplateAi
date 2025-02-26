@@ -7,9 +7,9 @@ import ForgotPass from './pages/Auth/forgotpass.js';
 import Profile from './pages/profile.js';
 import PrivateRoute from './routes/private.js';
 
-import ChatApp from './pages/temp.js';
-import ChatApp2 from './pages/temp2.js';
-import Signup2 from './pages/tempsignup.js'
+import Temp from './pages/temp.js';
+import  Temp2 from './pages/temp2.js';
+import Tempsignup from './pages/tempsignup.js'
 
 
 
@@ -17,9 +17,9 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path='/tempsignup' element={<Signup2/>}/>
-        <Route path='/temp2' element={<ChatApp2/>}/>
-        <Route path='/temp' element={<ChatApp/>}/>
+        <Route path='/tempsignup' element={<Tempsignup/>}/>
+        <Route path='/temp2' element={<Temp2/>}/>
+        <Route path='/temp' element={<Temp/>}/>
 
 
         <Route path='/' element={<Home/>}/>
