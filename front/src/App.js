@@ -6,6 +6,7 @@ import Error404 from './pages/pagenotfound.js';
 import ForgotPass from './pages/Auth/forgotpass.js';
 import Profile from './pages/profile.js';
 import PrivateRoute from './routes/private.js';
+import './styles.css'
 
 import Temp from './pages/temp.js';
 import  Temp2 from './pages/temp2.js';
@@ -25,7 +26,7 @@ function App() {
         <Route path='/' element={<Home/>}/>
         <Route path='/login' element={<Login/>}/>
         <Route path='/signup' element={<Signup/>}/>
-        <Route path='/forgotpass' element={<ForgotPass/>}/>
+        <Route path='/forgot-password' element={<ForgotPass/>}/>
         <Route path='*' element={<Error404/>}/>
 
         <Route path="profile" element={<PrivateRoute/>}>

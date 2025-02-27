@@ -1,0 +1,271 @@
+/* Global App Container */
+.app-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #1a1a1a;
+  color: #ffffff;
+}
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background-color: #171717;
+  border-right: 1px solid #2f2f2f;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Sidebar Hidden */
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  background-color: #212121;
+  transition: margin-left 0.3s ease-in-out;
+  margin-left: 260px; /* Adjust when sidebar is visible */
+}
+
+/* Main Content When Sidebar is Hidden */
+.main-content.without-sidebar {
+  margin-left: 0;
+}
+
+/* Sidebar Toggle Button */
+.open-sidebar-btn {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background-color: #171717;
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.open-sidebar-btn:hover {
+  background-color: #2a2b32;
+}
+
+/* Conversation List */
+.conversation-list {
+  overflow-y: auto;
+}
+
+.conversation-item {
+  padding: 8px;
+  margin: 2px 0;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #ececf1;
+  transition: background 0.3s ease-in-out;
+}
+
+.conversation-item:hover {
+  background-color: #2a2b32;
+}
+
+/* Chat Area */
+.chat-area {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 2rem;
+  max-height: calc(100vh - 100px);
+}
+
+/* Chat Messages */
+.message {
+  display: flex;
+  margin-bottom: 1.5rem;
+}
+
+.message-content {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Assistant Message */
+.message.assistant .message-content {
+  background-color: #303030;
+  padding: 1rem;
+  border-radius: 6px;
+}
+
+/* Message Actions */
+.message-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.message-actions .btn-link {
+  color: #ececf1;
+  padding: 4px;
+}
+
+.message-actions .btn-link:hover {
+  color: #ffffff;
+  background-color: #2a2b32;
+  border-radius: 4px;
+}
+
+/* Input Area */
+.input-area {
+  padding: 1rem;
+  background-color: #212121;
+  border-top: 1px solid #2f2f2f;
+  position: fixed;
+  bottom: 0;
+  left: 260px; /* Align with content */
+  right: 0;
+  transition: left 0.3s ease-in-out;
+}
+
+.input-area.full-width {
+  left: 0;
+}
+
+/* Input Container */
+.input-container {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  display: flex;
+  align-items: center;
+  background-color: #303030;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+/* Input Field */
+.input-container .form-control {
+  background-color: transparent;
+  border: none;
+  color: #ffffff;
+  flex: 1;
+}
+
+.input-container .form-control:focus {
+  box-shadow: none;
+  background-color: transparent;
+}
+
+/* Button Styles */
+.btn-link {
+  background-color: transparent !important;
+  border: none !important;
+  color: #ececf1 !important;
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-link:hover {
+  color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+.btn-link svg {
+  color: inherit !important;
+}
+
+/* Profile Icon (Top Right) */
+.profile-icon {
+  position: absolute;
+  top: 10px;
+  right: 20px;
+  cursor: pointer;
+  color: #ececf1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s ease-in-out;
+}
+
+.profile-icon:hover {
+  background-color: #2a2b32;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+/* Sidebar */
+.sidebar {
+  width: 260px;
+  background-color: #171717;
+  border-right: 1px solid #2f2f2f;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  transition: transform 0.3s ease-in-out;
+}
+
+/* Sidebar Closed */
+.sidebar.closed {
+  transform: translateX(-100%);
+}
+
+/* Main Content */
+.main-content {
+  flex: 1;
+  background-color: #212121;
+  transition: margin-left 0.3s ease-in-out;
+  margin-left: 260px; /* When sidebar is visible */
+}
+
+/* Main Content When Sidebar is Hidden */
+.main-content.without-sidebar {
+  margin-left: 0;
+}
+
+/* Input Area Adjustment */
+.input-area {
+  left: 260px; /* Align with content */
+  transition: left 0.3s ease-in-out;
+}
+
+.input-area.full-width {
+  left: 0;
+}
+
+/* Open Sidebar Button */
+.open-sidebar-btn {
+  position: fixed;
+  top: 20px;
+  left: 10px;
+  background-color: #171717;
+  border: none;
+  padding: 8px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+  z-index: 1000;
+}
+
+.open-sidebar-btn:hover {
+  background-color: #2a2b32;
+}

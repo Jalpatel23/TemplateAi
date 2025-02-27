@@ -1,291 +1,204 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Send, ThumbsUp, ThumbsDown } from 'lucide-react';
-import Layout from '../components/layout';
+"use client";
+import { useState, useRef, useEffect } from "react";
+import { MessageCircle, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal, Plus, ChevronsRight, ChevronsLeft, User, LogOut, Settings, LogIn } from "lucide-react";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { useAuth } from "../context/auth";
+import { useNavigate } from "react-router-dom";
 
-import { useAuth } from '../context/auth';
 
-const styles = {
-  container: {
-    display: 'flex',
-    flexDirection: 'column',
-    height: '100vh',
-    backgroundColor: '#ffffff'
-  },
-  header: {
-    borderBottom: '1px solid #e5e7eb',
-    padding: '1rem'
-  },
-  headerContent: {
-    maxWidth: '64rem',
-    margin: '0 auto',
-    display: 'flex',
-    alignItems: 'center'
-  },
-  headerTitle: {
-    fontSize: '1.25rem',
-    fontWeight: '600',
-    margin: 0
-  },
-  main: {
-    flex: 1,
-    overflowY: 'auto'
-  },
-  messageContainer: {
-    maxWidth: '64rem',
-    margin: '0 auto',
-    padding: '1rem',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '1.5rem'
-  },
-  welcomeMessage: {
-    backgroundColor: '#f9fafb',
-    padding: '1rem',
-    borderRadius: '0.5rem',
-    border: '1px solid #f3f4f6'
-  },
-  message: {
-    display: 'flex',
-    gap: '1rem',
-    padding: '1rem',
-    borderRadius: '0.5rem'
-  },
-  assistantMessage: {
-    backgroundColor: '#f9fafb'
-  },
-  avatar: {
-    width: '2rem',
-    height: '2rem',
-    borderRadius: '50%',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: '0.875rem'
-  },
-  claudeAvatar: {
-    backgroundColor: '#dbeafe',
-    color: '#2563eb'
-  },
-  userAvatar: {
-    backgroundColor: '#f3f4f6',
-    color: '#4b5563'
-  },
-  messageContent: {
-    flex: 1,
-    wordBreak: 'break-word'
-  },
-  feedbackButtons: {
-    marginTop: '1rem',
-    display: 'flex',
-    gap: '0.5rem'
-  },
-  feedbackButton: {
-    padding: '0.25rem',
-    borderRadius: '0.25rem',
-    border: 'none',
-    backgroundColor: 'transparent',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  footer: {
-    borderTop: '1px solid #e5e7eb'
-  },
-  footerContent: {
-    maxWidth: '64rem',
-    margin: '0 auto',
-    padding: '1rem'
-  },
-  form: {
-    position: 'relative'
-  },
-  textarea: {
-    width: '100%',
-    resize: 'none',
-    borderRadius: '0.5rem',
-    border: '1px solid #d1d5db',
-    padding: '1rem',
-    paddingRight: '3rem',
-    minHeight: '56px',
-    maxHeight: '200px',
-    outline: 'none',
-    fontFamily: 'inherit',
-    fontSize: 'inherit'
-  },
-  textareaFocus: {
-    borderColor: '#3b82f6',
-    boxShadow: '0 0 0 1px #3b82f6'
-  },
-  sendButton: {
-    position: 'absolute',
-    right: '0.75rem',
-    bottom: '0.75rem',
-    padding: '0.25rem',
-    borderRadius: '0.25rem',
-    border: 'none',
-    backgroundColor: 'transparent',
-    cursor: 'pointer',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  sendButtonDisabled: {
-    cursor: 'default',
-    color: '#9ca3af'
-  },
-  sendButtonEnabled: {
-    color: '#2563eb'
-  }
-};
-
-const Home = () => {
+export default function App() {
   const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState('');
-  const [isFocused, setIsFocused] = useState(false);
-  const messagesEndRef = useRef(null);
-  const textAreaRef = useRef(null);
-  const [auth] = useAuth();
-  const username = auth?.user?.name || "Guest";
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const chatEndRef = useRef(null);
+  const dropdownRef = useRef(null);
+  const [auth,setAuth] = useAuth();
+  const navigate = useNavigate();
+
+
+
+
+  const handleLogout=()=>{
+    setAuth({
+      ...auth,
+      user: null,
+      token: "",
+    })
+    localStorage.removeItem("auth");
+  }
   
-  const getInitials = (name) => {
-    if (!name) return "G";
-    const words = name.trim().split(" ");
-    return words.map(word => word[0].toUpperCase()).join("").slice(0, 2);
+
+  // Auto-scroll to the latest message
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle sending messages
+  const sendMessage = (text) => {
+    if (!text.trim()) return;
+    setMessages((prevMessages) => [
+      ...prevMessages,
+      { type: "user", text },
+      { type: "assistant", text: "This is a dummy response from AI!" }
+    ]);
   };
 
-  const adjustTextAreaHeight = () => {
-    const textarea = textAreaRef.current;
-    if (textarea) {
-      textarea.style.height = 'auto';
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
+  // Handle Enter key press
+  const handleKeyPress = (e) => {
+    if (e.key === "Enter") {
+      sendMessage(e.target.value);
+      e.target.value = "";
     }
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  useEffect(() => {
-    adjustTextAreaHeight();
-  }, [inputValue]);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!inputValue.trim()) return;
-    
-    const newMessages = [
-      ...messages,
-      { 
-        role: 'user', 
-        content: inputValue.trim() 
-      }
-    ];
-
-    const claudeResponse = {
-      role: 'assistant',
-      content: `You said: "${inputValue.trim()}" (This is a demo response)`
-    };
-
-    setMessages(newMessages);
-    setTimeout(() => {
-      setMessages([...newMessages, claudeResponse]);
-    }, 500);
-
-    setInputValue('');
-  };
-
   return (
-    <Layout title={'Hate Speech Detection'}>
-      <pre>{JSON.stringify(auth,null,4)} </pre>
-      <div style={styles.container}>
-        <main style={styles.main}>
-          <div style={styles.messageContainer}>
-            <div style={styles.welcomeMessage}>
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <div style={{ ...styles.avatar, ...styles.claudeAvatar }}> HSD </div>
-                <p style={{ margin: 0 }}>Hello {username}</p>
+    <div className={`app-container d-flex ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
+      
+      {/* Profile Icon (Top Right) */}
+      <div className="profile-container position-absolute top-0 end-0 m-3" ref={dropdownRef}>
+        <User
+          size={30}
+          className="text-white cursor-pointer"
+          onClick={() => setDropdownOpen(!isDropdownOpen)}
+        />
+
+        {isDropdownOpen && (
+          <div
+            className="dropdown-menu show position-absolute mt-2 p-2 shadow"
+            style={{
+              backgroundColor: "#000",
+              borderRadius: "12px",
+              width: "180px",
+              left: "0",
+              transform: "translateX(-100%)",
+              top: "100%",
+              zIndex: 1000,
+            }}
+          >
+            <button className="btn sidebar-button py-2 mb-2 text-start text-white">
+              <User size={15} className="me-2" /> Profile
+            </button>
+            <button className="btn sidebar-button py-2 mb-2 text-start text-white">
+              <Settings size={15} className="me-2" /> Settings
+            </button>
+
+            {
+              !auth.user ?(
+                <button className="btn sidebar-button py-2 text-start text-white" onClick={() => navigate('/login')}>
+                  <LogIn size={15} className="me-2"/> Log in
+                </button>
+              ):(
+                <button className="btn sidebar-button py-2 text-start text-white" onClick={handleLogout}>
+                  <LogOut size={15} className="me-2" /> Log out
+                </button>
+              )
+            }
+
+          </div>
+        )}
+      </div>
+
+
+
+
+
+      {/* Sidebar */}
+      <div className={`sidebar ${sidebarOpen ? "" : "closed"} d-none d-md-flex flex-column`}>
+        <div className="d-flex justify-content-between align-items-center p-2">
+          <button className="btn btn-link">
+            <Plus size={20} />
+          </button>
+          <button className="btn btn-link" onClick={() => setSidebarOpen(false)}>
+            <ChevronsLeft size={20} />
+          </button>
+        </div>
+
+        <div className="p-2 text-light d-flex align-items-center gap-2" style={{ fontSize: "18px" }}>
+          <MessageCircle size={16} />
+          <span>Hate Speech Detection</span>
+        </div>
+
+        <div className="conversation-list">
+          <div className="px-3 py-2">
+            <small className="text-muted">Today</small>
+            <div className="conversation-item">Hello conversation</div>
+            <div className="conversation-item">Login Form Validation</div>
+            <div className="conversation-item">Login Form Enhancement</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Open Sidebar Button */}
+      {!sidebarOpen && (
+        <button className="open-sidebar-btn" onClick={() => setSidebarOpen(true)}>
+          <ChevronsRight size={24} />
+        </button>
+      )}
+
+      {/* Main Content */}
+      <div className={`main-content ${sidebarOpen ? "" : "without-sidebar"} d-flex flex-column`}>
+        
+        {/* Chat Area */}
+        <div className="chat-area flex-grow-1">
+          <pre>{JSON.stringify(auth,null,4)} </pre>   {/*efvlenfljwhglejwr/ljglbhe */}
+          {messages.map((message, index) => (
+            <div key={index} className={`message ${message.type}`}>
+              <div className="message-content">
+                <p>{message.text}</p>
+                {message.type === "assistant" && (
+                  <div className="message-actions">
+                    <button className="btn btn-link">
+                      <Copy size={16} />
+                    </button>
+                    <button className="btn btn-link">
+                      <ThumbsUp size={16} />
+                    </button>
+                    <button className="btn btn-link">
+                      <ThumbsDown size={16} />
+                    </button>
+                    <button className="btn btn-link">
+                      <RotateCcw size={16} />
+                    </button>
+                    <button className="btn btn-link">
+                      <MoreHorizontal size={16} />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
+          ))}
+          {/* Auto-scroll anchor */}
+          <div ref={chatEndRef}></div>
+        </div>
 
-            {messages.map((message, index) => (
-              <div 
-                key={index} 
-                style={{
-                  ...styles.message,
-                  ...(message.role === 'assistant' ? styles.assistantMessage : {})
-                }}
-              >
-                <div 
-                  style={{
-                    ...styles.avatar,
-                    ...(message.role === 'assistant' ? styles.claudeAvatar : styles.userAvatar)
-                  }}
-                >
-                  {message.role === 'assistant' ? 'HSD' : getInitials(username)}
-                </div>
-                
-                <div style={styles.messageContent}>
-                  <div>{message.content}</div>
-                  
-                  {message.role === 'assistant' && (
-                    <div style={styles.feedbackButtons}>
-                      <button style={styles.feedbackButton}>
-                        <ThumbsUp size={16} color="#6b7280" />
-                      </button>
-                      <button style={styles.feedbackButton}>
-                        <ThumbsDown size={16} color="#6b7280" />
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-            <div ref={messagesEndRef} />
-          </div>
-        </main>
-
-        <footer style={styles.footer}>
-          <div style={styles.footerContent}>
-            <form onSubmit={handleSubmit} style={styles.form}>
-              <textarea
-                ref={textAreaRef}
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                onFocus={() => setIsFocused(true)}
-                onBlur={() => setIsFocused(false)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(e);
-                  }
-                }}
-                placeholder="Message..."
-                style={{
-                  ...styles.textarea,
-                  ...(isFocused ? styles.textareaFocus : {})
-                }}
-              />
-              <button
-                type="submit"
-                disabled={!inputValue.trim()}
-                style={{
-                  ...styles.sendButton,
-                  ...(inputValue.trim() ? styles.sendButtonEnabled : styles.sendButtonDisabled)
-                }}
-              >
-                <Send size={20} />
+        {/* Input Area */}
+        <div className={`input-area ${sidebarOpen ? "" : "full-width"}`}>
+          <div className="input-container">
+            <input type="text" placeholder="Ask anything" className="form-control" onKeyDown={handleKeyPress} />
+            <div className="input-buttons">
+              <button className="btn btn-link">
+                <MessageCircle size={16} />
               </button>
-            </form>
+            </div>
           </div>
-        </footer>
-      </div>
-    </Layout>
-  );
-};
+          <small className="text-muted text-center d-block mt-2">
+            AI can make mistakes. Check important info.
+          </small>
+        </div>
 
-export default Home;
+        
+      </div>
+    </div>
+  );
+}
