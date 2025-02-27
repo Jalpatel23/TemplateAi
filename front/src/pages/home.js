@@ -152,10 +152,12 @@ export default function App() {
         {/* Chat Area */}
         <div className="chat-area flex-grow-1">
           <pre>{JSON.stringify(auth,null,4)} </pre>   {/*efvlenfljwhglejwr/ljglbhe */}
+
           {messages.map((message, index) => (
-            <div key={index} className={`message ${message.type}`}>
+            <div key={index} className={`message ${message.type}`} style={{ alignSelf: message.type === "user" ? "flex-end" : "flex-start" }}>
               <div className="message-content">
                 <p>{message.text}</p>
+                
                 {message.type === "assistant" && (
                   <div className="message-actions">
                     <button className="btn btn-link">
@@ -178,9 +180,13 @@ export default function App() {
               </div>
             </div>
           ))}
+
+
           {/* Auto-scroll anchor */}
           <div ref={chatEndRef}></div>
         </div>
+
+        
 
         {/* Input Area */}
         <div className={`input-area ${sidebarOpen ? "" : "full-width"}`}>

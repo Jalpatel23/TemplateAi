@@ -96,7 +96,7 @@
 
 /* Assistant Message */
 .message.assistant .message-content {
-  background-color: #303030;
+  background-color: #212121;
   padding: 1rem;
   border-radius: 6px;
 }
@@ -330,4 +330,20 @@
 .conversation-list,
 .input-area {
   scroll-behavior: smooth;
+}
+
+
+
+
+
+
+
+
+
+
+.user {
+  align-self: flex-end;
+  border-radius: 15px 15px 0 15px;
+  padding: 10px;
+  text-align: right;
 }
