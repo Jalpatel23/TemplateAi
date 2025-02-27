@@ -112,7 +112,7 @@ const Login = () => {
               </div>
             )}
             <h4 className="fw-bold">Get started</h4>
-            <p className="text-muted">Create your account now</p>
+            <p className="text-muted">Login to your account now</p>
 
             <form onSubmit={handleSubmit}>
               
@@ -181,9 +181,9 @@ const Login = () => {
                     Sign up
                   </a>
                   <hr/>
-          <p className="mt-3 text-center" style={{ fontSize:"10px" }}>
-            Forgot Password? <Link to="/forgot-password" className="text-black text-decoration-none" style={{ fontWeight: "normal" }} onMouseEnter={(e) => e.target.style.fontWeight = "bold"} onMouseLeave={(e) => e.target.style.fontWeight = "normal"}> Click Here to Reset Password</Link>
-          </p>
+                  <p className="mt-3 text-center" style={{ fontSize:"10px" }}>
+                    Forgot Password? <Link to="/forgot-password" className="text-black text-decoration-none" style={{ fontWeight: "normal" }} onMouseEnter={(e) => e.target.style.fontWeight = "bold"} onMouseLeave={(e) => e.target.style.fontWeight = "normal"}> Click Here to Reset Password</Link>
+                  </p>
                 </small>
               </div>
             </form>
