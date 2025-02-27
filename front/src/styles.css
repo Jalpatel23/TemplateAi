@@ -1,25 +1,24 @@
-/* Global App Container */
+/* Global Styles */
 .app-container {
   display: flex;
   min-height: 100vh;
-  background-color: #1a1a1a;
-  color: #ffffff;
+  background: #1a1a1a;
+  color: #fff;
 }
 
 /* Sidebar */
 .sidebar {
   width: 260px;
-  background-color: #171717;
+  background: #171717;
   border-right: 1px solid #2f2f2f;
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   overflow-y: auto;
-  transition: transform 0.3s ease-in-out;
+  transition: transform 0.3s;
 }
 
-/* Sidebar Hidden */
 .sidebar.closed {
   transform: translateX(-100%);
 }
@@ -27,12 +26,11 @@
 /* Main Content */
 .main-content {
   flex: 1;
-  background-color: #212121;
-  transition: margin-left 0.3s ease-in-out;
-  margin-left: 260px; /* Adjust when sidebar is visible */
+  background: #212121;
+  margin-left: 260px;
+  transition: margin-left 0.3s;
 }
 
-/* Main Content When Sidebar is Hidden */
 .main-content.without-sidebar {
   margin-left: 0;
 }
@@ -42,17 +40,18 @@
   position: fixed;
   top: 10px;
   left: 10px;
-  background-color: #171717;
+  background: #171717;
   border: none;
   padding: 8px;
   border-radius: 6px;
   color: white;
   cursor: pointer;
-  transition: background 0.2s ease-in-out;
+  transition: background 0.2s;
+  z-index: 1000;
 }
 
 .open-sidebar-btn:hover {
-  background-color: #2a2b32;
+  background: #2a2b32;
 }
 
 /* Conversation List */
@@ -67,11 +66,11 @@
   cursor: pointer;
   font-size: 14px;
   color: #ececf1;
-  transition: background 0.3s ease-in-out;
+  transition: background 0.3s;
 }
 
 .conversation-item:hover {
-  background-color: #2a2b32;
+  background: #2a2b32;
 }
 
 /* Chat Area */
@@ -82,7 +81,7 @@
   max-height: calc(100vh - 100px);
 }
 
-/* Chat Messages */
+/* Messages */
 .message {
   display: flex;
   margin-bottom: 1.5rem;
@@ -94,9 +93,8 @@
   width: 100%;
 }
 
-/* Assistant Message */
 .message.assistant .message-content {
-  background-color: #212121;
+  background: #212121;
   padding: 1rem;
   border-radius: 6px;
 }
@@ -114,55 +112,54 @@
 }
 
 .message-actions .btn-link:hover {
-  color: #ffffff;
-  background-color: #2a2b32;
+  color: #fff;
+  background: #2a2b32;
   border-radius: 4px;
 }
 
 /* Input Area */
 .input-area {
   padding: 1rem;
-  background-color: #212121;
+  background: #212121;
   border-top: 1px solid #2f2f2f;
   position: fixed;
   bottom: 0;
-  left: 260px; /* Align with content */
+  left: 260px;
   right: 0;
-  transition: left 0.3s ease-in-out;
+  transition: left 0.3s;
 }
 
 .input-area.full-width {
   left: 0;
 }
 
-/* Input Container */
 .input-container {
   max-width: 800px;
   margin: 0 auto;
   position: relative;
   display: flex;
   align-items: center;
-  background-color: #303030;
+  background: #303030;
   border-radius: 8px;
   padding: 8px;
 }
 
 /* Input Field */
 .input-container .form-control {
-  background-color: transparent;
+  background: transparent;
   border: none;
-  color: #ffffff;
+  color: #fff;
   flex: 1;
 }
 
 .input-container .form-control:focus {
   box-shadow: none;
-  background-color: transparent;
+  background: transparent;
 }
 
 /* Button Styles */
 .btn-link {
-  background-color: transparent !important;
+  background: transparent !important;
   border: none !important;
   color: #ececf1 !important;
   padding: 4px 8px;
@@ -172,15 +169,15 @@
 }
 
 .btn-link:hover {
-  color: #ffffff !important;
-  background-color: transparent !important;
+  color: #fff !important;
+  background: transparent !important;
 }
 
 .btn-link svg {
   color: inherit !important;
 }
 
-/* Profile Icon (Top Right) */
+/* Profile Icon */
 .profile-icon {
   position: absolute;
   top: 10px;
@@ -192,155 +189,46 @@
   justify-content: center;
   padding: 8px;
   border-radius: 50%;
-  transition: background 0.2s ease-in-out;
+  transition: background 0.2s;
 }
 
 .profile-icon:hover {
-  background-color: #2a2b32;
+  background: #2a2b32;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-/* Sidebar */
-.sidebar {
-  width: 260px;
-  background-color: #171717;
-  border-right: 1px solid #2f2f2f;
-  position: fixed;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  overflow-y: auto;
-  transition: transform 0.3s ease-in-out;
-}
-
-/* Sidebar Closed */
-.sidebar.closed {
-  transform: translateX(-100%);
-}
-
-/* Main Content */
-.main-content {
-  flex: 1;
-  background-color: #212121;
-  transition: margin-left 0.3s ease-in-out;
-  margin-left: 260px; /* When sidebar is visible */
-}
-
-/* Main Content When Sidebar is Hidden */
-.main-content.without-sidebar {
-  margin-left: 0;
-}
-
-/* Input Area Adjustment */
-.input-area {
-  left: 260px; /* Align with content */
-  transition: left 0.3s ease-in-out;
-}
-
-.input-area.full-width {
-  left: 0;
-}
-
-/* Open Sidebar Button */
-.open-sidebar-btn {
-  position: fixed;
-  top: 20px;
-  left: 10px;
-  background-color: #171717;
-  border: none;
-  padding: 8px;
-  border-radius: 6px;
-  color: white;
-  cursor: pointer;
-  transition: background 0.2s ease-in-out;
-  z-index: 1000;
-}
-
-.open-sidebar-btn:hover {
-  background-color: #2a2b32;
-}
-
-
-
-
-
-
-
-
-
-
-
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px; /* Adjust the width of the scrollbar */
-  height: 8px; /* Adjust the height for horizontal scrollbar */
+  width: 8px;
+  height: 8px;
 }
 
-/* Scrollbar Track */
 ::-webkit-scrollbar-track {
-  background: #171717; /* Dark background for the scrollbar track */
-  border-radius: 10px; /* Round corners for the track */
+  background: #171717;
+  border-radius: 10px;
 }
 
-/* Scrollbar Thumb */
 ::-webkit-scrollbar-thumb {
-  background: #303030; /* Darker thumb color */
-  border-radius: 10px; /* Rounded corners for the thumb */
-  transition: background-color 0.3s ease, transform 0.3s ease; /* Animation for smooth transition */
+  background: #303030;
+  border-radius: 10px;
+  transition: background-color 0.3s, transform 0.3s;
 }
 
-/* Scrollbar Thumb Hover */
 ::-webkit-scrollbar-thumb:hover {
-  background: #2a2b32; /* Lighter thumb color on hover */
-  transform: scale(1.2); /* Slightly scale up the thumb on hover */
+  background: #2a2b32;
+  transform: scale(1.2);
 }
 
-/* Scrollbar Corner (for where horizontal and vertical scrollbars meet) */
 ::-webkit-scrollbar-corner {
   background: #171717;
 }
 
-/* Apply Custom Scrollbar Styles to the App */
-.app-container,
-.sidebar,
-.main-content,
-.chat-area,
-.conversation-list,
-.input-area {
+.app-container, .sidebar, .main-content, .chat-area, .conversation-list, .input-area {
   scrollbar-width: thin;
-  scrollbar-color: #303030 #171717; /* Firefox-specific properties */
-}
-
-/* Apply smooth scrolling to the app container and content */
-.app-container,
-.sidebar,
-.main-content,
-.chat-area,
-.conversation-list,
-.input-area {
+  scrollbar-color: #303030 #171717;
   scroll-behavior: smooth;
 }
 
-
-
-
-
-
-
-
-
-
+/* User Message */
 .user {
   align-self: flex-end;
   border-radius: 15px 15px 0 15px;
