@@ -269,3 +269,65 @@
 .open-sidebar-btn:hover {
   background-color: #2a2b32;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px; /* Adjust the width of the scrollbar */
+  height: 8px; /* Adjust the height for horizontal scrollbar */
+}
+
+/* Scrollbar Track */
+::-webkit-scrollbar-track {
+  background: #171717; /* Dark background for the scrollbar track */
+  border-radius: 10px; /* Round corners for the track */
+}
+
+/* Scrollbar Thumb */
+::-webkit-scrollbar-thumb {
+  background: #303030; /* Darker thumb color */
+  border-radius: 10px; /* Rounded corners for the thumb */
+  transition: background-color 0.3s ease, transform 0.3s ease; /* Animation for smooth transition */
+}
+
+/* Scrollbar Thumb Hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #2a2b32; /* Lighter thumb color on hover */
+  transform: scale(1.2); /* Slightly scale up the thumb on hover */
+}
+
+/* Scrollbar Corner (for where horizontal and vertical scrollbars meet) */
+::-webkit-scrollbar-corner {
+  background: #171717;
+}
+
+/* Apply Custom Scrollbar Styles to the App */
+.app-container,
+.sidebar,
+.main-content,
+.chat-area,
+.conversation-list,
+.input-area {
+  scrollbar-width: thin;
+  scrollbar-color: #303030 #171717; /* Firefox-specific properties */
+}
+
+/* Apply smooth scrolling to the app container and content */
+.app-container,
+.sidebar,
+.main-content,
+.chat-area,
+.conversation-list,
+.input-area {
+  scroll-behavior: smooth;
+}
