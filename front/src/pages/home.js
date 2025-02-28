@@ -14,6 +14,46 @@ export default function App() {
   const dropdownRef = useRef(null);
   const [auth,setAuth] = useAuth();
   const navigate = useNavigate();
+  const [likedMessages, setLikedMessages] = useState({});
+  const [dislikedMessages, setDislikedMessages] = useState({});
+  const [copiedMessages, setCopiedMessages] = useState({});
+
+  const toggleLike = (index) => {
+    setLikedMessages((prev) => ({
+      ...prev,
+      [index]: !prev[index], // Toggle like
+    }));
+    setDislikedMessages((prev) => ({
+      ...prev,
+      [index]: false, // Remove dislike if liked
+    }));
+  };
+
+  const toggleDislike = (index) => {
+    setDislikedMessages((prev) => ({
+      ...prev,
+      [index]: !prev[index], // Toggle dislike
+    }));
+    setLikedMessages((prev) => ({
+      ...prev,
+      [index]: false, // Remove like if disliked
+    }));
+  };
+
+  const handleCopy = (index, text) => {
+    navigator.clipboard.writeText(text);
+    setCopiedMessages((prev) => ({
+      ...prev,
+      [index]: true,
+    }));
+    setTimeout(() => {
+      setCopiedMessages((prev) => ({
+        ...prev,
+        [index]: false,
+      }));
+    }, 1000); // Reset copied state after 2 seconds
+  };
+
 
 
 
@@ -157,21 +197,36 @@ export default function App() {
             <div key={index} className={`message ${message.type}`} style={{ alignSelf: message.type === "user" ? "flex-end" : "flex-start" }}>
               <div className="message-content">
                 <p>{message.text}</p>
-                
+
                 {message.type === "assistant" && (
                   <div className="message-actions">
-                    <button className="btn btn-link">
-                      <Copy size={16} />
+                    <button className="btn btn-link" onClick={() => handleCopy(index, message.text)}>
+                      <Copy 
+                        size={16} 
+                        color={copiedMessages[index] ? "#ffffff" : "gray"} 
+                        fill={copiedMessages[index] ? "#ffffff" : "none"} 
+                      />
                     </button>
-                    <button className="btn btn-link">
-                      <ThumbsUp size={16} />
+                    <button  className="btn btn-link" onClick={() => toggleLike(index)}>
+                      <ThumbsUp 
+                        size={16} 
+                        color={likedMessages[index] ? "#ffffff" : "gray"} 
+                        fill={likedMessages[index] ? "#ffffff" : "none"} 
+                      />
                     </button>
-                    <button className="btn btn-link">
-                      <ThumbsDown size={16} />
+
+                    <button className="btn btn-link" onClick={() => toggleDislike(index)}>
+                      <ThumbsDown 
+                        size={16} 
+                        color={dislikedMessages[index] ? "#ffffff" : "gray"} 
+                        fill={dislikedMessages[index] ? "#ffffff" : "none"} 
+                      />
+
                     </button>
                     <button className="btn btn-link">
                       <RotateCcw size={16} />
                     </button>
+
                     <button className="btn btn-link">
                       <MoreHorizontal size={16} />
                     </button>
