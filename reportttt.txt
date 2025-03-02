@@ -53,6 +53,9 @@ made signup and login page entirely different.
 made a homepage with a dark theme.
 made proper validation during signup in front end and backend both.
 
+w11
+added custom scrollbar
+made reactive icons in chats
 
 
 
@@ -60,11 +63,9 @@ made proper validation during signup in front end and backend both.
 
 
 
-aceternity
-// signup and login ma 
+
+// signup and login ma
 //controll ma 3 message and 1 error validation che
-password reset 
-connect pages with backend
 
 
 
@@ -74,7 +75,7 @@ connect pages with backend
 header ane search options for text filter sathe
 home page par searchbar ne badhuu dekkhai butt koi search button par click kare to login thavu pade 
     or image upload kare to login or 5 vakhat katra vadhar
-    or points thi search karai and login thava thi points made 
+    or points thi search karai and login thava thi points made
     and share karva thi points made profile banava thi points madee
     ask for payment when points are over
 
@@ -92,11 +93,10 @@ ask someone for hover efffect
 
 
 
-
-
-
-
-
+https://motion.dev/docs/react-quick-start animations
+droxi ai to convert drive data into chatbot
+https://www.youtube.com/watch?v=0yboGn8errU&list=PLYgKqdiRKjuySIfNyWmPpGLYWXdQGBPoA&index=1 (for gemini ui with pre loader animation and typing efect)
+https://www.youtube.com/watch?v=8iAQ1h30n5I&list=PLYgKqdiRKjuySIfNyWmPpGLYWXdQGBPoA&index=4 (uses clerk to authenticate users)
 
 
 
@@ -124,4 +124,7 @@ v15 made admin dashboard for user and admin
     such that same button opens different webpages and user cannot access adminpage
     made products, create products, etc...
 
-v16 
+v16 added create-category and update caegory and get all categiry and get single category and delete category
+    used slugigy slug 
+
+v17

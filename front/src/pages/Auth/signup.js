@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Lock, Mail, User, Phone, EyeClosed, Eye } from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import {CopperLoading} from 'respinner';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -16,6 +17,8 @@ const Signup = () => {
   const [notification, setNotification] = useState({ message: "", type: "" });
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
 
   const validateForm = () => {
     let newErrors = {};
@@ -50,27 +53,39 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
+      setLoading(true); // Start loading spinner
+  
       try {
         const res = await axios.post("/api/v1/auth/register", formData);
-
+  
         console.log("API Response:", res.data);
-
+  
         if (res && res.data.success) {
           setNotification({ message: res.data.message, type: "success" });
+  
           setTimeout(() => {
             navigate("/login");
-          }, 1000);
+          }, 1000); // Navigate after 1 second
         } else {
           setNotification({ message: res.data.message, type: "danger" });
+  
+          setTimeout(() => {
+            setLoading(false); // Stop spinner after 0.5s for failed signup
+          }, 500);
         }
       } catch (error) {
         setNotification({
           message: error.response?.data?.message || "Something went wrong!",
           type: "danger",
         });
+  
+        setTimeout(() => {
+          setLoading(false); // Stop spinner after 0.5s if there's an error
+        }, 500);
       }
     }
   };
+  
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100" style={{ backgroundColor: "#bfc3ce" }}>
@@ -195,12 +210,18 @@ const Signup = () => {
               <button
                 type="submit"
                 className="btn btn-primary w-100"
-                style={{ fontWeight: "normal" }}
+                style={{ fontWeight: "normal"}}
                 onMouseEnter={(e) => (e.target.style.fontWeight = "bold")}
                 onMouseLeave={(e) => (e.target.style.fontWeight = "normal")}
+                disabled={loading} // Disable button while loading
               >
-                Sign Up
+                {loading ? (
+                  <CopperLoading fill="#fff" size={16} strokeWidth={1} duration={1} />
+                ) : (
+                  "Sign Up"
+                )}
               </button>
+
 
               <div className="text-center mt-3">
                 <small>

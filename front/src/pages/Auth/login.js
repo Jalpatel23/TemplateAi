@@ -5,7 +5,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { Lock, Mail, EyeClosed, Eye } from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useAuth } from './../../context/auth';
-
+import { CopperLoading } from "respinner";
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -15,8 +15,9 @@ const Login = () => {
   const [errors, setErrors] = useState({});
   const [notification, setNotification] = useState({ message: "", type: "" });
   const navigate = useNavigate();
-  const [auth, setAuth]=useAuth();
+  const [auth, setAuth] = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const validateForm = () => {
     let newErrors = {};
@@ -39,32 +40,39 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
+      setLoading(true);
+
       try {
         const res = await axios.post("/api/v1/auth/login", formData);
 
         if (res && res.data.success) {
-          // First update localStorage
-         localStorage.setItem('auth', JSON.stringify(res.data));
-        
-          // Then update auth context
+          localStorage.setItem('auth', JSON.stringify(res.data));
           setAuth({
             ...auth,
             user: res.data.user,
             token: res.data.token
           });
           setNotification({ message: res.data.message, type: "success" });
+
           setTimeout(() => {
             navigate("/");
-          }, 1000);
-        } 
-        else {
+          }, 1000); // Navigate after 1 second
+        } else {
           setNotification({ message: res.data.message, type: "danger" });
+
+          setTimeout(() => {
+            setLoading(false);
+          }, 500); // Stop spinner after 0.5s for incorrect credentials
         }
       } catch (error) {
         setNotification({
           message: error.response?.data?.message || "Something went wrong!",
           type: "danger",
         });
+
+        setTimeout(() => {
+          setLoading(false);
+        }, 500);
       }
     }
   };
@@ -73,7 +81,6 @@ const Login = () => {
     <div className="d-flex justify-content-center align-items-center vh-100" style={{ backgroundColor: "#bfc3ce" }}>
       <div className="card shadow-lg border-0 rounded-4 overflow-hidden" style={{ maxWidth: "900px", width: "100%" }}>
         <div className="row g-0">
-
 
           {/* Left Section */}
           <div className="col-md-6 bg-light p-4 d-flex flex-column justify-content-center">
@@ -101,8 +108,6 @@ const Login = () => {
               </div>
             </div>
           </div>
-
-
 
           {/* Right Section */}
           <div className="col-md-6 p-4">
@@ -164,13 +169,18 @@ const Login = () => {
                 style={{ fontWeight: "normal" }}
                 onMouseEnter={(e) => (e.target.style.fontWeight = "bold")}
                 onMouseLeave={(e) => (e.target.style.fontWeight = "normal")}
+                disabled={loading} // Disable button while loading
               >
-                Log in
+                {loading ? (
+                  <CopperLoading fill="#fff" size={16} strokeWidth={1} duration={1} />
+                ) : (
+                  "Log in"
+                )}
               </button>
 
               <div className="text-center mt-3">
                 <small>
-                  Dont have an account?{" "}
+                  Don't have an account?{" "}
                   <a
                     href="/signup"
                     className="text-decoration-none"
