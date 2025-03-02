@@ -6,6 +6,7 @@ import Error404 from "./../pages/pagenotfound.js"
 
 export default function PrivateRoute(){
     const [ok, setOk] = useState(false);
+    // eslint-disable-next-line
     const [auth, setAuth] = useAuth();
 
     useEffect(()=>{
