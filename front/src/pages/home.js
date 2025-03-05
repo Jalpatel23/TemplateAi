@@ -4,7 +4,14 @@ import { MessageCircle, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal, P
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useAuth } from "../context/auth";
 import { useNavigate } from "react-router-dom";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
+import { ClerkProvider } from "@clerk/clerk-react";
 
+const PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
+
+if (!PUBLISHABLE_KEY) {
+  throw new Error("Missing Clerk Publishable Key");
+}
 
 export default function App() {
   const [messages, setMessages] = useState([]);
@@ -107,46 +114,24 @@ export default function App() {
       
       {/* Profile Icon (Top Right) */}
       <div className="profile-container position-absolute top-0 end-0 m-3" ref={dropdownRef}>
-        <User
-          size={30}
-          className="text-white cursor-pointer"
-          onClick={() => setDropdownOpen(!isDropdownOpen)}
-        />
+      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+        <header>
+        <SignedOut>
+  <SignInButton mode="modal">
+    <button 
+      className="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
+      style={{ width: "40px", height: "40px", padding: 0, border: "none" }}
+    >
+      <LogIn size={20} color="white" />
+    </button>
+  </SignInButton>
+</SignedOut>
 
-        {isDropdownOpen && (
-          <div
-            className="dropdown-menu show position-absolute mt-2 p-2 shadow"
-            style={{
-              backgroundColor: "#000",
-              borderRadius: "12px",
-              width: "180px",
-              left: "0",
-              transform: "translateX(-100%)",
-              top: "100%",
-              zIndex: 1000,
-            }}
-          >
-            <button className="btn sidebar-button py-2 mb-2 text-start text-white">
-              <User size={15} className="me-2" /> Profile
-            </button>
-            <button className="btn sidebar-button py-2 mb-2 text-start text-white">
-              <Settings size={15} className="me-2" /> Settings
-            </button>
-
-            {
-              !auth.user ?(
-                <button className="btn sidebar-button py-2 text-start text-white" onClick={() => navigate('/login')}>
-                  <LogIn size={15} className="me-2"/> Log in
-                </button>
-              ):(
-                <button className="btn sidebar-button py-2 text-start text-white" onClick={handleLogout}>
-                  <LogOut size={15} className="me-2" /> Log out
-                </button>
-              )
-            }
-
-          </div>
-        )}
+        <SignedIn>
+            <UserButton />
+        </SignedIn>
+        </header>
+    </ClerkProvider>
       </div>
 
 
