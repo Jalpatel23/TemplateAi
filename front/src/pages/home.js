@@ -114,24 +114,24 @@ export default function App() {
       
       {/* Profile Icon (Top Right) */}
       <div className="profile-container position-absolute top-0 end-0 m-3" ref={dropdownRef}>
-      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
-        <header>
-        <SignedOut>
-  <SignInButton mode="modal">
-    <button 
-      className="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
-      style={{ width: "40px", height: "40px", padding: 0, border: "none" }}
-    >
-      <LogIn size={20} color="white" />
-    </button>
-  </SignInButton>
-</SignedOut>
+        <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+          <header>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button 
+                className="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
+                style={{ width: "40px", height: "40px", padding: 0, border: "none" }}
+              >
+                <LogIn size={20} color="white" />
+              </button>
+            </SignInButton>
+          </SignedOut>
 
-        <SignedIn>
-            <UserButton />
-        </SignedIn>
-        </header>
-    </ClerkProvider>
+          <SignedIn>
+              <UserButton />
+          </SignedIn>
+          </header>
+        </ClerkProvider>
       </div>
 
 
