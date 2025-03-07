@@ -1,29 +1,25 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal, Plus, ChevronsRight, ChevronsLeft, User, LogOut, Settings, LogIn } from "lucide-react";
+import { MessageCircle, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal, Plus, ChevronsRight, ChevronsLeft, User} from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useAuth } from "../context/auth";
-import { useNavigate } from "react-router-dom";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
-import { ClerkProvider } from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react";
 
-const PUBLISHABLE_KEY = process.env.REACT_APP_CLERK_PUBLISHABLE_KEY;
-
-if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Clerk Publishable Key");
-}
 
 export default function App() {
   const [messages, setMessages] = useState([]);
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  // eslint-disable-next-line
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const chatEndRef = useRef(null);
   const dropdownRef = useRef(null);
+  // eslint-disable-next-line
   const [auth,setAuth] = useAuth();
-  const navigate = useNavigate();
   const [likedMessages, setLikedMessages] = useState({});
   const [dislikedMessages, setDislikedMessages] = useState({});
   const [copiedMessages, setCopiedMessages] = useState({});
+  const { isLoaded } = useUser();
 
   const toggleLike = (index) => {
     setLikedMessages((prev) => ({
@@ -36,6 +32,8 @@ export default function App() {
     }));
   };
 
+
+
   const toggleDislike = (index) => {
     setDislikedMessages((prev) => ({
       ...prev,
@@ -46,6 +44,8 @@ export default function App() {
       [index]: false, // Remove like if disliked
     }));
   };
+
+
 
   const handleCopy = (index, text) => {
     navigator.clipboard.writeText(text);
@@ -61,24 +61,14 @@ export default function App() {
     }, 1000); // Reset copied state after 2 seconds
   };
 
-
-
-
-
-  const handleLogout=()=>{
-    setAuth({
-      ...auth,
-      user: null,
-      token: "",
-    })
-    localStorage.removeItem("auth");
-  }
   
 
   // Auto-scroll to the latest message
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -91,6 +81,8 @@ export default function App() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+
+
   // Handle sending messages
   const sendMessage = (text) => {
     if (!text.trim()) return;
@@ -101,6 +93,8 @@ export default function App() {
     ]);
   };
 
+
+
   // Handle Enter key press
   const handleKeyPress = (e) => {
     if (e.key === "Enter") {
@@ -109,29 +103,40 @@ export default function App() {
     }
   };
 
+
+  
   return (
     <div className={`app-container d-flex ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
       
       {/* Profile Icon (Top Right) */}
       <div className="profile-container position-absolute top-0 end-0 m-3" ref={dropdownRef}>
-        <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
-          <header>
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button 
-                className="btn btn-primary rounded-circle d-flex align-items-center justify-content-center"
-                style={{ width: "40px", height: "40px", padding: 0, border: "none" }}
-              >
-                <LogIn size={20} color="white" />
-              </button>
-            </SignInButton>
-          </SignedOut>
+        <header>
+          {isLoaded ? ( // Only render buttons after Clerk is loaded
+            <>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button 
+                    className=" rounded-circle d-flex align-items-center justify-content-center"
+                    style={{ width: "30px", height: "30px", padding: 0, border: "none", background: "#303030"}}
+                  >
+                    <User size={20} color="gray" />
+                  </button>
+                </SignInButton>
+              </SignedOut>
 
-          <SignedIn>
-              <UserButton />
-          </SignedIn>
-          </header>
-        </ClerkProvider>
+              <SignedIn>
+                  <UserButton />
+              </SignedIn>
+            </>
+          ) : (
+              <button 
+              className=" rounded-circle d-flex align-items-center justify-content-center"
+              style={{ width: "30px", height: "30px", padding: 0, border: "none", background: "#303030"}}
+            >
+              <User size={20} color="gray" />
+            </button>
+          )}
+        </header>
       </div>
 
 
