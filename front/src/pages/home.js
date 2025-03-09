@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
-import { MessageCircle, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal, Plus, ChevronsRight, ChevronsLeft, User} from "lucide-react";
+import { MessageCircle, Send, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal, Plus, ChevronsRight, ChevronsLeft, User} from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useAuth } from "../context/auth";
 import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
@@ -19,7 +19,7 @@ export default function App() {
   const [likedMessages, setLikedMessages] = useState({});
   const [dislikedMessages, setDislikedMessages] = useState({});
   const [copiedMessages, setCopiedMessages] = useState({});
-  const { isLoaded } = useUser();
+  const { isLoaded, user } = useUser();
 
   const toggleLike = (index) => {
     setLikedMessages((prev) => ({
@@ -179,9 +179,17 @@ export default function App() {
       {/* Main Content */}
       <div className={`main-content ${sidebarOpen ? "" : "without-sidebar"} d-flex flex-column`}>
         
+        {/* Display Username at the Top */}
+        <div className="p-3 text-light text-center">
+          {isLoaded && user && (
+            <div className="p-3 text-light text-center">
+              <h5>Welcome, {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}!</h5>
+            </div>
+          )}
+        </div>
+
         {/* Chat Area */}
         <div className="chat-area flex-grow-1">
-          <pre>{JSON.stringify(auth,null,4)}</pre>
 
           {messages.map((message, index) => (
             <div key={index} className={`message ${message.type}`} style={{ alignSelf: message.type === "user" ? "flex-end" : "flex-start" }}>
@@ -239,7 +247,7 @@ export default function App() {
             <input type="text" placeholder="Ask anything" className="form-control" onKeyDown={handleKeyPress} />
             <div className="input-buttons">
               <button className="btn btn-link">
-                <MessageCircle size={16} />
+                <Send size={16} />
               </button>
             </div>
           </div>
