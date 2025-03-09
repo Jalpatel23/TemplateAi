@@ -235,3 +235,22 @@
   padding: 10px;
   text-align: right;
 }
+
+
+
+::placeholder {
+  color: white !important;
+  opacity: 1; /* Ensure visibility */
+}
+
+.input-container input::placeholder {
+  color: white !important;
+}
+
+.chat-area small {
+  color: white !important;
+}
+
+.sidebar small.text-muted {
+  color: white !important;
+}

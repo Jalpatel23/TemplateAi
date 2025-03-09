@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { MessageCircle, Send, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal, Plus, ChevronsRight, ChevronsLeft, User} from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useAuth } from "../context/auth";
@@ -84,14 +84,22 @@ export default function App() {
 
 
   // Handle sending messages
-  const sendMessage = (text) => {
-    if (!text.trim()) return;
-    setMessages((prevMessages) => [
-      ...prevMessages,
+  const inputRef = useRef(null); // Add this above in your state hooks
+
+  const sendMessage = useCallback(() => {
+    if (!inputRef.current || !inputRef.current.value.trim()) return;
+    
+    const text = inputRef.current.value;
+    setMessages((prev) => [
+      ...prev,
       { type: "user", text },
-      { type: "assistant", text: "This is a dummy response from AI!" }
+      { type: "assistant", text: "This is a dummy response from AI!" },
     ]);
-  };
+
+    inputRef.current.value = ""; // Clear input after sending
+  }, []);
+
+  
 
 
 
@@ -183,7 +191,7 @@ export default function App() {
         <div className="p-3 text-light text-center">
           {isLoaded && user && (
             <div className="p-3 text-light text-center">
-              <h5>Welcome, {user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}!</h5>
+              <h5>Welcome, <strong><strong>{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}</strong></strong>!</h5>
             </div>
           )}
         </div>
@@ -243,17 +251,12 @@ export default function App() {
 
         {/* Input Area */}
         <div className={`input-area ${sidebarOpen ? "" : "full-width"}`}>
-          <div className="input-container">
-            <input type="text" placeholder="Ask anything" className="form-control" onKeyDown={handleKeyPress} />
-            <div className="input-buttons">
-              <button className="btn btn-link">
-                <Send size={16} />
-              </button>
-            </div>
+          <div className="input-container mb-3">
+            <input ref={inputRef} type="text" placeholder="Ask anything" className="form-control" onKeyDown={(e) => e.key === "Enter" && sendMessage()} />
+            <button className="btn btn-link" onClick={sendMessage}>
+              <Send size={16} />
+            </button>
           </div>
-          <small className="text-muted text-center d-block mt-2">
-            AI can make mistakes. Check important info.
-          </small>
         </div>
 
         
