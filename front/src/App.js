@@ -10,7 +10,6 @@ import './styles.css'
 
 import Temp from './pages/temp.js';
 import  Temp2 from './pages/temp2.js';
-import Tempsignup from './pages/tempsignup.js'
 
 
 
@@ -18,7 +17,6 @@ function App() {
   return (
     <>
       <Routes>
-        <Route path='/tempsignup' element={<Tempsignup/>}/>
         <Route path='/temp2' element={<Temp2/>}/>
         <Route path='/temp' element={<Temp/>}/>
 

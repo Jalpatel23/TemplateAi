@@ -129,7 +129,7 @@ export default function App() {
               </SignedIn>
             </>
           ) : (
-              <button 
+            <button 
               className=" rounded-circle d-flex align-items-center justify-content-center"
               style={{ width: "30px", height: "30px", padding: 0, border: "none", background: "#303030"}}
             >
@@ -181,7 +181,7 @@ export default function App() {
         
         {/* Chat Area */}
         <div className="chat-area flex-grow-1">
-          <pre>{JSON.stringify(auth,null,4)} </pre>   {/*efvlenfljwhglejwr/ljglbhe */}
+          <pre>{JSON.stringify(auth,null,4)}</pre>
 
           {messages.map((message, index) => (
             <div key={index} className={`message ${message.type}`} style={{ alignSelf: message.type === "user" ? "flex-end" : "flex-start" }}>
