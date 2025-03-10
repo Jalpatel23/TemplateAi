@@ -57,6 +57,9 @@ w11
 added custom scrollbar
 made reactive icons in chats
 
+w11
+styling fixes in home pages.
+fixed send message issue.
 
 
 
@@ -68,6 +71,9 @@ made reactive icons in chats
 //controll ma 3 message and 1 error validation che
 
 
+framer motion:
+radix toast
+cube in dashboard
 
 
 
