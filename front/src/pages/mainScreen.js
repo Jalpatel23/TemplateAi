@@ -3,6 +3,8 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal } from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useUser } from "@clerk/clerk-react";
+import '.././styles.css'
+
 
 export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   const chatEndRef = useRef(null);
@@ -64,6 +66,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
     ]);
 
     inputRef.current.value = "";
+    // eslint-disable-next-line
   }, []);
 
   return (
@@ -96,10 +99,10 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
                     <ThumbsDown size={16} color={dislikedMessages[index] ? "#ffffff" : "gray"} fill={dislikedMessages[index] ? "#ffffff" : "none"} />
                   </button>
                   <button className="btn btn-link">
-                    <RotateCcw size={16} />
+                    <RotateCcw size={16} color="grey"/>
                   </button>
                   <button className="btn btn-link">
-                    <MoreHorizontal size={16} />
+                    <MoreHorizontal size={16} color="grey"/>
                   </button>
                 </div>
               )}
@@ -114,7 +117,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
       {/* Input Area */}
       <div className={`input-area ${sidebarOpen ? "" : "full-width"}`}>
         <div className="input-container mb-3">
-          <input ref={inputRef} type="text" placeholder="Ask anything" className="form-control" onKeyDown={(e) => e.key === "Enter" && sendMessage()} />
+          <input ref={inputRef} type="text" placeholder="Type Here" className="form-control" onKeyDown={(e) => e.key === "Enter" && sendMessage()} />
           <button className="btn btn-link" onClick={sendMessage}>
             <Send size={16} />
           </button>

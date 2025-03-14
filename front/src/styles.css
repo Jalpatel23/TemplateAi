@@ -67,10 +67,17 @@
   font-size: 14px;
   color: #ececf1;
   transition: background 0.3s;
+
+  /* Truncate long text */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%; /* Ensures text stays within container */
 }
 
 .conversation-item:hover {
   background: #2a2b32;
+  font-weight: bold;
 }
 
 /* Chat Area */
@@ -121,7 +128,6 @@
 .input-area {
   padding: 1rem;
   background: #212121;
-  border-top: 1px solid #2f2f2f;
   position: fixed;
   bottom: 0;
   left: 260px;
@@ -244,7 +250,7 @@
 }
 
 .input-container input::placeholder {
-  color: white !important;
+  color: #9b9b9b !important;
 }
 
 .chat-area small {
@@ -253,4 +259,16 @@
 
 .sidebar small.text-muted {
   color: white !important;
+}
+
+
+
+.sidebar button.btn-link:hover svg {
+  transform: scale(1.2);
+}
+
+
+.open-sidebar-btn:hover svg {
+  transform: scale(1.2);
+  font-weight: bold;
 }

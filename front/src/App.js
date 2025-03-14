@@ -5,8 +5,6 @@ import Home from './pages/home.js'
 import Error404 from './pages/pagenotfound.js';
 import Profile from './pages/profile.js';
 import PrivateRoute from './routes/private.js';
-import './styles.css'
-
 import Temp from './pages/temp.js';
 import  Temp2 from './pages/temp2.js';
 
