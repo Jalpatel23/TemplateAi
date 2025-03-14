@@ -5,7 +5,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useUser } from "@clerk/clerk-react";
 import '.././styles.css'
 
-
 export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -13,6 +12,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   const [dislikedMessages, setDislikedMessages] = useState({});
   const [copiedMessages, setCopiedMessages] = useState({});
   const { isLoaded, user } = useUser();
+  const [dummyResponseCounter, setDummyResponseCounter] = useState(1);  // Counter starts at 1
 
   const toggleLike = (index) => {
     setLikedMessages((prev) => ({
@@ -59,15 +59,17 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
     if (!inputRef.current || !inputRef.current.value.trim()) return;
 
     const text = inputRef.current.value;
+
     setMessages((prev) => [
       ...prev,
       { type: "user", text },
-      { type: "assistant", text: "This is a dummy response from AI!" },
+      { type: "assistant", text: `Dummy response ${dummyResponseCounter}` },
     ]);
 
+    setDummyResponseCounter((prev) => prev + 1); // Increase response number for next message
+
     inputRef.current.value = "";
-    // eslint-disable-next-line
-  }, []);
+  }, [dummyResponseCounter]);
 
   return (
     <div className={`main-content ${sidebarOpen ? "" : "without-sidebar"} d-flex flex-column`}>
