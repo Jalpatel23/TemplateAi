@@ -29,6 +29,16 @@ app.get("/",(req,res)=>{
 })
 
 
+app.post("/api/chats", (req, res) => { 
+    const { text } = req.body;
+    if (!text) {
+        return res.status(400).json({ error: "Text is required" });
+    }
+    console.log(text);
+    res.status(200).json({ message: `Received: ${text}` });
+});
+
+
 const PORT=process.env.PORT;
 
 

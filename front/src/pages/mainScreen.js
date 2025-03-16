@@ -3,7 +3,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal } from "lucide-react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useUser } from "@clerk/clerk-react";
-import '.././styles.css'
+import '.././styles.css';
 
 export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   const chatEndRef = useRef(null);
@@ -12,7 +12,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   const [dislikedMessages, setDislikedMessages] = useState({});
   const [copiedMessages, setCopiedMessages] = useState({});
   const { isLoaded, user } = useUser();
-  const [dummyResponseCounter, setDummyResponseCounter] = useState(1);  // Counter starts at 1
+  const [dummyResponseCounter, setDummyResponseCounter] = useState(1);
 
   const toggleLike = (index) => {
     setLikedMessages((prev) => ({
@@ -66,10 +66,26 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
       { type: "assistant", text: `Dummy response ${dummyResponseCounter}` },
     ]);
 
-    setDummyResponseCounter((prev) => prev + 1); // Increase response number for next message
-
+    setDummyResponseCounter((prev) => prev + 1);
     inputRef.current.value = "";
+    // eslint-disable-next-line
   }, [dummyResponseCounter]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const text = inputRef.current.value.trim();
+    if (!text) return;
+
+    await fetch("http://localhost:8080/api/chats", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ text }),
+    });
+
+    sendMessage(); // Send message after API call
+  };
 
   return (
     <div className={`main-content ${sidebarOpen ? "" : "without-sidebar"} d-flex flex-column`}>
@@ -117,14 +133,16 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
       </div>
 
       {/* Input Area */}
-      <div className={`input-area ${sidebarOpen ? "" : "full-width"}`}>
-        <div className="input-container mb-3">
-          <input ref={inputRef} type="text" placeholder="Type Here" className="form-control" onKeyDown={(e) => e.key === "Enter" && sendMessage()} />
-          <button className="btn btn-link" onClick={sendMessage}>
-            <Send size={16} />
-          </button>
+      <form onSubmit={handleSubmit} className="d-flex align-items-center">
+        <div className={`input-area ${sidebarOpen ? "" : "full-width"}`}>
+          <div className="input-container mb-3">
+            <input ref={inputRef} type="text" name="text" placeholder="Type Here" className="form-control" />
+            <button type="submit" className="btn btn-link">
+              <Send size={16} />
+            </button>
+          </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
