@@ -4,6 +4,9 @@ import { Send, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal } from "luc
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useUser } from "@clerk/clerk-react";
 import '.././styles.css';
+import { useClerk } from "@clerk/clerk-react";
+
+
 
 export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   const chatEndRef = useRef(null);
@@ -13,6 +16,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   const [copiedMessages, setCopiedMessages] = useState({});
   const { isLoaded, user } = useUser();
   const [dummyResponseCounter, setDummyResponseCounter] = useState(1);
+  const { openSignIn } = useClerk();
 
   const toggleLike = (index) => {
     setLikedMessages((prev) => ({
@@ -76,12 +80,20 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
     const text = inputRef.current.value.trim();
     if (!text) return;
 
+    if (!user || !user.id) {
+      console.error("User not logged in");
+      openSignIn(); // Opens Clerk's login modal
+      return;
+    }
+
+    const userId = user.id; // Clerk user ID
+
     await fetch("http://localhost:8080/api/chats", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ text }),
+      body: JSON.stringify({ userId, text }),
     });
 
     sendMessage(); // Send message after API call
