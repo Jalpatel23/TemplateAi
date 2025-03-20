@@ -79,25 +79,30 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
     e.preventDefault();
     const text = inputRef.current.value.trim();
     if (!text) return;
-
+  
     if (!user || !user.id) {
-      console.error("User not logged in");
-      openSignIn(); // Opens Clerk's login modal
+      console.warn("User not logged in, proceeding as guest.");
+      sendMessage(); // Allow the guest to chat, but don't store in DB
       return;
     }
-
+  
     const userId = user.id; // Clerk user ID
-
-    await fetch("http://localhost:8080/api/chats", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId, text }),
-    });
-
-    sendMessage(); // Send message after API call
+  
+    try {
+      await fetch("http://localhost:8080/api/chats", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId, text }),
+      });
+  
+      sendMessage(); // Send message after API call
+    } catch (error) {
+      console.error("Error saving chat:", error);
+    }
   };
+  
 
   return (
     <div className={`main-content ${sidebarOpen ? "" : "without-sidebar"} d-flex flex-column`}>
