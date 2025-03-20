@@ -46,8 +46,8 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen }) {
           <div className="px-3 py-2">
             <small className="text-muted">Today</small>
             <div className="conversation-item">Hello conversation</div>
-            <div className="conversation-item">Login Form Validation</div>
-            <div className="conversation-item">Login Form Enhancement</div>
+            <div className="conversation-item">dummy response</div>
+            <div className="conversation-item">dummy response</div>
             
             <div className="conversation-item">Hello conversation</div>
             <div className="conversation-item">Login Form Validation</div>
