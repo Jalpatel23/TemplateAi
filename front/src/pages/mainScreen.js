@@ -1,12 +1,11 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal } from "lucide-react";
+import { Send, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useUser } from "@clerk/clerk-react";
 import '.././styles.css';
 import { useClerk } from "@clerk/clerk-react";
-
-
+import { useTheme } from "../context/theme-context.tsx";
 
 export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   const chatEndRef = useRef(null);
@@ -17,6 +16,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   const { isLoaded, user } = useUser();
   const [dummyResponseCounter, setDummyResponseCounter] = useState(1);
   const { openSignIn } = useClerk();
+  const { theme } = useTheme();
 
   const toggleLike = (index) => {
     setLikedMessages((prev) => ({
@@ -103,11 +103,10 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
     }
   };
   
-
   return (
     <div className={`main-content ${sidebarOpen ? "" : "without-sidebar"} d-flex flex-column`}>
       {/* Display Username at the Top */}
-      <div className="p-3 text-light text-center">
+      <div className="p-3 text-center">
         {isLoaded && user && (
           <h5>
             Welcome, <strong>{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}</strong>!
@@ -125,19 +124,19 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
               {message.type === "assistant" && (
                 <div className="message-actions">
                   <button className="btn btn-link" onClick={() => handleCopy(index, message.text)}>
-                    <Copy size={16} color={copiedMessages[index] ? "#ffffff" : "gray"} fill={copiedMessages[index] ? "#ffffff" : "none"} />
+                    <Copy size={16} color={copiedMessages[index] ? "var(--text-primary)" : "var(--text-muted)"} fill={copiedMessages[index] ? "var(--text-primary)" : "none"} />
                   </button>
                   <button className="btn btn-link" onClick={() => toggleLike(index)}>
-                    <ThumbsUp size={16} color={likedMessages[index] ? "#ffffff" : "gray"} fill={likedMessages[index] ? "#ffffff" : "none"} />
+                    <ThumbsUp size={16} color={likedMessages[index] ? "var(--text-primary)" : "var(--text-muted)"} fill={likedMessages[index] ? "var(--text-primary)" : "none"} />
                   </button>
                   <button className="btn btn-link" onClick={() => toggleDislike(index)}>
-                    <ThumbsDown size={16} color={dislikedMessages[index] ? "#ffffff" : "gray"} fill={dislikedMessages[index] ? "#ffffff" : "none"} />
+                    <ThumbsDown size={16} color={dislikedMessages[index] ? "var(--text-primary)" : "var(--text-muted)"} fill={dislikedMessages[index] ? "var(--text-primary)" : "none"} />
                   </button>
                   <button className="btn btn-link">
-                    <RotateCcw size={16} color="grey"/>
+                    <RotateCcw size={16} color="var(--text-muted)"/>
                   </button>
                   <button className="btn btn-link">
-                    <MoreHorizontal size={16} color="grey"/>
+                    <MoreHorizontal size={16} color="var(--text-muted)"/>
                   </button>
                 </div>
               )}
