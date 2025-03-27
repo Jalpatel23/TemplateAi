@@ -17,7 +17,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen }) {
           <SignedOut>
             <SignInButton mode="modal">
               <button className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: "30px", height: "30px", padding: 0, border: "none", background: "var(--profile-btn-bg)" }}>
-                <User size={20} color="var(--text-muted)" />
+                <User size={20} color="var(--icon-color)" />
               </button>
             </SignInButton>
           </SignedOut>
@@ -32,7 +32,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen }) {
       <div className={`sidebar ${sidebarOpen ? "" : "closed"} d-none d-md-flex flex-column`}>
         <div className="d-flex justify-content-between align-items-center p-2">
           <button className="btn btn-link">
-            <Plus size={20} />
+            <Plus size={20} color="var(--icon-color)" />
           </button>
           <div className="d-flex">
             <button 
@@ -40,24 +40,27 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen }) {
               onClick={toggleTheme} 
               title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
-              {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+              {theme === "dark" ? 
+                <Sun size={20} color="var(--icon-color)" /> : 
+                <Moon size={20} color="var(--icon-color)" />
+              }
             </button>
             <button className="btn btn-link" onClick={() => setSidebarOpen(false)}>
-              <ChevronsLeft size={20} />
+              <ChevronsLeft size={20} color="var(--icon-color)" />
             </button>
           </div>
         </div>
 
-        <div className="p-2 text-light d-flex align-items-center justify-content-center w-100" style={{ fontSize: "24px" }}>
+        <div className="p-2 d-flex align-items-center justify-content-center w-100 app-title" style={{ fontSize: "24px" }}>
           <span>Hate Speech Detection</span>
         </div>
 
         <div className="conversation-list">
           <div className="px-3 py-2">
-            <small className="text-muted">Today</small>
-            <div className="conversation-item">Hello conversation</div>
-            <div className="conversation-item">dummy response</div>
-            <div className="conversation-item">dummy responsesdfghrjtytjvwjhrk4erhjlg4hrkethl4ejtlfjueoturfro3h</div>
+            <small className="conversation-date">Today</small>
+            <div className="conversation-item">how are you?</div>
+            <div className="conversation-item">what are you doing?</div>
+            <div className="conversation-item">is there any way we can do this wothout</div>
           </div>
         </div>
       </div>
@@ -65,7 +68,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen }) {
       {/* Open Sidebar Button */}
       {!sidebarOpen && (
         <button className="open-sidebar-btn" onClick={() => setSidebarOpen(true)}>
-          <ChevronsRight size={24} />
+          <ChevronsRight size={24} color="var(--icon-color)" />
         </button>
       )}
     </>

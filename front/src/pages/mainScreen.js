@@ -67,7 +67,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
     setMessages((prev) => [
       ...prev,
       { type: "user", text },
-      { type: "assistant", text: `Dummy response ${dummyResponseCounter}` },
+      { type: "assistant", text: `no hate speech detected ` },
     ]);
 
     setDummyResponseCounter((prev) => prev + 1);
@@ -124,19 +124,19 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
               {message.type === "assistant" && (
                 <div className="message-actions">
                   <button className="btn btn-link" onClick={() => handleCopy(index, message.text)}>
-                    <Copy size={16} color={copiedMessages[index] ? "var(--text-primary)" : "var(--text-muted)"} fill={copiedMessages[index] ? "var(--text-primary)" : "none"} />
+                    <Copy size={16} color={copiedMessages[index] ? "var(--text-primary)" : "var(--icon-color)"} fill={copiedMessages[index] ? "var(--text-primary)" : "none"} />
                   </button>
                   <button className="btn btn-link" onClick={() => toggleLike(index)}>
-                    <ThumbsUp size={16} color={likedMessages[index] ? "var(--text-primary)" : "var(--text-muted)"} fill={likedMessages[index] ? "var(--text-primary)" : "none"} />
+                    <ThumbsUp size={16} color={likedMessages[index] ? "var(--text-primary)" : "var(--icon-color)"} fill={likedMessages[index] ? "var(--text-primary)" : "none"} />
                   </button>
                   <button className="btn btn-link" onClick={() => toggleDislike(index)}>
-                    <ThumbsDown size={16} color={dislikedMessages[index] ? "var(--text-primary)" : "var(--text-muted)"} fill={dislikedMessages[index] ? "var(--text-primary)" : "none"} />
+                    <ThumbsDown size={16} color={dislikedMessages[index] ? "var(--text-primary)" : "var(--icon-color)"} fill={dislikedMessages[index] ? "var(--text-primary)" : "none"} />
                   </button>
                   <button className="btn btn-link">
-                    <RotateCcw size={16} color="var(--text-muted)"/>
+                    <RotateCcw size={16} color="var(--icon-color)"/>
                   </button>
                   <button className="btn btn-link">
-                    <MoreHorizontal size={16} color="var(--text-muted)"/>
+                    <MoreHorizontal size={16} color="var(--icon-color)"/>
                   </button>
                 </div>
               )}
@@ -154,7 +154,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
           <div className="input-container mb-3">
             <input ref={inputRef} type="text" name="text" placeholder="Type Here" className="form-control" />
             <button type="submit" className="btn btn-link">
-              <Send size={16} />
+              <Send size={16} color="var(--icon-color)" />
             </button>
           </div>
         </div>
