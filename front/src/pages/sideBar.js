@@ -1,8 +1,7 @@
 "use client";
 import { useRef } from "react";
-import { Plus, ChevronsRight, ChevronsLeft, User, Sun, Moon } from 'lucide-react';
+import { Plus, ChevronsRight, ChevronsLeft, Sun, Moon } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 import { useTheme } from "../context/theme-context.tsx";
 
 export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen }) {
@@ -11,23 +10,6 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen }) {
 
   return (
     <>
-      {/* Profile Icon (Top Right) */}
-      <div className="profile-container position-absolute top-0 end-0 m-3" ref={dropdownRef}>
-        <header>
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: "30px", height: "30px", padding: 0, border: "none", background: "var(--profile-btn-bg)" }}>
-                <User size={20} color="var(--icon-color)" />
-              </button>
-            </SignInButton>
-          </SignedOut>
-
-          <SignedIn>
-            <UserButton />
-          </SignedIn>
-        </header>
-      </div>
-
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "" : "closed"} d-none d-md-flex flex-column`}>
         <div className="d-flex justify-content-between align-items-center p-2">

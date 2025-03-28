@@ -1,11 +1,12 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal } from 'lucide-react';
+import { Send, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal, User } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useUser } from "@clerk/clerk-react";
 import '.././styles.css';
 import { useClerk } from "@clerk/clerk-react";
 import { useTheme } from "../context/theme-context.tsx";
+import { SignedOut, SignInButton, SignedIn, UserButton } from "@clerk/clerk-react";
 
 export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   const chatEndRef = useRef(null);
@@ -17,6 +18,34 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   const [dummyResponseCounter, setDummyResponseCounter] = useState(1);
   const { openSignIn } = useClerk();
   const { theme } = useTheme();
+
+  // Add useEffect to fetch chat history
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      if (!user || !user.id) return;
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/chats/${user.id}`);
+        const data = await response.json();
+        
+        if (data.chat && data.chat.history) {
+          const formattedMessages = data.chat.history.map(msg => ({
+            type: msg.role === "user" ? "user" : "assistant",
+            text: msg.parts[0].text
+          }));
+          setMessages(formattedMessages);
+          
+          // Set the dummy response counter based on the number of model messages
+          const modelMessages = data.chat.history.filter(msg => msg.role === "model").length;
+          setDummyResponseCounter(modelMessages + 1);
+        }
+      } catch (error) {
+        console.error("Error fetching chat history:", error);
+      }
+    };
+
+    fetchChatHistory();
+  }, [user, setMessages]);
 
   const toggleLike = (index) => {
     setLikedMessages((prev) => ({
@@ -59,22 +88,6 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = useCallback(() => {
-    if (!inputRef.current || !inputRef.current.value.trim()) return;
-
-    const text = inputRef.current.value;
-
-    setMessages((prev) => [
-      ...prev,
-      { type: "user", text },
-      { type: "assistant", text: `no hate speech detected ` },
-    ]);
-
-    setDummyResponseCounter((prev) => prev + 1);
-    inputRef.current.value = "";
-    // eslint-disable-next-line
-  }, [dummyResponseCounter]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     const text = inputRef.current.value.trim();
@@ -82,13 +95,21 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   
     if (!user || !user.id) {
       console.warn("User not logged in, proceeding as guest.");
-      sendMessage(); // Allow the guest to chat, but don't store in DB
+      // For guest users, just update UI without saving to DB
+      setMessages(prev => [
+        ...prev,
+        { type: "user", text },
+        { type: "assistant", text: `Dummy response ${dummyResponseCounter}` }
+      ]);
+      setDummyResponseCounter(prev => prev + 1);
+      inputRef.current.value = "";
       return;
     }
   
     const userId = user.id; // Clerk user ID
   
     try {
+      // Save user message
       await fetch("http://localhost:8080/api/chats", {
         method: "POST",
         headers: {
@@ -96,8 +117,31 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
         },
         body: JSON.stringify({ userId, text }),
       });
-  
-      sendMessage(); // Send message after API call
+
+      // Add user message to UI
+      setMessages(prev => [...prev, { type: "user", text }]);
+
+      // Generate and save model response with counter
+      const modelResponse = `Dummy response ${dummyResponseCounter}`;
+      await fetch("http://localhost:8080/api/chats", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ 
+          userId, 
+          text: modelResponse,
+          role: "model"  // This ensures the dummy response is stored as model role
+        }),
+      });
+
+      // Add model response to UI as assistant type
+      setMessages(prev => [...prev, { type: "assistant", text: modelResponse }]);
+      
+      // Increment the counter
+      setDummyResponseCounter(prev => prev + 1);
+      
+      inputRef.current.value = "";
     } catch (error) {
       console.error("Error saving chat:", error);
     }
@@ -105,6 +149,23 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   
   return (
     <div className={`main-content ${sidebarOpen ? "" : "without-sidebar"} d-flex flex-column`}>
+      {/* Profile Icon (Top Right) */}
+      <div className="profile-container position-absolute top-0 end-0 m-3">
+        <header>
+          <SignedOut>
+            <SignInButton mode="modal">
+              <button className="rounded-circle d-flex align-items-center justify-content-center" style={{ width: "30px", height: "30px", padding: 0, border: "none", background: "var(--profile-btn-bg)" }}>
+                <User size={20} color="var(--icon-color)" />
+              </button>
+            </SignInButton>
+          </SignedOut>
+
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
+        </header>
+      </div>
+
       {/* Display Username at the Top */}
       <div className="p-3 text-center">
         {isLoaded && user && (

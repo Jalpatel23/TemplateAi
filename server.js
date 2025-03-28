@@ -26,7 +26,7 @@ app.get("/", (req, res) => {
 // Save chat messages to MongoDB
 app.post("/api/chats", async (req, res) => {
   try {
-    const { userId, text } = req.body;
+    const { userId, text, role } = req.body;
 
     if (!userId || !text) {
       return res.status(400).json({ error: "userId and text are required" });
@@ -41,7 +41,7 @@ app.post("/api/chats", async (req, res) => {
 
     // Add message to chat history
     chat.history.push({
-      role: "user",
+      role: role || "user", // Use the role from request body, default to "user" if not provided
       parts: [{ text }],
     });
 
