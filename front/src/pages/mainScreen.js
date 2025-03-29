@@ -8,7 +8,7 @@ import { useClerk } from "@clerk/clerk-react";
 import { useTheme } from "../context/theme-context.tsx";
 import { SignedOut, SignInButton, SignedIn, UserButton } from "@clerk/clerk-react";
 
-export default function MainScreen({ messages, setMessages, sidebarOpen }) {
+export default function MainScreen({ messages, setMessages, sidebarOpen, currentChatId, setCurrentChatId, onMessageSent }) {
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
   const [likedMessages, setLikedMessages] = useState({});
@@ -19,13 +19,16 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   const { openSignIn } = useClerk();
   const { theme } = useTheme();
 
-  // Add useEffect to fetch chat history
+  // Add useEffect to fetch chat history when currentChatId changes
   useEffect(() => {
     const fetchChatHistory = async () => {
-      if (!user || !user.id) return;
+      if (!user || !user.id || !currentChatId) {
+        setMessages([]); // Clear messages if no chat is selected
+        return;
+      }
 
       try {
-        const response = await fetch(`http://localhost:8080/api/chats/${user.id}`);
+        const response = await fetch(`http://localhost:8080/api/chats/${user.id}/${currentChatId}`);
         const data = await response.json();
         
         if (data.chat && data.chat.history) {
@@ -45,7 +48,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
     };
 
     fetchChatHistory();
-  }, [user, setMessages]);
+  }, [user, setMessages, currentChatId]);
 
   const toggleLike = (index) => {
     setLikedMessages((prev) => ({
@@ -110,14 +113,25 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
   
     try {
       // Save user message
-      await fetch("http://localhost:8080/api/chats", {
+      const response = await fetch("http://localhost:8080/api/chats", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ userId, text }),
+        body: JSON.stringify({ 
+          userId, 
+          text,
+          chatId: currentChatId // Include currentChatId if it exists
+        }),
       });
 
+      const data = await response.json();
+      
+      // Set the current chat ID if this is a new chat
+      if (!currentChatId && data.chat._id) {
+        setCurrentChatId(data.chat._id);
+      }
+      
       // Add user message to UI
       setMessages(prev => [...prev, { type: "user", text }]);
 
@@ -131,7 +145,8 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
         body: JSON.stringify({ 
           userId, 
           text: modelResponse,
-          role: "model"  // This ensures the dummy response is stored as model role
+          role: "model",
+          chatId: currentChatId || data.chat._id // Use current chat ID or the new one
         }),
       });
 
@@ -140,6 +155,9 @@ export default function MainScreen({ messages, setMessages, sidebarOpen }) {
       
       // Increment the counter
       setDummyResponseCounter(prev => prev + 1);
+      
+      // Trigger sidebar refresh
+      onMessageSent();
       
       inputRef.current.value = "";
     } catch (error) {

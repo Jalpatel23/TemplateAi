@@ -1,19 +1,50 @@
 "use client";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Plus, ChevronsRight, ChevronsLeft, Sun, Moon } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useTheme } from "../context/theme-context.tsx";
+import { useUser } from "@clerk/clerk-react";
 
-export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen }) {
+export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewChat, refreshChats, onChatSelect, currentChatId }) {
   const dropdownRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
+  const { user } = useUser();
+  const [userChats, setUserChats] = useState([]);
+
+  // Fetch user's chat list
+  useEffect(() => {
+    const fetchUserChats = async () => {
+      if (!user || !user.id) return;
+
+      try {
+        const response = await fetch(`http://localhost:8080/api/user-chats/${user.id}`);
+        const data = await response.json();
+        
+        if (data.userChats && data.userChats.chats) {
+          setUserChats(data.userChats.chats);
+        }
+      } catch (error) {
+        console.error("Error fetching user chats:", error);
+      }
+    };
+
+    fetchUserChats();
+  }, [user, refreshChats]);
+
+  const handleNewChat = () => {
+    onNewChat();
+  };
+
+  const handleChatSelect = (chatId) => {
+    onChatSelect(chatId);
+  };
 
   return (
     <>
       {/* Sidebar */}
       <div className={`sidebar ${sidebarOpen ? "" : "closed"} d-none d-md-flex flex-column`}>
         <div className="d-flex justify-content-between align-items-center p-2">
-          <button className="btn btn-link">
+          <button className="btn btn-link" onClick={handleNewChat}>
             <Plus size={20} color="var(--icon-color)" />
           </button>
           <div className="d-flex">
@@ -39,10 +70,17 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen }) {
 
         <div className="conversation-list">
           <div className="px-3 py-2">
-            <small className="conversation-date">Today</small>
-            <div className="conversation-item">how are you?</div>
-            <div className="conversation-item">what are you doing?</div>
-            <div className="conversation-item">is there any way we can do this wothout</div>
+            <small className="conversation-date">Chats</small>
+            {userChats.map((chat, index) => (
+              <div 
+                key={chat._id} 
+                className={`conversation-item ${currentChatId === chat._id ? 'active' : ''}`}
+                onClick={() => handleChatSelect(chat._id)}
+                style={{ cursor: 'pointer' }}
+              >
+                {chat.title}
+              </div>
+            ))}
           </div>
         </div>
       </div>
