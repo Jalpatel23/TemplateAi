@@ -405,3 +405,114 @@ body {
   right: 0;
   transition: all 0.5s ease;
 }
+
+/* Message Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Typing Animation */
+@keyframes typing {
+  0% { content: "Thinking"; }
+  25% { content: "Thinking."; }
+  50% { content: "Thinking.."; }
+  75% { content: "Thinking..."; }
+  100% { content: "Thinking"; }
+}
+
+.typing-animation::after {
+  content: "Thinking";
+  animation: typing 1.5s infinite;
+}
+
+/* Input Area Enhancements */
+.input-container {
+  transition: all 0.3s ease;
+}
+
+.input-container:focus-within {
+  box-shadow: 0 0 0 2px var(--text-primary);
+  transform: translateY(-1px);
+}
+
+.input-container .form-control:disabled {
+  background-color: var(--bg-input);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Message Actions Enhancement */
+.message-actions .btn-link {
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.message-actions .btn-link:hover {
+  background-color: var(--hover-bg);
+  transform: translateY(-1px);
+}
+
+.message-actions .btn-link:active {
+  transform: translateY(0);
+}
+
+/* Loading Spinner Enhancement */
+.spinner-border {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15em;
+}
+
+/* Message Content Enhancement */
+.message-content {
+  transition: all 0.2s ease;
+}
+
+.message-content:hover {
+  transform: translateY(-1px);
+}
+
+/* Disabled Button Enhancement */
+.btn-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Smooth Scroll Enhancement */
+.chat-area {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Message Spacing Enhancement */
+.message {
+  margin-bottom: 1.5rem;
+  transition: all 0.2s ease;
+}
+
+.message:hover {
+  transform: translateX(2px);
+}
+
+/* Input Placeholder Enhancement */
+.form-control::placeholder {
+  transition: all 0.3s ease;
+  opacity: 0.7;
+}
+
+.form-control:focus::placeholder {
+  opacity: 1;
+}

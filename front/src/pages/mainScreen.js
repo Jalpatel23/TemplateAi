@@ -18,6 +18,8 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   const [dummyResponseCounter, setDummyResponseCounter] = useState(1);
   const { openSignIn } = useClerk();
   const { theme } = useTheme();
+  const [isLoading, setIsLoading] = useState(false);
+  const [inputPlaceholder, setInputPlaceholder] = useState("Type Here");
 
   // Add useEffect to fetch chat history when currentChatId changes
   useEffect(() => {
@@ -49,6 +51,11 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
 
     fetchChatHistory();
   }, [user, setMessages, currentChatId]);
+
+  // Update input placeholder based on loading state
+  useEffect(() => {
+    setInputPlaceholder(isLoading ? "AI is thinking..." : "Type Here");
+  }, [isLoading]);
 
   const toggleLike = (index) => {
     setLikedMessages((prev) => ({
@@ -112,6 +119,8 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
     const userId = user.id; // Clerk user ID
   
     try {
+      setIsLoading(true); // Start loading
+      
       // Save user message
       const response = await fetch("http://localhost:8080/api/chats", {
         method: "POST",
@@ -132,11 +141,43 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
         setCurrentChatId(data.chat._id);
       }
       
-      // Add user message to UI
-      setMessages(prev => [...prev, { type: "user", text }]);
+      // Add user message to UI with animation
+      setMessages(prev => [...prev, { 
+        type: "user", 
+        text,
+        animation: "fade-in"
+      }]);
 
-      // Generate and save model response with counter
-      const modelResponse = `Dummy response ${dummyResponseCounter}`;
+      // Add loading message with typing animation
+      setMessages(prev => [...prev, { 
+        type: "assistant", 
+        text: "Thinking", 
+        isLoading: true,
+        animation: "fade-in"
+      }]);
+
+      // Call Gemini API
+      const geminiResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp:generateContent?key=AIzaSyDXwdeGwUS01AjUXnec3jijXmBPjIsknf8", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{
+            parts: [{
+              text: text
+            }]
+          }]
+        })
+      });
+
+      const geminiData = await geminiResponse.json();
+      const modelResponse = geminiData.candidates[0].content.parts[0].text;
+
+      // Remove loading message
+      setMessages(prev => prev.filter(msg => !msg.isLoading));
+
+      // Save model response to database
       await fetch("http://localhost:8080/api/chats", {
         method: "POST",
         headers: {
@@ -150,18 +191,29 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
         }),
       });
 
-      // Add model response to UI as assistant type
-      setMessages(prev => [...prev, { type: "assistant", text: modelResponse }]);
-      
-      // Increment the counter
-      setDummyResponseCounter(prev => prev + 1);
+      // Add model response to UI as assistant type with animation
+      setMessages(prev => [...prev, { 
+        type: "assistant", 
+        text: modelResponse,
+        animation: "fade-in"
+      }]);
       
       // Trigger sidebar refresh
       onMessageSent();
       
       inputRef.current.value = "";
     } catch (error) {
-      console.error("Error saving chat:", error);
+      console.error("Error in chat:", error);
+      // Remove loading message if it exists
+      setMessages(prev => prev.filter(msg => !msg.isLoading));
+      // Show error message to user with animation
+      setMessages(prev => [...prev, { 
+        type: "assistant", 
+        text: "I apologize, but I encountered an error processing your request. Please try again.",
+        animation: "fade-in"
+      }]);
+    } finally {
+      setIsLoading(false); // End loading regardless of success or failure
     }
   };
   
@@ -196,19 +248,46 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       {/* Chat Area */}
       <div className="chat-area flex-grow-1">
         {messages.map((message, index) => (
-          <div key={index} className={`message ${message.type}`} style={{ alignSelf: message.type === "user" ? "flex-end" : "flex-start" }}>
+          <div 
+            key={index} 
+            className={`message ${message.type} ${message.animation || ''}`} 
+            style={{ alignSelf: message.type === "user" ? "flex-end" : "flex-start" }}
+          >
             <div className="message-content">
-              <p>{message.text}</p>
+              <p>
+                {message.isLoading ? (
+                  <span className="d-flex align-items-center">
+                    <div className="spinner-border spinner-border-sm me-2" role="status">
+                      <span className="visually-hidden">Loading...</span>
+                    </div>
+                    <span className="typing-animation">{message.text}</span>
+                  </span>
+                ) : (
+                  message.text
+                )}
+              </p>
 
-              {message.type === "assistant" && (
+              {message.type === "assistant" && !message.isLoading && (
                 <div className="message-actions">
-                  <button className="btn btn-link" onClick={() => handleCopy(index, message.text)}>
+                  <button 
+                    className="btn btn-link" 
+                    onClick={() => handleCopy(index, message.text)}
+                    title="Copy message"
+                  >
                     <Copy size={16} color={copiedMessages[index] ? "var(--text-primary)" : "var(--icon-color)"} fill={copiedMessages[index] ? "var(--text-primary)" : "none"} />
                   </button>
-                  <button className="btn btn-link" onClick={() => toggleLike(index)}>
+                  <button 
+                    className="btn btn-link" 
+                    onClick={() => toggleLike(index)}
+                    title="Like message"
+                  >
                     <ThumbsUp size={16} color={likedMessages[index] ? "var(--text-primary)" : "var(--icon-color)"} fill={likedMessages[index] ? "var(--text-primary)" : "none"} />
                   </button>
-                  <button className="btn btn-link" onClick={() => toggleDislike(index)}>
+                  <button 
+                    className="btn btn-link" 
+                    onClick={() => toggleDislike(index)}
+                    title="Dislike message"
+                  >
                     <ThumbsDown size={16} color={dislikedMessages[index] ? "var(--text-primary)" : "var(--icon-color)"} fill={dislikedMessages[index] ? "var(--text-primary)" : "none"} />
                   </button>
                 </div>
@@ -225,9 +304,21 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       <form onSubmit={handleSubmit} className="d-flex align-items-center">
         <div className={`input-area ${sidebarOpen ? "" : "full-width"}`}>
           <div className="input-container mb-3">
-            <input ref={inputRef} type="text" name="text" placeholder="Type Here" className="form-control" />
-            <button type="submit" className="btn btn-link">
-              <Send size={16} color="var(--icon-color)" />
+            <input 
+              ref={inputRef} 
+              type="text" 
+              name="text" 
+              placeholder={inputPlaceholder}
+              className="form-control" 
+              disabled={isLoading}
+            />
+            <button 
+              type="submit" 
+              className="btn btn-link"
+              disabled={isLoading}
+              title={isLoading ? "Please wait..." : "Send message"}
+            >
+              <Send size={16} color={isLoading ? "var(--text-muted)" : "var(--icon-color)"} />
             </button>
           </div>
         </div>
