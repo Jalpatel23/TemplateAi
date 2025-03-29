@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Copy, ThumbsUp, ThumbsDown, RotateCcw, MoreHorizontal, User } from 'lucide-react';
+import { Send, Copy, ThumbsUp, ThumbsDown, User } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useUser } from "@clerk/clerk-react";
 import '.././styles.css';
@@ -210,12 +210,6 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                   </button>
                   <button className="btn btn-link" onClick={() => toggleDislike(index)}>
                     <ThumbsDown size={16} color={dislikedMessages[index] ? "var(--text-primary)" : "var(--icon-color)"} fill={dislikedMessages[index] ? "var(--text-primary)" : "none"} />
-                  </button>
-                  <button className="btn btn-link">
-                    <RotateCcw size={16} color="var(--icon-color)"/>
-                  </button>
-                  <button className="btn btn-link">
-                    <MoreHorizontal size={16} color="var(--icon-color)"/>
                   </button>
                 </div>
               )}
