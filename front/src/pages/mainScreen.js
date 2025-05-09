@@ -157,7 +157,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       }]);
 
       // Call Gemini API
-      const geminiResponse = await fetch(process.env.Model_key, {
+      const geminiResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp:generateContent?key=AIzaSyDXwdeGwUS01AjUXnec3jijXmBPjIsknf8", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
