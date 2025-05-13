@@ -20,6 +20,8 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [inputPlaceholder, setInputPlaceholder] = useState("Type Here");
+  const [guestMessageCount, setGuestMessageCount] = useState(0);
+  const MAX_GUEST_MESSAGES = 5;
 
   // Add useEffect to fetch chat history when currentChatId changes
   useEffect(() => {
@@ -103,6 +105,12 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
     const text = inputRef.current.value.trim();
     if (!text) return;
 
+    // Check if user is not logged in and has reached the message limit
+    if (!user && guestMessageCount >= MAX_GUEST_MESSAGES) {
+      openSignIn();
+      return;
+    }
+
     try {
       setIsLoading(true); // Start loading
       
@@ -180,6 +188,9 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
 
         // Trigger sidebar refresh
         onMessageSent();
+      } else {
+        // Increment guest message count for non-logged-in users
+        setGuestMessageCount(prev => prev + 1);
       }
 
       // Add model response to UI as assistant type with animation
@@ -188,6 +199,15 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
         text: modelResponse,
         animation: "fade-in"
       }]);
+
+      // Show limit message after API response if this was the last allowed message
+      if (!user && guestMessageCount + 1 >= MAX_GUEST_MESSAGES) {
+        setMessages(prev => [...prev, { 
+          type: "assistant", 
+          text: "You've reached the limit of 5 messages. Please sign in to continue chatting.",
+          animation: "fade-in"
+        }]);
+      }
       
       inputRef.current.value = "";
     } catch (error) {
@@ -204,7 +224,19 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       setIsLoading(false); // End loading regardless of success or failure
     }
   };
-  
+
+  // Add message count display for non-logged-in users
+  const renderMessageCount = () => {
+    if (!user && guestMessageCount < MAX_GUEST_MESSAGES) {
+      return (
+        <div className="text-center text-muted mb-2">
+          Messages remaining: {MAX_GUEST_MESSAGES - guestMessageCount}
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className={`main-content ${sidebarOpen ? "" : "without-sidebar"} d-flex flex-column`}>
       {/* Profile Icon (Top Right) */}
@@ -231,6 +263,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
             Welcome, <strong>{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}</strong>!
           </h5>
         )}
+        {!user && renderMessageCount()}
       </div>
 
       {/* Chat Area */}
