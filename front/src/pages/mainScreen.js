@@ -102,44 +102,9 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
     e.preventDefault();
     const text = inputRef.current.value.trim();
     if (!text) return;
-  
-    if (!user || !user.id) {
-      console.warn("User not logged in, proceeding as guest.");
-      // For guest users, just update UI without saving to DB
-      setMessages(prev => [
-        ...prev,
-        { type: "user", text },
-        { type: "assistant", text: `Dummy response ${dummyResponseCounter}` }
-      ]);
-      setDummyResponseCounter(prev => prev + 1);
-      inputRef.current.value = "";
-      return;
-    }
-  
-    const userId = user.id; // Clerk user ID
-  
+
     try {
       setIsLoading(true); // Start loading
-      
-      // Save user message
-      const response = await fetch("http://localhost:8080/api/chats", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
-          userId, 
-          text,
-          chatId: currentChatId // Include currentChatId if it exists
-        }),
-      });
-
-      const data = await response.json();
-      
-      // Set the current chat ID if this is a new chat
-      if (!currentChatId && data.chat._id) {
-        setCurrentChatId(data.chat._id);
-      }
       
       // Add user message to UI with animation
       setMessages(prev => [...prev, { 
@@ -177,19 +142,45 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       // Remove loading message
       setMessages(prev => prev.filter(msg => !msg.isLoading));
 
-      // Save model response to database
-      await fetch("http://localhost:8080/api/chats", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ 
-          userId, 
-          text: modelResponse,
-          role: "model",
-          chatId: currentChatId || data.chat._id // Use current chat ID or the new one
-        }),
-      });
+      // Only save to database if user is logged in
+      if (user && user.id) {
+        // Save user message
+        const response = await fetch("http://localhost:8080/api/chats", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ 
+            userId: user.id, 
+            text,
+            chatId: currentChatId
+          }),
+        });
+
+        const data = await response.json();
+        
+        // Set the current chat ID if this is a new chat
+        if (!currentChatId && data.chat._id) {
+          setCurrentChatId(data.chat._id);
+        }
+
+        // Save model response to database
+        await fetch("http://localhost:8080/api/chats", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ 
+            userId: user.id, 
+            text: modelResponse,
+            role: "model",
+            chatId: currentChatId || data.chat._id
+          }),
+        });
+
+        // Trigger sidebar refresh
+        onMessageSent();
+      }
 
       // Add model response to UI as assistant type with animation
       setMessages(prev => [...prev, { 
@@ -197,9 +188,6 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
         text: modelResponse,
         animation: "fade-in"
       }]);
-      
-      // Trigger sidebar refresh
-      onMessageSent();
       
       inputRef.current.value = "";
     } catch (error) {
