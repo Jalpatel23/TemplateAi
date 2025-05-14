@@ -130,6 +130,9 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
         animation: "fade-in"
       }]);
 
+      // Clear input immediately after sending
+      inputRef.current.value = "";
+
       // Add loading message with typing animation
       setMessages(prev => [...prev, { 
         type: "assistant", 
@@ -217,8 +220,6 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
           animation: "fade-in"
         }]);
       }
-      
-      inputRef.current.value = "";
     } catch (error) {
       console.error("Error in chat:", error);
       // Remove loading message if it exists
@@ -340,7 +341,8 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
               name="text" 
               placeholder={inputPlaceholder}
               className="form-control" 
-              disabled={isLoading}
+              disabled={false}
+              autoComplete="off"
             />
             <button 
               type="submit" 
