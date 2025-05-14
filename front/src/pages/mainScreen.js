@@ -124,7 +124,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       // Add loading message with typing animation
       setMessages(prev => [...prev, { 
         type: "assistant", 
-        text: "Thinking", 
+        text: "",
         isLoading: true,
         animation: "fade-in"
       }]);
@@ -279,9 +279,9 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                 {message.isLoading ? (
                   <span className="d-flex align-items-center">
                     <div className="spinner-border spinner-border-sm me-2" role="status">
-                      <span className="visually-hidden">Loading...</span>
+                      <span className="visually-hidden">Thinking...</span>
                     </div>
-                    <span className="typing-animation">{message.text}</span>
+                    <span className="typing-animation"></span>
                   </span>
                 ) : (
                   message.text
