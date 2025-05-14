@@ -160,56 +160,20 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
         <div className="conversation-list">
           <div className="px-3 py-2">
             <small className="conversation-date">Chats</small>
-            {userChats.map((chat, index) => (
-              <div 
-                key={chat._id} 
-                className={`conversation-item ${currentChatId === chat._id ? 'active' : ''}`}
+            {userChats.map((chat) => (
+              <div
+                key={chat._id}
+                className={`conversation-item ${chat._id === currentChatId ? 'active' : ''}`}
                 onClick={() => handleChatSelect(chat._id)}
-                style={{ cursor: 'pointer' }}
               >
-                <div className="d-flex justify-content-between align-items-center w-100">
-                  <span className="text-truncate me-2">{chat.title}</span>
-                  <div className="position-relative">
-                    <button 
-                      className="btn btn-link p-0"
-                      onClick={(e) => handleDropdownClick(e, chat._id)}
-                    >
-                      <MoreHorizontal size={16} color="var(--icon-color)" />
-                    </button>
-                    {activeDropdown === chat._id && (
-                      <div 
-                        className="dropdown-menu show" 
-                        style={{ 
-                          position: 'fixed',
-                          top: `${dropdownPosition.top}px`,
-                          left: `${dropdownPosition.left}px`,
-                          zIndex: 9999,
-                          minWidth: '150px',
-                          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-                          backgroundColor: 'var(--bg-primary)',
-                          border: '1px solid var(--border-color)',
-                          borderRadius: '4px',
-                          marginTop: '4px'
-                        }}
-                      >
-                        <button 
-                          className="dropdown-item d-flex align-items-center"
-                          onClick={(e) => handleRenameChat(e, chat._id)}
-                          style={{ color: 'var(--text-primary)' }}
-                        >
-                          <Edit2 size={16} className="me-2" />
-                          Rename
-                        </button>
-                        <button 
-                          className="dropdown-item d-flex align-items-center text-danger"
-                          onClick={(e) => handleDeleteChat(e, chat._id)}
-                        >
-                          <Trash2 size={16} className="me-2" />
-                          Delete
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                <div className="d-flex justify-content-between align-items-center">
+                  <span>{chat.title || "New Chat"}</span>
+                  <button
+                    className="btn btn-link p-0"
+                    onClick={(e) => handleDropdownClick(e, chat._id)}
+                  >
+                    <MoreHorizontal size={16} />
+                  </button>
                 </div>
               </div>
             ))}

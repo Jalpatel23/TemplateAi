@@ -113,6 +113,14 @@
   font-weight: bold;
 }
 
+/* Active chat highlight */
+.conversation-item.active {
+  background: var(--hover-bg);
+  font-weight: bold;
+  border-left: 3px solid var(--text-primary);
+  padding-left: 12px;
+}
+
 /* Chat Area */
 .chat-area {
   flex-grow: 1;
@@ -124,7 +132,12 @@
 /* Messages */
 .message {
   display: flex;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
+  transition: all 0.2s ease;
+}
+
+.message:hover {
+  transform: translateX(2px);
 }
 
 .message-content {
@@ -495,16 +508,6 @@ body {
 .chat-area {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-}
-
-/* Message Spacing Enhancement */
-.message {
-  margin-bottom: 1.5rem;
-  transition: all 0.2s ease;
-}
-
-.message:hover {
-  transform: translateX(2px);
 }
 
 /* Input Placeholder Enhancement */
