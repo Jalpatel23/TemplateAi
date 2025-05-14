@@ -20,8 +20,17 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [inputPlaceholder, setInputPlaceholder] = useState("Type Here");
-  const [guestMessageCount, setGuestMessageCount] = useState(0);
+  const [guestMessageCount, setGuestMessageCount] = useState(() => {
+    // Initialize from localStorage or default to 0
+    const savedCount = localStorage.getItem('guestMessageCount');
+    return savedCount ? parseInt(savedCount) : 0;
+  });
   const MAX_GUEST_MESSAGES = 5;
+
+  // Add useEffect to save guestMessageCount to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('guestMessageCount', guestMessageCount.toString());
+  }, [guestMessageCount]);
 
   // Add useEffect to fetch chat history when currentChatId changes
   useEffect(() => {
