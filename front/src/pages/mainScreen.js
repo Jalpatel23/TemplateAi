@@ -7,6 +7,9 @@ import '.././styles.css';
 import { useClerk } from "@clerk/clerk-react";
 import { useTheme } from "../context/theme-context.tsx";
 import { SignedOut, SignInButton, SignedIn, UserButton } from "@clerk/clerk-react";
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 
 export default function MainScreen({ messages, setMessages, sidebarOpen, currentChatId, setCurrentChatId, onMessageSent }) {
   const chatEndRef = useRef(null);
@@ -294,7 +297,29 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                     <span className="typing-animation"></span>
                   </span>
                 ) : (
-                  message.text
+                  <ReactMarkdown
+                    components={{
+                      code({ node, inline, className, children, ...props }) {
+                        const match = /language-(\w+)/.exec(className || '');
+                        return !inline && match ? (
+                          <SyntaxHighlighter
+                            style={theme === 'light' ? oneLight : oneDark}
+                            language={match[1]}
+                            PreTag="div"
+                            {...props}
+                          >
+                            {String(children).replace(/\n$/, '')}
+                          </SyntaxHighlighter>
+                        ) : (
+                          <code className={className} {...props}>
+                            {children}
+                          </code>
+                        );
+                      }
+                    }}
+                  >
+                    {message.text}
+                  </ReactMarkdown>
                 )}
               </p>
 

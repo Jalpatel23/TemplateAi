@@ -519,3 +519,29 @@ body {
 .form-control:focus::placeholder {
   opacity: 1;
 }
+
+/* Code Block Styles */
+pre {
+  border-radius: 8px;
+  margin: 1rem 0;
+  padding: 1rem;
+  overflow-x: auto;
+}
+
+code {
+  font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+  font-size: 0.95em;
+}
+
+/* Adjust code block width to match message content */
+.message-content pre {
+  max-width: 100%;
+  margin: 0.5rem 0;
+}
+
+/* Ensure code blocks don't overflow on mobile */
+@media (max-width: 768px) {
+  .message-content pre {
+    max-width: calc(100vw - 2rem);
+  }
+}
