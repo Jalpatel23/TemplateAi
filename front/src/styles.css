@@ -545,3 +545,24 @@ code {
     max-width: calc(100vw - 2rem);
   }
 }
+
+.code-block-container {
+  position: relative;
+}
+
+.code-copy-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.code-block-container:hover .code-copy-btn {
+  opacity: 1;
+}
+
+.code-copy-btn:hover {
+  opacity: 1 !important;
+}

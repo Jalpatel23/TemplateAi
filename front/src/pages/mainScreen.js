@@ -302,14 +302,39 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                       code({ node, inline, className, children, ...props }) {
                         const match = /language-(\w+)/.exec(className || '');
                         return !inline && match ? (
-                          <SyntaxHighlighter
-                            style={theme === 'light' ? oneLight : oneDark}
-                            language={match[1]}
-                            PreTag="div"
-                            {...props}
-                          >
-                            {String(children).replace(/\n$/, '')}
-                          </SyntaxHighlighter>
+                          <div className="code-block-container">
+                            <SyntaxHighlighter
+                              style={theme === 'light' ? oneLight : oneDark}
+                              language={match[1]}
+                              PreTag="div"
+                              {...props}
+                            >
+                              {String(children).replace(/\n$/, '')}
+                            </SyntaxHighlighter>
+                            <button 
+                              className="btn btn-link code-copy-btn" 
+                              onClick={() => {
+                                navigator.clipboard.writeText(String(children).replace(/\n$/, ''));
+                                setCopiedMessages((prev) => ({
+                                  ...prev,
+                                  [`code-${node.position?.start.line}`]: true,
+                                }));
+                                setTimeout(() => {
+                                  setCopiedMessages((prev) => ({
+                                    ...prev,
+                                    [`code-${node.position?.start.line}`]: false,
+                                  }));
+                                }, 1000);
+                              }}
+                              title="Copy code"
+                            >
+                              <Copy 
+                                size={16} 
+                                color={copiedMessages[`code-${node.position?.start.line}`] ? "var(--text-primary)" : "var(--icon-color)"} 
+                                fill={copiedMessages[`code-${node.position?.start.line}`] ? "var(--text-primary)" : "none"} 
+                              />
+                            </button>
+                          </div>
                         ) : (
                           <code className={className} {...props}>
                             {children}
