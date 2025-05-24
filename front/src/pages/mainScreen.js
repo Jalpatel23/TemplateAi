@@ -218,7 +218,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       // Show limit message after API response if this was the last allowed message
       if (!user && guestMessageCount + 1 >= MAX_GUEST_MESSAGES) {
         setMessages(prev => [...prev, { 
-          type: "assistant", 
+          type: "system", 
           text: "You've reached the limit of 5 messages. Please sign in to continue chatting.",
           animation: "fade-in"
         }]);
