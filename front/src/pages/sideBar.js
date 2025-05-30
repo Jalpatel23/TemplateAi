@@ -130,33 +130,54 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
 
   return (
     <>
+      {/* Hamburger menu for mobile */}
+      <button
+        className="open-sidebar-btn"
+        style={{ position: 'fixed', top: 10, left: 10, zIndex: 2100, display: sidebarOpen ? 'none' : 'block' }}
+        onClick={() => setSidebarOpen(true)}
+        aria-label="Open sidebar"
+      >
+        <ChevronsRight size={24} color="var(--icon-color)" />
+      </button>
+
       {/* Sidebar */}
-      <div className={`sidebar ${sidebarOpen ? "" : "closed"} d-none d-md-flex flex-column`}>
+      <div
+        className={`sidebar ${sidebarOpen ? 'open' : 'closed'} ${!sidebarOpen ? 'd-none d-md-flex' : ''} flex-column`}
+        style={{ zIndex: 2000 }}
+      >
         <div className="d-flex justify-content-between align-items-center p-2">
           <button className="btn btn-link" onClick={handleNewChat}>
             <Plus size={20} color="var(--icon-color)" />
           </button>
           <div className="d-flex">
-            <button 
-              className="btn btn-link theme-toggle me-2" 
-              onClick={toggleTheme} 
+            <button
+              className="btn btn-link theme-toggle me-2"
+              onClick={toggleTheme}
               title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
             >
-              {theme === "dark" ? 
-                <Sun size={20} color="var(--icon-color)" /> : 
+              {theme === "dark" ? (
+                <Sun size={20} color="var(--icon-color)" />
+              ) : (
                 <Moon size={20} color="var(--icon-color)" />
-              }
+              )}
             </button>
-            <button className="btn btn-link" onClick={() => setSidebarOpen(false)}>
+            <button className="btn btn-link d-none d-md-inline" onClick={() => setSidebarOpen(false)}>
+              <ChevronsLeft size={20} color="var(--icon-color)" />
+            </button>
+            {/* Mobile close button */}
+            <button
+              className="btn btn-link d-md-none"
+              style={{ marginLeft: 8 }}
+              onClick={() => setSidebarOpen(false)}
+              aria-label="Close sidebar"
+            >
               <ChevronsLeft size={20} color="var(--icon-color)" />
             </button>
           </div>
         </div>
-
         <div className="p-2 d-flex align-items-center justify-content-center w-100 app-title" style={{ fontSize: "24px" }}>
           <span>Hate Speech Detection</span>
         </div>
-
         <div className="conversation-list">
           <div className="px-3 py-2">
             <small className="conversation-date">Chats</small>

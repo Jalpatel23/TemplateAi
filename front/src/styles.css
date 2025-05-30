@@ -566,3 +566,147 @@ code {
 .code-copy-btn:hover {
   opacity: 1 !important;
 }
+
+/* --- Responsive Design Additions --- */
+
+@media (max-width: 1200px) {
+  .main-content, .input-container {
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 992px) {
+  .main-content {
+    padding-left: 0;
+    margin-left: 0;
+  }
+  .sidebar {
+    width: 220px;
+  }
+  .input-container {
+    max-width: 95vw;
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 80vw;
+    max-width: 320px;
+    height: 100vh;
+    z-index: 2000;
+    transform: translateX(-100%);
+    transition: transform 0.3s;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .sidebar.closed {
+    transform: translateX(-100%);
+  }
+  .main-content {
+    margin-left: 0 !important;
+    padding: 1rem 0.5rem 5rem 0.5rem;
+  }
+  .input-area {
+    left: 0 !important;
+    right: 0 !important;
+    padding: 0.5rem;
+  }
+  .input-container {
+    max-width: 100vw;
+    padding: 4px;
+  }
+  .chat-area {
+    padding: 1rem 0.2rem;
+    max-height: calc(100vh - 120px);
+  }
+  .profile-container {
+    right: 1rem !important;
+    top: 1rem !important;
+    margin: 0 !important;
+  }
+  .app-title {
+    font-size: 18px !important;
+  }
+  .conversation-item {
+    font-size: 13px;
+    padding: 6px;
+  }
+  .message-content {
+    max-width: 98vw;
+    padding: 0.5rem;
+  }
+  .message {
+    margin-bottom: 1.2rem;
+  }
+  .btn-link, .code-copy-btn {
+    padding: 2px 4px;
+  }
+}
+
+@media (max-width: 576px) {
+  .sidebar {
+    width: 95vw;
+    max-width: 100vw;
+  }
+  .main-content {
+    padding: 0.5rem 0.1rem 4rem 0.1rem;
+  }
+  .input-area {
+    padding: 0.2rem;
+  }
+  .input-container {
+    padding: 2px;
+    font-size: 15px;
+  }
+  .chat-area {
+    padding: 0.5rem 0.1rem;
+    max-height: calc(100vh - 100px);
+  }
+  .message-content {
+    font-size: 15px;
+  }
+  .profile-container {
+    top: 0.5rem !important;
+    right: 0.5rem !important;
+  }
+  .app-title {
+    font-size: 15px !important;
+  }
+  .conversation-item {
+    font-size: 12px;
+    padding: 4px;
+  }
+  .message {
+    margin-bottom: 0.7rem;
+  }
+}
+
+/* Responsive 404 page */
+@media (max-width: 768px) {
+  .notfound-404 {
+    font-size: 3rem !important;
+  }
+  .notfound-title {
+    font-size: 1.5rem !important;
+  }
+  .notfound-btns button {
+    font-size: 1rem !important;
+    padding: 0.5rem 1rem !important;
+  }
+}
+@media (max-width: 480px) {
+  .notfound-404 {
+    font-size: 2rem !important;
+  }
+  .notfound-title {
+    font-size: 1.1rem !important;
+  }
+  .notfound-btns button {
+    font-size: 0.9rem !important;
+    padding: 0.3rem 0.7rem !important;
+  }
+}
