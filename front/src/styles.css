@@ -106,6 +106,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100%; /* Ensures text stays within container */
+  overflow: visible !important;
 }
 
 .conversation-item:hover {

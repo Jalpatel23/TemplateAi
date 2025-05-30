@@ -11,7 +11,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
   const { user } = useUser();
   const [userChats, setUserChats] = useState([]);
   const [activeDropdown, setActiveDropdown] = useState(null);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
+  const [dropdownDirection, setDropdownDirection] = useState('down');
 
   // Fetch user's chat list
   useEffect(() => {
@@ -43,13 +43,16 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
 
   const handleDropdownClick = (e, chatId) => {
     e.stopPropagation();
-    if (activeDropdown !== chatId) {
-      const button = e.currentTarget;
-      const rect = button.getBoundingClientRect();
-      setDropdownPosition({
-        top: rect.bottom + window.scrollY,
-        left: rect.left
-      });
+    // Determine if dropdown should open up or down
+    const button = e.currentTarget;
+    const rect = button.getBoundingClientRect();
+    const list = document.querySelector('.conversation-list');
+    const listRect = list ? list.getBoundingClientRect() : { bottom: window.innerHeight };
+    const dropdownHeight = 80; // Approximate height of dropdown (2 items)
+    if (listRect.bottom - rect.bottom < dropdownHeight) {
+      setDropdownDirection('up');
+    } else {
+      setDropdownDirection('down');
     }
     setActiveDropdown(activeDropdown === chatId ? null : chatId);
   };
@@ -57,76 +60,52 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
   const handleDeleteChat = async (e, chatId) => {
     e.stopPropagation();
     try {
-      // Remove the chat from userchats collection (this will also delete from chat collection)
       const response = await fetch(`http://localhost:8080/api/user-chats/${user.id}/remove-chat`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chatId })
       });
-
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to delete chat');
-      }
-
-      // Update the UI
+      if (!response.ok) throw new Error(data.message || 'Failed to delete chat');
       setUserChats(prevChats => prevChats.filter(chat => chat._id !== chatId));
-      
-      // If the deleted chat was selected, clear the selection
-      if (currentChatId === chatId) {
-        onChatSelect(null);
-      }
-
-      // Close the dropdown
+      if (currentChatId === chatId) onChatSelect(null);
       setActiveDropdown(null);
-
-      // Trigger a refresh of the chat list
-      onNewChat(); // This will trigger a refresh of the chat list
+      onNewChat();
     } catch (error) {
-      console.error("Error deleting chat:", error);
-      alert(error.message || "Failed to delete chat. Please try again.");
+      console.error('Error deleting chat:', error);
+      alert(error.message || 'Failed to delete chat. Please try again.');
     }
   };
 
   const handleRenameChat = async (e, chatId, currentTitle) => {
     e.stopPropagation();
-    
-    // Prompt for the new title
-    const newTitle = prompt("Enter new chat title", currentTitle);
-
+    const newTitle = prompt('Enter new chat title', currentTitle);
     if (newTitle && newTitle !== currentTitle) {
       try {
-        // Send the updated title to the backend
         const response = await fetch(`http://localhost:8080/api/user-chats/${user.id}/update-chat-title`, {
           method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ chatId, newTitle }),
         });
-
         const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.message || 'Failed to update chat title');
-        }
-
-        // Update the chat list with the new title
-        setUserChats(prevChats =>
-          prevChats.map(chat =>
-            chat._id === chatId ? { ...chat, title: newTitle } : chat
-          )
-        );
+        if (!response.ok) throw new Error(data.message || 'Failed to update chat title');
+        setUserChats(prevChats => prevChats.map(chat => chat._id === chatId ? { ...chat, title: newTitle } : chat));
+        setActiveDropdown(null);
       } catch (error) {
-        console.error("Error renaming chat:", error);
-        alert(error.message || "Failed to rename chat. Please try again.");
+        console.error('Error renaming chat:', error);
+        alert(error.message || 'Failed to rename chat. Please try again.');
       }
     }
   };
 
+  // Click-away handler to close dropdown
+  useEffect(() => {
+    const handleClick = () => setActiveDropdown(null);
+    if (activeDropdown !== null) {
+      window.addEventListener('click', handleClick);
+      return () => window.removeEventListener('click', handleClick);
+    }
+  }, [activeDropdown]);
 
   return (
     <>
@@ -186,16 +165,49 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
                 key={chat._id}
                 className={`conversation-item ${chat._id === currentChatId ? 'active' : ''}`}
                 onClick={() => handleChatSelect(chat._id)}
+                style={{ position: 'relative' }}
               >
                 <div className="d-flex justify-content-between align-items-center">
                   <span>{chat.title || "New Chat"}</span>
                   <button
                     className="btn btn-link p-0"
-                    onClick={(e) => handleDropdownClick(e, chat._id)}
+                    onClick={e => handleDropdownClick(e, chat._id)}
+                    style={{ position: 'relative', zIndex: 2 }}
                   >
                     <MoreHorizontal size={16} />
                   </button>
                 </div>
+                {activeDropdown === chat._id && (
+                  <div
+                    className="dropdown-menu show"
+                    style={{
+                      position: 'absolute',
+                      top: dropdownDirection === 'down' ? '100%' : 'auto',
+                      bottom: dropdownDirection === 'up' ? '100%' : 'auto',
+                      right: 0,
+                      zIndex: 3000,
+                      minWidth: 120,
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                      background: 'var(--bg-secondary)',
+                      borderRadius: 8,
+                      padding: 0,
+                    }}
+                    onClick={e => e.stopPropagation()}
+                  >
+                    <button
+                      className="dropdown-item text-primary"
+                      onClick={e => handleRenameChat(e, chat._id, chat.title)}
+                    >
+                      <Edit2 size={16} className="me-2" color="#0d6efd" /> Rename
+                    </button>
+                    <button
+                      className="dropdown-item text-danger"
+                      onClick={e => handleDeleteChat(e, chat._id)}
+                    >
+                      <Trash2 size={16} className="me-2" /> Delete
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
