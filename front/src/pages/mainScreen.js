@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Copy, ThumbsUp, ThumbsDown, User } from 'lucide-react';
+import { Send, Copy, ThumbsUp, ThumbsDown, User, Paperclip } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useUser } from "@clerk/clerk-react";
 import '.././styles.css';
@@ -28,7 +28,9 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
     const savedCount = localStorage.getItem('guestMessageCount');
     return savedCount ? parseInt(savedCount) : 0;
   });
-  const MAX_GUEST_MESSAGES = 5;
+  const MAX_GUEST_MESSAGES = 15;
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [filePreview, setFilePreview] = useState(null);
 
   // Add useEffect to save guestMessageCount to localStorage whenever it changes
   useEffect(() => {
@@ -112,10 +114,29 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Add file input change handler
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedFile(file);
+      // For image preview
+      if (file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setFilePreview(reader.result);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        setFilePreview(null);
+      }
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const text = inputRef.current.value.trim();
-    if (!text) return;
+    // If neither text nor file, do nothing
+    if (!text && !selectedFile) return;
 
     // Check if user is not logged in and has reached the message limit
     if (!user && guestMessageCount >= MAX_GUEST_MESSAGES) {
@@ -125,17 +146,22 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
 
     try {
       setIsLoading(true); // Start loading
-      
       // Add user message to UI with animation
-      setMessages(prev => [...prev, { 
-        type: "user", 
-        text,
-        animation: "fade-in"
-      }]);
-
-      // Clear input immediately after sending
+      let userMessage = { type: "user", text, animation: "fade-in" };
+      if (selectedFile) {
+        userMessage.file = {
+          name: selectedFile.name,
+          type: selectedFile.type,
+          preview: filePreview
+        };
+      }
+      if (text || selectedFile) {
+        setMessages(prev => [...prev, userMessage]);
+      }
+      // Clear input and file after sending
       inputRef.current.value = "";
-
+      setSelectedFile(null);
+      setFilePreview(null);
       // Add loading message with typing animation
       setMessages(prev => [...prev, { 
         type: "assistant", 
@@ -143,28 +169,66 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
         isLoading: true,
         animation: "fade-in"
       }]);
-
+      // Prepare Gemini API request
+      let geminiRequest = {
+        contents: [{
+          parts: []
+        }]
+      };
+      if (text) {
+        geminiRequest.contents[0].parts.push({ text });
+      }
+      if (selectedFile) {
+        // Read file as base64
+        const fileData = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result.split(",")[1]); // Remove data:*/*;base64,
+          reader.onerror = reject;
+          reader.readAsDataURL(selectedFile);
+        });
+        // For images, use inlineData; for PDFs/docs, send as base64 (Gemini may only support images for now)
+        if (selectedFile.type.startsWith('image/')) {
+          geminiRequest.contents[0].parts.push({
+            inlineData: {
+              mimeType: selectedFile.type,
+              data: fileData
+            }
+          });
+        } else if (selectedFile.type === 'application/pdf') {
+          geminiRequest.contents[0].parts.push({
+            inlineData: {
+              mimeType: selectedFile.type,
+              data: fileData
+            }
+          });
+        } else {
+          // For docs, try to read as text
+          const textData = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsText(selectedFile);
+          });
+          geminiRequest.contents[0].parts.push({ text: textData });
+        }
+      }
       // Call Gemini API
       const geminiResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp:generateContent?key=AIzaSyDXwdeGwUS01AjUXnec3jijXmBPjIsknf8", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: text
-            }]
-          }]
-        })
+        body: JSON.stringify(geminiRequest)
       });
-
       const geminiData = await geminiResponse.json();
-      const modelResponse = geminiData.candidates[0].content.parts[0].text;
-
+      let modelResponse = "";
+      if (geminiData.candidates && geminiData.candidates[0]?.content?.parts[0]?.text) {
+        modelResponse = geminiData.candidates[0].content.parts[0].text;
+      } else {
+        modelResponse = "Sorry, I couldn't process the file.";
+      }
       // Remove loading message
       setMessages(prev => prev.filter(msg => !msg.isLoading));
-
       // Only save to database if user is logged in
       if (user && user.id) {
         // Save user message
@@ -175,18 +239,15 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
           },
           body: JSON.stringify({ 
             userId: user.id, 
-            text,
+            text: text || (selectedFile ? selectedFile.name : ""),
             chatId: currentChatId
           }),
         });
-
         const data = await response.json();
-        
         // Set the current chat ID if this is a new chat
         if (!currentChatId && data.chat._id) {
           setCurrentChatId(data.chat._id);
         }
-
         // Save model response to database
         await fetch("http://localhost:8080/api/chats", {
           method: "POST",
@@ -200,21 +261,18 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
             chatId: currentChatId || data.chat._id
           }),
         });
-
         // Trigger sidebar refresh
         onMessageSent();
       } else {
         // Increment guest message count for non-logged-in users
         setGuestMessageCount(prev => prev + 1);
       }
-
       // Add model response to UI as assistant type with animation
       setMessages(prev => [...prev, { 
         type: "assistant", 
         text: modelResponse,
         animation: "fade-in"
       }]);
-
       // Show limit message after API response if this was the last allowed message
       if (!user && guestMessageCount + 1 >= MAX_GUEST_MESSAGES) {
         setMessages(prev => [...prev, { 
@@ -347,7 +405,22 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                   </ReactMarkdown>
                 )}
               </p>
-
+              {/* Show PDF icon or image preview for user messages with file */}
+              {message.type === "user" && message.file && (
+                <div className="mt-2">
+                  {message.file.type === 'application/pdf' ? (
+                    <span title={message.file.name} style={{ fontSize: 32, color: '#d32f2f' }}>
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="24" height="24" rx="4" fill="#d32f2f"/>
+                        <text x="6" y="19" fontSize="10" fill="white" fontFamily="Arial" fontWeight="bold">PDF</text>
+                      </svg>
+                    </span>
+                  ) : message.file.type.startsWith('image/') && message.file.preview ? (
+                    <img src={message.file.preview} alt="preview" style={{ maxWidth: 100, maxHeight: 100, borderRadius: 4, border: '1px solid #eee' }} />
+                  ) : null}
+                </div>
+              )}
+              {/* End file preview/icon */}
               {message.type === "assistant" && !message.isLoading && (
                 <div className="message-actions">
                   <button 
@@ -383,25 +456,79 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
 
       {/* Input Area */}
       <form onSubmit={handleSubmit} className="d-flex align-items-center">
-        <div className={`input-area ${sidebarOpen ? "" : "full-width"}`}>
-          <div className="input-container mb-3">
-            <input 
-              ref={inputRef} 
-              type="text" 
-              name="text" 
-              placeholder={inputPlaceholder}
-              className="form-control" 
-              disabled={false}
-              autoComplete="off"
-            />
-            <button 
-              type="submit" 
-              className="btn btn-link"
-              disabled={isLoading}
-              title={isLoading ? "Please wait..." : "Send message"}
-            >
-              <Send size={16} color={isLoading ? "var(--text-muted)" : "var(--icon-color)"} />
-            </button>
+        <div className={`input-area ${sidebarOpen ? "" : "full-width"} w-100 d-flex flex-column align-items-center`}>
+          <div style={{ width: '100%', maxWidth: 600 }} className="d-flex flex-column align-items-start">
+            {/* File preview above and left-aligned with the textbox, with remove button */}
+            {selectedFile && (
+              <div className="mb-2" style={{ position: 'relative', width: 'fit-content', minWidth: 0 }}>
+                <div style={{ position: 'relative', display: 'inline-block' }}>
+                  {/* Remove (cross) button */}
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedFile(null); setFilePreview(null); }}
+                    style={{
+                      position: 'absolute',
+                      top: -8,
+                      right: -8,
+                      background: '#fff',
+                      border: '1px solid #ccc',
+                      borderRadius: '50%',
+                      width: 20,
+                      height: 20,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      cursor: 'pointer',
+                      zIndex: 2,
+                      padding: 0
+                    }}
+                    aria-label="Remove file preview"
+                  >
+                    <span style={{ fontSize: 14, color: '#888', lineHeight: 1 }}>&times;</span>
+                  </button>
+                  {/* Preview */}
+                  {selectedFile.type === 'application/pdf' ? (
+                    <span title={selectedFile.name} style={{ fontSize: 28, color: '#d32f2f', display: 'inline-block' }}>
+                      <svg width="60" height="60" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="24" height="24" rx="4" fill="#d32f2f"/>
+                        <text x="6" y="19" fontSize="10" fill="white" fontFamily="Arial" fontWeight="bold">PDF</text>
+                      </svg>
+                    </span>
+                  ) : selectedFile.type.startsWith('image/') && filePreview ? (
+                    <img src={filePreview} alt="preview" style={{ maxWidth: 60, maxHeight: 60, borderRadius: 4, border: '1px solid #eee', display: 'block' }} />
+                  ) : null}
+                </div>
+              </div>
+            )}
+            <div className="input-container mb-3 d-flex align-items-center gap-2 w-100">
+              <input
+                type="file"
+                accept="image/*,application/pdf,.doc,.docx,.txt"
+                style={{ display: 'none' }}
+                id="file-upload-input"
+                onChange={handleFileChange}
+              />
+              <label htmlFor="file-upload-input" className="btn btn-link mb-0 p-0 d-flex align-items-center" title="Upload file" style={{marginRight: 4}}>
+                <Paperclip size={18} color="var(--icon-color)" />
+              </label>
+              <input 
+                ref={inputRef} 
+                type="text" 
+                name="text" 
+                placeholder={inputPlaceholder}
+                className="form-control" 
+                disabled={false}
+                autoComplete="off"
+              />
+              <button 
+                type="submit" 
+                className="btn btn-link"
+                disabled={isLoading}
+                title={isLoading ? "Please wait..." : "Send message"}
+              >
+                <Send size={16} color={isLoading ? "var(--text-muted)" : "var(--icon-color)"} />
+              </button>
+            </div>
           </div>
         </div>
       </form>

@@ -60,12 +60,18 @@
 .main-content {
   flex: 1;
   background: var(--bg-secondary);
-  margin-left: 260px;
-  transition: margin-left 0.3s;
+  transition: margin-left 0.3s, padding-left 0.3s;
+  min-height: 100vh;
 }
 
-.main-content.without-sidebar {
-  margin-left: 0;
+/* Add padding-left when sidebar is open */
+.sidebar-open .main-content {
+  padding-left: 260px;
+}
+
+.main-content.without-sidebar,
+.sidebar-closed .main-content {
+  padding-left: 0;
 }
 
 /* Sidebar Toggle Button */
@@ -128,6 +134,7 @@
   overflow-y: auto;
   padding: 2rem;
   max-height: calc(100vh - 100px);
+  padding-bottom: 110px;
 }
 
 /* Messages */
@@ -172,15 +179,17 @@
   border-radius: 4px;
 }
 
+
 /* Input Area */
 .input-area {
   padding: 1rem;
   background: var(--bg-secondary);
   position: fixed;
   bottom: 0;
-  left: 260px;
+  left: 150px;
   right: 0;
-  transition: left 0.3s;
+  z-index: 100;
+  transition: left 0.3s, right 0.3s;
 }
 
 .input-area.full-width {
@@ -188,7 +197,7 @@
 }
 
 .input-container {
-  max-width: 800px;
+  max-width: 600px;
   margin: 0 auto;
   position: relative;
   display: flex;
@@ -196,6 +205,7 @@
   background: var(--bg-input);
   border-radius: 8px;
   padding: 8px;
+  width: 100%;
 }
 
 /* Input Field */
@@ -577,12 +587,8 @@ code {
 }
 
 @media (max-width: 992px) {
-  .main-content {
-    padding-left: 0;
-    margin-left: 0;
-  }
-  .sidebar {
-    width: 220px;
+  .sidebar-open .main-content {
+    padding-left: 220px;
   }
   .input-container {
     max-width: 95vw;
@@ -590,26 +596,11 @@ code {
 }
 
 @media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 80vw;
-    max-width: 320px;
-    height: 100vh;
-    z-index: 2000;
-    transform: translateX(-100%);
-    transition: transform 0.3s;
-  }
-  .sidebar.open {
-    transform: translateX(0);
-  }
-  .sidebar.closed {
-    transform: translateX(-100%);
+  .sidebar-open .main-content {
+    padding-left: 0;
   }
   .main-content {
-    margin-left: 0 !important;
-    padding: 1rem 0.5rem 5rem 0.5rem;
+    padding-left: 0 !important;
   }
   .input-area {
     left: 0 !important;
@@ -710,4 +701,8 @@ code {
     font-size: 0.9rem !important;
     padding: 0.3rem 0.7rem !important;
   }
+}
+
+.sidebar-open .input-container {
+  margin-left: 16px;
 }
