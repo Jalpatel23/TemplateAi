@@ -706,3 +706,32 @@ code {
 .sidebar-open .input-container {
   margin-left: 16px;
 }
+
+.custom-notification-popup {
+  position: fixed;
+  left: 50%;
+  bottom: 90px;
+  transform: translateX(-50%);
+  background: rgba(40, 40, 40, 0.97);
+  color: #fff;
+  padding: 14px 32px;
+  border-radius: 8px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+  font-size: 1rem;
+  z-index: 2000;
+  opacity: 1;
+  animation: fadeIn 0.3s;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+:root.light .custom-notification-popup {
+  background: rgba(255,255,255,0.97);
+  color: #222;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+}
+
+/* Optional: fade-out effect if you want to animate hiding */
+.custom-notification-popup.hide {
+  opacity: 0;
+  transition: opacity 0.3s;
+}

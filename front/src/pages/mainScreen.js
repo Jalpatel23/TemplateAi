@@ -10,6 +10,7 @@ import { SignedOut, SignInButton, SignedIn, UserButton } from "@clerk/clerk-reac
 import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import React from 'react';
 
 export default function MainScreen({ messages, setMessages, sidebarOpen, currentChatId, setCurrentChatId, onMessageSent }) {
   const chatEndRef = useRef(null);
@@ -28,9 +29,10 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
     const savedCount = localStorage.getItem('guestMessageCount');
     return savedCount ? parseInt(savedCount) : 0;
   });
-  const MAX_GUEST_MESSAGES = 15;
+  const MAX_GUEST_MESSAGES = 3;
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
+  const [notification, setNotification] = useState("");
 
   // Add useEffect to save guestMessageCount to localStorage whenever it changes
   useEffect(() => {
@@ -140,6 +142,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
 
     // Check if user is not logged in and has reached the message limit
     if (!user && guestMessageCount >= MAX_GUEST_MESSAGES) {
+      showNotification("You've reached the limit of messages. Please sign in to continue chatting.");
       openSignIn();
       return;
     }
@@ -157,6 +160,10 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       }
       if (text || selectedFile) {
         setMessages(prev => [...prev, userMessage]);
+      }
+      // Show remaining messages notification for guests (if under limit)
+      if (!user && guestMessageCount < MAX_GUEST_MESSAGES) {
+        showNotification(`Messages remaining: ${MAX_GUEST_MESSAGES - guestMessageCount - 1}`);
       }
       // Clear input and file after sending
       inputRef.current.value = "";
@@ -275,11 +282,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       }]);
       // Show limit message after API response if this was the last allowed message
       if (!user && guestMessageCount + 1 >= MAX_GUEST_MESSAGES) {
-        setMessages(prev => [...prev, { 
-          type: "system", 
-          text: "You've reached the limit of 5 messages. Please sign in to continue chatting.",
-          animation: "fade-in"
-        }]);
+        showNotification("You've reached the limit of messages. Please sign in to continue chatting.");
       }
     } catch (error) {
       console.error("Error in chat:", error);
@@ -296,16 +299,10 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
     }
   };
 
-  // Add message count display for non-logged-in users
-  const renderMessageCount = () => {
-    if (!user && guestMessageCount < MAX_GUEST_MESSAGES) {
-      return (
-        <div className="text-center text-muted mb-2">
-          Messages remaining: {MAX_GUEST_MESSAGES - guestMessageCount}
-        </div>
-      );
-    }
-    return null;
+  // Show notification for 2 seconds
+  const showNotification = (msg) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(""), 2000);
   };
 
   return (
@@ -334,7 +331,6 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
             Welcome, <strong>{user.firstName && user.lastName ? `${user.firstName} ${user.lastName}` : user.username}</strong>!
           </h5>
         )}
-        {!user && renderMessageCount()}
       </div>
 
       {/* Chat Area */}
@@ -456,6 +452,12 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
 
       {/* Input Area */}
       <form onSubmit={handleSubmit} className="d-flex align-items-center">
+        {/* Notification Popup */}
+        {notification && (
+          <div className="custom-notification-popup">
+            {notification}
+          </div>
+        )}
         <div className={`input-area ${sidebarOpen ? "" : "full-width"} w-100 d-flex flex-column align-items-center`}>
           <div style={{ width: '100%', maxWidth: 600 }} className="d-flex flex-column align-items-start">
             {/* File preview above and left-aligned with the textbox, with remove button */}
@@ -507,10 +509,23 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                 style={{ display: 'none' }}
                 id="file-upload-input"
                 onChange={handleFileChange}
+                ref={el => (window.fileUploadInput = el)}
               />
-              <label htmlFor="file-upload-input" className="btn btn-link mb-0 p-0 d-flex align-items-center" title="Upload file" style={{marginRight: 4}}>
+              <button
+                type="button"
+                className="btn btn-link mb-0 p-0 d-flex align-items-center"
+                title="Upload file"
+                style={{marginRight: 4}}
+                onClick={() => {
+                  if (!user) {
+                    showNotification('login is needed to upload a document');
+                  } else {
+                    window.fileUploadInput && window.fileUploadInput.click();
+                  }
+                }}
+              >
                 <Paperclip size={18} color="var(--icon-color)" />
-              </label>
+              </button>
               <input 
                 ref={inputRef} 
                 type="text" 
