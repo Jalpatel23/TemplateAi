@@ -780,3 +780,46 @@ code {
 .custom-modal .btn {
   min-width: 80px;
 }
+
+/* Dropdown Menu Styles */
+.dropdown-menu.show {
+  position: absolute;
+  z-index: 9999 !important;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  padding: 4px 0;
+  min-width: 120px;
+}
+
+.dropdown-menu.show .dropdown-item {
+  padding: 8px 16px;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.dropdown-menu.show .dropdown-item:hover {
+  background-color: var(--hover-bg);
+}
+
+.dropdown-menu.show .dropdown-item.text-danger {
+  color: #dc3545 !important;
+}
+
+.dropdown-menu.show .dropdown-item.text-danger:hover {
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+/* Ensure the dropdown container has proper stacking context */
+.conversation-item {
+  position: relative;
+  z-index: 1;
+}
+
+.conversation-item:hover {
+  z-index: 2;
+}

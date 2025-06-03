@@ -4,6 +4,7 @@ import { Plus, ChevronsRight, ChevronsLeft, Sun, Moon, MoreHorizontal, Trash2, E
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useTheme } from "../context/theme-context.tsx";
 import { useUser } from "@clerk/clerk-react";
+import { createPortal } from 'react-dom';
 
 export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewChat, refreshChats, onChatSelect, currentChatId }) {
   const dropdownRef = useRef(null);
@@ -123,6 +124,43 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
     }
   }, [activeDropdown]);
 
+  const renderDropdown = (chat) => {
+    if (activeDropdown !== chat._id) return null;
+
+    const button = document.querySelector(`[data-chat-id="${chat._id}"]`);
+    if (!button) return null;
+
+    const rect = button.getBoundingClientRect();
+    const dropdownStyle = {
+      position: 'fixed',
+      top: dropdownDirection === 'down' ? rect.bottom + 5 : rect.top - 85,
+      left: rect.right - 120,
+      zIndex: 9999,
+    };
+
+    return createPortal(
+      <div
+        className="dropdown-menu show"
+        style={dropdownStyle}
+        onClick={e => e.stopPropagation()}
+      >
+        <button
+          className="dropdown-item text-primary"
+          onClick={e => handleRenameChat(e, chat._id, chat.title)}
+        >
+          <Edit2 size={16} className="me-2" color="#0d6efd" /> Rename
+        </button>
+        <button
+          className="dropdown-item text-danger"
+          onClick={e => handleDeleteChat(e, chat._id)}
+        >
+          <Trash2 size={16} className="me-2" /> Delete
+        </button>
+      </div>,
+      document.body
+    );
+  };
+
   return (
     <>
       {/* Hamburger menu for mobile */}
@@ -188,42 +226,12 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
                   <button
                     className="btn btn-link p-0"
                     onClick={e => handleDropdownClick(e, chat._id)}
-                    style={{ position: 'relative', zIndex: 2 }}
+                    data-chat-id={chat._id}
                   >
                     <MoreHorizontal size={16} />
                   </button>
                 </div>
-                {activeDropdown === chat._id && (
-                  <div
-                    className="dropdown-menu show"
-                    style={{
-                      position: 'absolute',
-                      top: dropdownDirection === 'down' ? '100%' : 'auto',
-                      bottom: dropdownDirection === 'up' ? '100%' : 'auto',
-                      right: 0,
-                      zIndex: 3000,
-                      minWidth: 120,
-                      boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                      background: 'var(--bg-secondary)',
-                      borderRadius: 8,
-                      padding: 0,
-                    }}
-                    onClick={e => e.stopPropagation()}
-                  >
-                    <button
-                      className="dropdown-item text-primary"
-                      onClick={e => handleRenameChat(e, chat._id, chat.title)}
-                    >
-                      <Edit2 size={16} className="me-2" color="#0d6efd" /> Rename
-                    </button>
-                    <button
-                      className="dropdown-item text-danger"
-                      onClick={e => handleDeleteChat(e, chat._id)}
-                    >
-                      <Trash2 size={16} className="me-2" /> Delete
-                    </button>
-                  </div>
-                )}
+                {renderDropdown(chat)}
               </div>
             ))}
           </div>
