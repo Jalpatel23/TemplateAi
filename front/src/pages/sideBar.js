@@ -12,6 +12,9 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
   const [userChats, setUserChats] = useState([]);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [dropdownDirection, setDropdownDirection] = useState('down');
+  const [renameModal, setRenameModal] = useState({ open: false, chatId: null, currentTitle: "" });
+  const [renameInput, setRenameInput] = useState("");
+  const [deleteModal, setDeleteModal] = useState({ open: false, chatId: null });
 
   // Fetch user's chat list
   useEffect(() => {
@@ -59,6 +62,11 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
 
   const handleDeleteChat = async (e, chatId) => {
     e.stopPropagation();
+    setDeleteModal({ open: true, chatId });
+  };
+
+  const confirmDeleteChat = async () => {
+    const chatId = deleteModal.chatId;
     try {
       const response = await fetch(`http://localhost:8080/api/user-chats/${user.id}/remove-chat`, {
         method: 'POST',
@@ -71,30 +79,38 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
       if (currentChatId === chatId) onChatSelect(null);
       setActiveDropdown(null);
       onNewChat();
+      setDeleteModal({ open: false, chatId: null });
     } catch (error) {
-      console.error('Error deleting chat:', error);
       alert(error.message || 'Failed to delete chat. Please try again.');
+      setDeleteModal({ open: false, chatId: null });
     }
   };
 
-  const handleRenameChat = async (e, chatId, currentTitle) => {
+  const handleRenameChat = (e, chatId, currentTitle) => {
     e.stopPropagation();
-    const newTitle = prompt('Enter new chat title', currentTitle);
-    if (newTitle && newTitle !== currentTitle) {
-      try {
-        const response = await fetch(`http://localhost:8080/api/user-chats/${user.id}/update-chat-title`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ chatId, newTitle }),
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.message || 'Failed to update chat title');
-        setUserChats(prevChats => prevChats.map(chat => chat._id === chatId ? { ...chat, title: newTitle } : chat));
-        setActiveDropdown(null);
-      } catch (error) {
-        console.error('Error renaming chat:', error);
-        alert(error.message || 'Failed to rename chat. Please try again.');
-      }
+    setRenameModal({ open: true, chatId, currentTitle });
+    setRenameInput(currentTitle || "");
+  };
+
+  const submitRename = async () => {
+    const newTitle = renameInput.trim();
+    if (!newTitle || newTitle === renameModal.currentTitle) {
+      setRenameModal({ open: false, chatId: null, currentTitle: "" });
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:8080/api/user-chats/${user.id}/update-chat-title`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chatId: renameModal.chatId, newTitle }),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to update chat title');
+      setUserChats(prevChats => prevChats.map(chat => chat._id === renameModal.chatId ? { ...chat, title: newTitle } : chat));
+      setRenameModal({ open: false, chatId: null, currentTitle: "" });
+    } catch (error) {
+      alert(error.message || 'Failed to rename chat. Please try again.');
+      setRenameModal({ open: false, chatId: null, currentTitle: "" });
     }
   };
 
@@ -219,6 +235,40 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
         <button className="open-sidebar-btn" onClick={() => setSidebarOpen(true)}>
           <ChevronsRight size={24} color="var(--icon-color)" />
         </button>
+      )}
+
+      {renameModal.open && (
+        <div className="custom-modal-overlay" onClick={() => setRenameModal({ open: false, chatId: null, currentTitle: "" })}>
+          <div className="custom-modal" onClick={e => e.stopPropagation()}>
+            <h5>Rename Chat</h5>
+            <input
+              className="form-control"
+              value={renameInput}
+              onChange={e => setRenameInput(e.target.value)}
+              autoFocus
+              maxLength={50}
+              style={{ marginBottom: 12 }}
+              onKeyDown={e => { if (e.key === "Enter") submitRename(); }}
+            />
+            <div className="d-flex justify-content-end gap-2">
+              <button className="btn btn-secondary" onClick={() => setRenameModal({ open: false, chatId: null, currentTitle: "" })}>Cancel</button>
+              <button className="btn btn-primary" onClick={submitRename} disabled={!renameInput.trim() || renameInput.trim() === renameModal.currentTitle}>Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {deleteModal.open && (
+        <div className="custom-modal-overlay" onClick={() => setDeleteModal({ open: false, chatId: null })}>
+          <div className="custom-modal" onClick={e => e.stopPropagation()}>
+            <h5>Delete Chat</h5>
+            <div style={{ marginBottom: 16 }}>Are you sure you want to delete this chat? This action cannot be undone.</div>
+            <div className="d-flex justify-content-end gap-2">
+              <button className="btn btn-secondary" onClick={() => setDeleteModal({ open: false, chatId: null })}>Cancel</button>
+              <button className="btn btn-danger" onClick={confirmDeleteChat}>Delete</button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
