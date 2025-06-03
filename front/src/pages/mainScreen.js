@@ -239,6 +239,12 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       // Only save to database if user is logged in
       if (user && user.id) {
         // Save user message
+        let chatTitle = undefined;
+        if (!currentChatId) {
+          // Extract first three words from the prompt
+          const words = (text || (selectedFile ? selectedFile.name : "")).split(/\s+/).filter(Boolean);
+          chatTitle = words.slice(0, 3).join(" ");
+        }
         const response = await fetch("http://localhost:8080/api/chats", {
           method: "POST",
           headers: {
@@ -247,7 +253,8 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
           body: JSON.stringify({ 
             userId: user.id, 
             text: text || (selectedFile ? selectedFile.name : ""),
-            chatId: currentChatId
+            chatId: currentChatId,
+            ...(chatTitle ? { title: chatTitle } : {})
           }),
         });
         const data = await response.json();

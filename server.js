@@ -52,7 +52,8 @@ app.post("/api/chats", async (req, res) => {
       // Get the count of existing chats to determine the next number
       const chatCount = userChats ? userChats.chats.length : 0;
       const nextChatNumber = chatCount + 1;
-      const chatTitle = `Chat ${nextChatNumber}`;
+      // Use provided title or fallback
+      const chatTitle = req.body.title && req.body.title.trim() ? req.body.title.trim() : `Chat ${nextChatNumber}`;
       
       if (!userChats) {
         userChats = new UserChats({
