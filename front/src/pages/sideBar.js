@@ -17,6 +17,58 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
   const [renameInput, setRenameInput] = useState("");
   const [deleteModal, setDeleteModal] = useState({ open: false, chatId: null });
 
+  // Function to categorize chats by date
+  const categorizeChatsByDate = (chats) => {
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const last7Days = new Date(today);
+    last7Days.setDate(last7Days.getDate() - 7);
+    const last30Days = new Date(today);
+    last30Days.setDate(last30Days.getDate() - 30);
+
+    // Sort chats by date (most recent first)
+    const sortedChats = [...chats].sort((a, b) => {
+      const dateA = new Date(a.updatedAt || a.createdAt);
+      const dateB = new Date(b.updatedAt || b.createdAt);
+      return dateB - dateA;
+    });
+
+    return sortedChats.reduce((acc, chat) => {
+      // Get the chat date and set it to midnight for proper comparison
+      const chatDate = new Date(chat.updatedAt || chat.createdAt);
+      const chatDateOnly = new Date(chatDate.getFullYear(), chatDate.getMonth(), chatDate.getDate());
+
+      // Debug log
+      console.log('Chat:', chat.title, 'Date:', chatDateOnly.toISOString());
+      console.log('Today:', today.toISOString());
+      console.log('Yesterday:', yesterday.toISOString());
+      console.log('Last 7 Days:', last7Days.toISOString());
+      console.log('Last 30 Days:', last30Days.toISOString());
+
+      // Compare dates using getTime() for accurate comparison
+      if (chatDateOnly.getTime() === today.getTime()) {
+        acc.today.push(chat);
+      } else if (chatDateOnly.getTime() === yesterday.getTime()) {
+        acc.yesterday.push(chat);
+      } else if (chatDateOnly.getTime() >= last7Days.getTime()) {
+        acc.last7Days.push(chat);
+      } else if (chatDateOnly.getTime() >= last30Days.getTime()) {
+        acc.last30Days.push(chat);
+      } else {
+        acc.older.push(chat);
+      }
+      return acc;
+    }, {
+      today: [],
+      yesterday: [],
+      last7Days: [],
+      last30Days: [],
+      older: []
+    });
+  };
+
   // Fetch user's chat list
   useEffect(() => {
     const fetchUserChats = async () => {
@@ -209,31 +261,48 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
           </div>
         </div>
         <div className="p-2 d-flex align-items-center justify-content-center w-100 app-title" style={{ fontSize: "24px" }}>
-          <span>Hate Speech Detection</span>
+          <span>CHAT BOT</span>
         </div>
         <div className="conversation-list">
           <div className="px-3 py-2">
-            <small className="conversation-date">Chats</small>
-            {userChats.map((chat) => (
-              <div
-                key={chat._id}
-                className={`conversation-item ${chat._id === currentChatId ? 'active' : ''}`}
-                onClick={() => handleChatSelect(chat._id)}
-                style={{ position: 'relative' }}
-              >
-                <div className="d-flex justify-content-between align-items-center">
-                  <span>{chat.title || "New Chat"}</span>
-                  <button
-                    className="btn btn-link p-0"
-                    onClick={e => handleDropdownClick(e, chat._id)}
-                    data-chat-id={chat._id}
-                  >
-                    <MoreHorizontal size={16} />
-                  </button>
-                </div>
-                {renderDropdown(chat)}
-              </div>
-            ))}
+            {(() => {
+              const categorizedChats = categorizeChatsByDate(userChats);
+              const sections = [
+                { title: "Today", chats: categorizedChats.today },
+                { title: "Yesterday", chats: categorizedChats.yesterday },
+                { title: "Last 7 Days", chats: categorizedChats.last7Days },
+                { title: "Last 30 Days", chats: categorizedChats.last30Days },
+                { title: "Older", chats: categorizedChats.older }
+              ];
+
+              return sections.map((section, index) => (
+                section.chats.length > 0 && (
+                  <div key={index} className="mb-3">
+                    <small className="conversation-date">{section.title}</small>
+                    {section.chats.map((chat) => (
+                      <div
+                        key={chat._id}
+                        className={`conversation-item ${chat._id === currentChatId ? 'active' : ''}`}
+                        onClick={() => handleChatSelect(chat._id)}
+                        style={{ position: 'relative' }}
+                      >
+                        <div className="d-flex justify-content-between align-items-center">
+                          <span>{chat.title || "New Chat"}</span>
+                          <button
+                            className="btn btn-link p-0"
+                            onClick={e => handleDropdownClick(e, chat._id)}
+                            data-chat-id={chat._id}
+                          >
+                            <MoreHorizontal size={16} />
+                          </button>
+                        </div>
+                        {renderDropdown(chat)}
+                      </div>
+                    ))}
+                  </div>
+                )
+              ));
+            })()}
           </div>
         </div>
       </div>

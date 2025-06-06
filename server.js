@@ -42,6 +42,12 @@ app.post("/api/chats", async (req, res) => {
       if (!chat) {
         return res.status(404).json({ error: "Chat not found" });
       }
+      // Update the updatedAt timestamp for existing chat
+      const currentDate = new Date();
+      await UserChats.updateOne(
+        { userId, "chats._id": chatId },
+        { $set: { "chats.$.updatedAt": currentDate } }
+      );
     } else {
       chat = new Chat({ userId, history: [] });
       await chat.save();
@@ -55,20 +61,23 @@ app.post("/api/chats", async (req, res) => {
       // Use provided title or fallback
       const chatTitle = req.body.title && req.body.title.trim() ? req.body.title.trim() : `Chat ${nextChatNumber}`;
       
+      const currentDate = new Date();
       if (!userChats) {
         userChats = new UserChats({
           userId,
           chats: [{
             _id: chat._id.toString(),
             title: chatTitle,
-            createdAt: new Date()
+            createdAt: currentDate,
+            updatedAt: currentDate
           }]
         });
       } else {
         userChats.chats.push({
           _id: chat._id.toString(),
           title: chatTitle,
-          createdAt: new Date()
+          createdAt: currentDate,
+          updatedAt: currentDate
         });
       }
       
@@ -77,7 +86,7 @@ app.post("/api/chats", async (req, res) => {
 
     // Add message to chat history
     chat.history.push({
-      role: role || "user", // Use the role from request body, default to "user" if not provided
+      role: role || "user",
       parts: [{ text }],
     });
 

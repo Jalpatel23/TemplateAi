@@ -16,10 +16,14 @@ const userChatsSchema = new mongoose.Schema({
 		},
 		createdAt: {
 			type: Date,
-			default:Date.now()
+			default: () => new Date()
 		},
+		updatedAt: {
+			type: Date,
+			default: () => new Date()
+		}
     }],
-},{timestamps:true});
+});
 
 export default mongoose.models.userchats ||
   mongoose.model("userchats", userChatsSchema);
