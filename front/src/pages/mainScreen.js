@@ -354,7 +354,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
           <div 
             key={index} 
             className={`message ${message.type} ${message.animation || ''}`} 
-            style={{ alignSelf: message.type === "user" ? "flex-end" : "flex-start" }}
+            style={{ alignSelf: "flex-start" }}
           >
             <div className="message-content">
               <p>

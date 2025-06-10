@@ -294,10 +294,8 @@
 
 /* User Message */
 .user {
-  align-self: flex-end;
   border-radius: 15px 15px 0 15px;
   padding: 10px;
-  text-align: right;
 }
 
 ::placeholder {
