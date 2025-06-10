@@ -33,6 +33,8 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const [notification, setNotification] = useState("");
+  const inputAreaRef = useRef(null);
+  const [inputAreaHeight, setInputAreaHeight] = useState(0);
 
   // Add useEffect to save guestMessageCount to localStorage whenever it changes
   useEffect(() => {
@@ -80,6 +82,20 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
     if (inputRef.current) {
       inputRef.current.style.height = '38px';
     }
+  }, []);
+
+  // Dynamically update input area height for chat-area padding using ResizeObserver
+  useEffect(() => {
+    if (!inputAreaRef.current) return;
+    const observer = new window.ResizeObserver(entries => {
+      for (let entry of entries) {
+        setInputAreaHeight(entry.target.offsetHeight);
+      }
+    });
+    observer.observe(inputAreaRef.current);
+    // Set initial height
+    setInputAreaHeight(inputAreaRef.current.offsetHeight);
+    return () => observer.disconnect();
   }, []);
 
   const toggleLike = (index) => {
@@ -349,7 +365,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       </div>
 
       {/* Chat Area */}
-      <div className="chat-area flex-grow-1">
+      <div className="chat-area flex-grow-1" style={{ paddingBottom: inputAreaHeight - 70}}>
         {messages.map((message, index) => (
           <div 
             key={index} 
@@ -473,7 +489,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
             {notification}
           </div>
         )}
-        <div className={`input-area ${sidebarOpen ? "" : "full-width"} w-100 d-flex flex-column align-items-center`}>
+        <div ref={inputAreaRef} className={`input-area ${sidebarOpen ? "" : "full-width"} w-100 d-flex flex-column align-items-center`}>
           <div style={{ width: '100%', maxWidth: 600 }} className="d-flex flex-column align-items-start">
             {/* File preview above and left-aligned with the textbox, with remove button */}
             {selectedFile && (
