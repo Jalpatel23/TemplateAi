@@ -261,7 +261,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
           </div>
         </div>
         <div className="p-2 d-flex align-items-center justify-content-center w-100 app-title" style={{ fontSize: "24px" }}>
-          <span>CHAT BOT</span>
+          <span>Template AI</span>
         </div>
         <div className="conversation-list">
           <div className="px-3 py-2">

@@ -75,6 +75,13 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
     setInputPlaceholder(isLoading ? "AI is thinking..." : "Type Here");
   }, [isLoading]);
 
+  // Ensure textarea is always at min height on mount
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.style.height = '38px';
+    }
+  }, []);
+
   const toggleLike = (index) => {
     setLikedMessages((prev) => ({
       ...prev,
@@ -167,6 +174,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       }
       // Clear input and file after sending
       inputRef.current.value = "";
+      inputRef.current.style.height = '38px';
       setSelectedFile(null);
       setFilePreview(null);
       // Add loading message with typing animation
@@ -220,7 +228,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
         }
       }
       // Call Gemini API
-      const geminiResponse = await fetch("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp:generateContent?key=AIzaSyDXwdeGwUS01AjUXnec3jijXmBPjIsknf8", {
+      const geminiResponse = await fetch(process.env.REACT_APP_GEMINI_API_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -533,14 +541,35 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
               >
                 <Paperclip size={18} color="var(--icon-color)" />
               </button>
-              <input 
+              <textarea 
                 ref={inputRef} 
-                type="text" 
                 name="text" 
                 placeholder={inputPlaceholder}
                 className="form-control" 
                 disabled={false}
                 autoComplete="off"
+                style={{
+                  resize: 'none',
+                  minHeight: '30px',
+                  maxHeight: '150px',
+                  overflowY: 'auto',
+                  whiteSpace: 'pre-wrap',
+                  wordWrap: 'break-word',
+                  lineHeight: '1.5',
+                  // padding: '0.375rem 0.75rem',
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: 'var(--text-secondary) transparent'
+                }}
+                onInput={(e) => {
+                  e.target.style.height = '38px';
+                  e.target.style.height = Math.min(e.target.scrollHeight, 150) + 'px';
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmit(e);
+                  }
+                }}
               />
               <button 
                 type="submit" 
