@@ -287,7 +287,9 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
                         style={{ position: 'relative' }}
                       >
                         <div className="d-flex justify-content-between align-items-center">
-                          <span>{chat.title || "New Chat"}</span>
+                          <span className="conversation-title" title={chat.title || "New Chat"}>
+                            {chat.title || "New Chat"}
+                          </span>
                           <button
                             className="btn btn-link p-0"
                             onClick={e => handleDropdownClick(e, chat._id)}

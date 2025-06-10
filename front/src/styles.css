@@ -821,3 +821,12 @@ code {
 .conversation-item:hover {
   z-index: 2;
 }
+
+.conversation-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px; /* Adjust as needed for your layout */
+  display: inline-block;
+  vertical-align: middle;
+}
