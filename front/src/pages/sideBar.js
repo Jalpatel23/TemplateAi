@@ -36,18 +36,9 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
     });
 
     return sortedChats.reduce((acc, chat) => {
-      // Get the chat date and set it to midnight for proper comparison
       const chatDate = new Date(chat.updatedAt || chat.createdAt);
       const chatDateOnly = new Date(chatDate.getFullYear(), chatDate.getMonth(), chatDate.getDate());
 
-      // Debug log
-      console.log('Chat:', chat.title, 'Date:', chatDateOnly.toISOString());
-      console.log('Today:', today.toISOString());
-      console.log('Yesterday:', yesterday.toISOString());
-      console.log('Last 7 Days:', last7Days.toISOString());
-      console.log('Last 30 Days:', last30Days.toISOString());
-
-      // Compare dates using getTime() for accurate comparison
       if (chatDateOnly.getTime() === today.getTime()) {
         acc.today.push(chat);
       } else if (chatDateOnly.getTime() === yesterday.getTime()) {

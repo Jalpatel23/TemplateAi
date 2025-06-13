@@ -2,7 +2,6 @@ import express from "express";
 import dotenv from "dotenv";
 import morgan from "morgan";
 import connectDB from "./config/db.js";
-import authRoutes from "./routes/authRoute.js";
 import userChatsRoutes from "./routes/userChats.js";
 import Chat from "./models/chat.js"; // Import Chat model
 import UserChats from "./models/userChats.js"; // Import UserChats model
@@ -19,12 +18,7 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 // Routes
-app.use("/api/v1/auth", authRoutes);
 app.use("/api/user-chats", userChatsRoutes);
-
-app.get("/", (req, res) => {
-  res.send("<h1>hiii this is jal </h1>");
-});
 
 // Save chat messages to MongoDB
 app.post("/api/chats", async (req, res) => {
