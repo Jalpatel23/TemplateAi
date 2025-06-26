@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Copy, ThumbsUp, ThumbsDown, User, Paperclip } from 'lucide-react';
+import { Send, Copy, ThumbsUp, ThumbsDown, User, Paperclip, ChevronDown } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useUser } from "@clerk/clerk-react";
 import '.././styles.css';
@@ -35,6 +35,24 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   const [notification, setNotification] = useState("");
   const inputAreaRef = useRef(null);
   const [inputAreaHeight, setInputAreaHeight] = useState(0);
+  const [isModelMenuOpen, setIsModelMenuOpen] = useState(false);
+  const [selectedModel, setSelectedModel] = useState("2.5 Flash");
+  const modelMenuRef = useRef(null);
+  const [hoveredItem, setHoveredItem] = useState(null);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (modelMenuRef.current && !modelMenuRef.current.contains(event.target)) {
+        setIsModelMenuOpen(false);
+      }
+    }
+    // Bind the event listener
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      // Unbind the event listener on clean up
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [modelMenuRef]);
 
   // Add useEffect to save guestMessageCount to localStorage whenever it changes
   useEffect(() => {
@@ -338,6 +356,100 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
 
   return (
     <div className={`main-content ${sidebarOpen ? "" : "without-sidebar"} d-flex flex-column`}>
+      {/* Model Selector (Top Left) */}
+      <div className="model-selector-container position-fixed" style={{ top: 12, left: sidebarOpen ? 275 : 55, zIndex: 2200, transition: 'left 0.3s ease-in-out' }} ref={modelMenuRef}>
+        <button
+          className="btn d-flex align-items-center justify-content-between"
+          onClick={() => setIsModelMenuOpen(!isModelMenuOpen)}
+          style={{
+            height: 32,
+            borderRadius: 8,
+            background: 'var(--background-secondary)',
+            border: '1px solid var(--border-color)',
+            color: 'var(--text-primary)',
+            fontWeight: 500,
+            fontSize: '0.9rem',
+            padding: '0 8px 0 12px',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+            gap: 4,
+          }}
+        >
+          {selectedModel}
+          <ChevronDown size={16} />
+        </button>
+        {isModelMenuOpen && (
+          <div
+            className="card"
+            style={{
+              position: 'absolute',
+              top: 38,
+              left: 0,
+              width: 290,
+              zIndex: 2100,
+              background: 'var(--background-secondary)',
+              border: '1px solid var(--border-color)',
+              borderRadius: 12,
+              boxShadow: '0 4px 16px rgba(0,0,0,0.12)',
+              padding: 0,
+            }}
+          >
+            <div className="card-body p-3 pb-2">
+              <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10 }}>Choose your model</div>
+              <div className="list-group list-group-flush" style={{ borderRadius: 8, overflow: 'hidden' }}>
+                <a
+                  href="#"
+                  className="list-group-item list-group-item-action d-flex align-items-center"
+                  style={{ background: hoveredItem === '2.5 Flash' ? 'var(--hover-bg)' : 'transparent', color: 'var(--text-primary)', fontSize: 15, padding: '10px 12px', border: 'none', position: 'relative' }}
+                  onClick={e => { e.preventDefault(); setSelectedModel("2.5 Flash"); setIsModelMenuOpen(false); }}
+                  onMouseEnter={() => setHoveredItem('2.5 Flash')}
+                  onMouseLeave={() => setHoveredItem(null)}
+                >
+                  <div className="flex-grow-1">
+                    <div style={{ fontWeight: 500 }}>2.5 Flash</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Fast all-round help</div>
+                  </div>
+                </a>
+                <a
+                  href="#"
+                  className="list-group-item list-group-item-action d-flex align-items-center"
+                  style={{ background: hoveredItem === '2.5 Pro' ? 'var(--hover-bg)' : 'transparent', color: 'var(--text-primary)', fontSize: 15, padding: '10px 12px', border: 'none', position: 'relative' }}
+                  onClick={e => { e.preventDefault(); setSelectedModel("2.5 Pro"); setIsModelMenuOpen(false); }}
+                  onMouseEnter={() => setHoveredItem('2.5 Pro')}
+                  onMouseLeave={() => setHoveredItem(null)}
+                >
+                  <div className="flex-grow-1">
+                    <div style={{ fontWeight: 500 }}>2.5 Pro <span className="badge bg-primary" style={{ fontSize: 11, marginLeft: 4 }}>New</span></div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Reasoning, maths and code</div>
+                  </div>
+                </a>
+                <a
+                  href="#"
+                  className="list-group-item list-group-item-action d-flex align-items-center"
+                  style={{ background: hoveredItem === 'Personalisation' ? 'var(--hover-bg)' : 'transparent', color: 'var(--text-primary)', fontSize: 15, padding: '10px 12px', border: 'none', position: 'relative' }}
+                  onClick={e => { e.preventDefault(); setSelectedModel("Personalisation"); setIsModelMenuOpen(false); }}
+                  onMouseEnter={() => setHoveredItem('Personalisation')}
+                  onMouseLeave={() => setHoveredItem(null)}
+                >
+                  <div className="flex-grow-1">
+                    <div style={{ fontWeight: 500 }}>Personalisation (preview) <span className="badge bg-primary" style={{ fontSize: 11, marginLeft: 4 }}>New</span></div>
+                    <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Based on your Search history</div>
+                  </div>
+                </a>
+              </div>
+              <div className="mt-3 mb-1">
+                <button 
+                  className="btn btn-secondary w-100" 
+                  style={{ borderRadius: 8, fontWeight: 500, fontSize: 15, background: '#23272f', border: 'none' }}
+                  onClick={() => window.location.href = '/subscription'}
+                >
+                  Upgrade
+                </button>
+                <div className="small mt-2" style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Get our most capable models and features</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
       {/* Profile Icon (Top Right) */}
       <div className="profile-container position-absolute top-0 end-0 m-3">
         <header>
