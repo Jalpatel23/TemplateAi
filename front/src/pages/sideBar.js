@@ -220,105 +220,132 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
       {/* Sidebar */}
       <div
         className={`sidebar ${sidebarOpen ? 'open' : 'closed'} ${!sidebarOpen ? 'd-none d-md-flex' : ''} flex-column`}
-        style={{ zIndex: 2000 }}
+        style={{ zIndex: 2000, height: '100vh', position: 'fixed', left: 0, top: 0, width: 260, display: 'flex', flexDirection: 'column' }}
       >
-        <div className="d-flex justify-content-between align-items-center p-2">
-          <button className="btn btn-link" onClick={handleNewChat} disabled={!isLoggedIn}>
-            <Plus size={20} color="var(--icon-color)" />
-          </button>
-          <div className="d-flex">
-            <button
-              className="btn btn-link theme-toggle me-2"
-              onClick={toggleTheme}
-              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            >
-              {theme === "dark" ? (
-                <Sun size={20} color="var(--icon-color)" />
-              ) : (
-                <Moon size={20} color="var(--icon-color)" />
-              )}
+        {/* Header and app title as top flex child */}
+        <div style={{ flexShrink: 0 }}>
+          <div className="d-flex justify-content-between align-items-center p-2">
+            <button className="btn btn-link" onClick={handleNewChat} disabled={!isLoggedIn}>
+              <Plus size={20} color="var(--icon-color)" />
             </button>
-            <button className="btn btn-link d-none d-md-inline" onClick={() => setSidebarOpen(false)}>
-              <ChevronsLeft size={20} color="var(--icon-color)" />
-            </button>
-            {/* Mobile close button */}
-            <button
-              className="btn btn-link d-md-none"
-              style={{ marginLeft: 8 }}
-              onClick={() => setSidebarOpen(false)}
-              aria-label="Close sidebar"
-            >
-              <ChevronsLeft size={20} color="var(--icon-color)" />
-            </button>
-          </div>
-        </div>
-        <div className="p-2 d-flex align-items-center justify-content-center w-100 app-title" style={{ fontSize: "24px" }}>
-          <span>Template AI</span>
-        </div>
-        {/* Sidebar content for logged out users */}
-        {!isLoggedIn ? (
-          <div className="d-flex flex-column align-items-center justify-content-center" style={{ height: '60%' }}>
-            <button
-              className="btn"
-              style={{
-                fontWeight: 500,
-                fontSize: 14,
-                borderRadius: 8,
-                padding: '8px 18px',
-                background: 'var(--bg-primary)',
-                color: 'var(--text-primary)',
-                border: '1px solid var(--border-color)',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
-              }}
-              onClick={() => openSignIn()}
-            >
-              Login to see history
-            </button>
-          </div>
-        ) : (
-          <div className="conversation-list">
-            <div className="px-3 py-2">
-              {(() => {
-                const categorizedChats = categorizeChatsByDate(userChats);
-                const sections = [
-                  { title: "Today", chats: categorizedChats.today },
-                  { title: "Yesterday", chats: categorizedChats.yesterday },
-                  { title: "Last 7 Days", chats: categorizedChats.last7Days },
-                  { title: "Last 30 Days", chats: categorizedChats.last30Days },
-                  { title: "Older", chats: categorizedChats.older }
-                ];
-
-                return sections.map((section, index) => (
-                  section.chats.length > 0 && (
-                    <div key={index} className="mb-3">
-                      <small className="conversation-date">{section.title}</small>
-                      {section.chats.map((chat) => (
-                        <div
-                          key={chat._id}
-                          className={`conversation-item ${chat._id === currentChatId ? 'active' : ''}`}
-                          onClick={() => handleChatSelect(chat._id)}
-                          style={{ position: 'relative' }}
-                        >
-                          <div className="d-flex justify-content-between align-items-center">
-                            <span className="conversation-title" title={chat.title || "New Chat"}>
-                              {chat.title || "New Chat"}
-                            </span>
-                            <button
-                              className="btn btn-link p-0"
-                              onClick={e => handleDropdownClick(e, chat._id)}
-                              data-chat-id={chat._id}
-                            >
-                              <MoreHorizontal size={16} />
-                            </button>
-                          </div>
-                          {renderDropdown(chat)}
-                        </div>
-                      ))}
-                    </div>
-                  )
-                ));
-              })()}
+            <div className="d-flex">
+              <button
+                className="btn btn-link theme-toggle me-2"
+                onClick={toggleTheme}
+                title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              >
+                {theme === "dark" ? (
+                  <Sun size={20} color="var(--icon-color)" />
+                ) : (
+                  <Moon size={20} color="var(--icon-color)" />
+                )}
+              </button>
+              <button className="btn btn-link d-none d-md-inline" onClick={() => setSidebarOpen(false)}>
+                <ChevronsLeft size={20} color="var(--icon-color)" />
+              </button>
+              {/* Mobile close button */}
+              <button
+                className="btn btn-link d-md-none"
+                style={{ marginLeft: 8 }}
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Close sidebar"
+              >
+                <ChevronsLeft size={20} color="var(--icon-color)" />
+              </button>
             </div>
+          </div>
+          <div className="p-2 d-flex align-items-center justify-content-center w-100 app-title" style={{ fontSize: "24px" }}>
+            <span>Template AI</span>
+          </div>
+        </div>
+        {/* Chat list or login prompt as scrollable flex child */}
+        <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
+          {!isLoggedIn ? (
+            <div className="d-flex flex-column align-items-center justify-content-center" style={{ height: '60%' }}>
+              <button
+                className="btn"
+                style={{
+                  fontWeight: 500,
+                  fontSize: 14,
+                  borderRadius: 8,
+                  padding: '8px 18px',
+                  background: 'var(--bg-primary)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border-color)',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+                }}
+                onClick={() => openSignIn()}
+              >
+                Login to see history
+              </button>
+            </div>
+          ) : (
+            <div className="conversation-list">
+              <div className="px-3 py-2">
+                {(() => {
+                  const categorizedChats = categorizeChatsByDate(userChats);
+                  const sections = [
+                    { title: "Today", chats: categorizedChats.today },
+                    { title: "Yesterday", chats: categorizedChats.yesterday },
+                    { title: "Last 7 Days", chats: categorizedChats.last7Days },
+                    { title: "Last 30 Days", chats: categorizedChats.last30Days },
+                    { title: "Older", chats: categorizedChats.older }
+                  ];
+
+                  return sections.map((section, index) => (
+                    section.chats.length > 0 && (
+                      <div key={index} className="mb-3">
+                        <small className="conversation-date">{section.title}</small>
+                        {section.chats.map((chat) => (
+                          <div
+                            key={chat._id}
+                            className={`conversation-item ${chat._id === currentChatId ? 'active' : ''}`}
+                            onClick={() => handleChatSelect(chat._id)}
+                            style={{ position: 'relative' }}
+                          >
+                            <div className="d-flex justify-content-between align-items-center">
+                              <span className="conversation-title" title={chat.title || "New Chat"}>
+                                {chat.title || "New Chat"}
+                              </span>
+                              <button
+                                className="btn btn-link p-0"
+                                onClick={e => handleDropdownClick(e, chat._id)}
+                                data-chat-id={chat._id}
+                              >
+                                <MoreHorizontal size={16} />
+                              </button>
+                            </div>
+                            {renderDropdown(chat)}
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  ));
+                })()}
+              </div>
+            </div>
+          )}
+        </div>
+        {/* Upgrade Button as bottom flex child */}
+        {sidebarOpen && (
+          <div style={{ flexShrink: 0 }}>
+            <button
+              className="btn w-100 upgrade-btn"
+              style={{
+                borderRadius: 0,
+                fontWeight: 600,
+                fontSize: 16,
+                padding: '16px 0',
+                background: theme === 'dark' ? 'var(--bg-primary)' : '#f5f5f5',
+                color: theme === 'dark' ? 'var(--text-primary)' : '#222',
+                border: 'none',
+                boxShadow: '0 -2px 8px rgba(0,0,0,0.04)',
+                zIndex: 2100
+              }}
+              onClick={() => window.location.href = '/subscription'}
+            >
+              Upgrade
+            </button>
           </div>
         )}
       </div>
