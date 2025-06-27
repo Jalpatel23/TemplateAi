@@ -3,13 +3,14 @@ import { useRef, useEffect, useState } from "react";
 import { Plus, ChevronsRight, ChevronsLeft, Sun, Moon, MoreHorizontal, Trash2, Edit2 } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useTheme } from "../context/theme-context.tsx";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useClerk } from "@clerk/clerk-react";
 import { createPortal } from 'react-dom';
 
-export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewChat, refreshChats, onChatSelect, currentChatId }) {
+export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewChat, refreshChats, onChatSelect, currentChatId, isLoggedIn }) {
   const dropdownRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
   const { user } = useUser();
+  const { openSignIn } = useClerk();
   const [userChats, setUserChats] = useState([]);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [dropdownDirection, setDropdownDirection] = useState('down');
@@ -222,7 +223,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
         style={{ zIndex: 2000 }}
       >
         <div className="d-flex justify-content-between align-items-center p-2">
-          <button className="btn btn-link" onClick={handleNewChat}>
+          <button className="btn btn-link" onClick={handleNewChat} disabled={!isLoggedIn}>
             <Plus size={20} color="var(--icon-color)" />
           </button>
           <div className="d-flex">
@@ -254,50 +255,72 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
         <div className="p-2 d-flex align-items-center justify-content-center w-100 app-title" style={{ fontSize: "24px" }}>
           <span>Template AI</span>
         </div>
-        <div className="conversation-list">
-          <div className="px-3 py-2">
-            {(() => {
-              const categorizedChats = categorizeChatsByDate(userChats);
-              const sections = [
-                { title: "Today", chats: categorizedChats.today },
-                { title: "Yesterday", chats: categorizedChats.yesterday },
-                { title: "Last 7 Days", chats: categorizedChats.last7Days },
-                { title: "Last 30 Days", chats: categorizedChats.last30Days },
-                { title: "Older", chats: categorizedChats.older }
-              ];
-
-              return sections.map((section, index) => (
-                section.chats.length > 0 && (
-                  <div key={index} className="mb-3">
-                    <small className="conversation-date">{section.title}</small>
-                    {section.chats.map((chat) => (
-                      <div
-                        key={chat._id}
-                        className={`conversation-item ${chat._id === currentChatId ? 'active' : ''}`}
-                        onClick={() => handleChatSelect(chat._id)}
-                        style={{ position: 'relative' }}
-                      >
-                        <div className="d-flex justify-content-between align-items-center">
-                          <span className="conversation-title" title={chat.title || "New Chat"}>
-                            {chat.title || "New Chat"}
-                          </span>
-                          <button
-                            className="btn btn-link p-0"
-                            onClick={e => handleDropdownClick(e, chat._id)}
-                            data-chat-id={chat._id}
-                          >
-                            <MoreHorizontal size={16} />
-                          </button>
-                        </div>
-                        {renderDropdown(chat)}
-                      </div>
-                    ))}
-                  </div>
-                )
-              ));
-            })()}
+        {/* Sidebar content for logged out users */}
+        {!isLoggedIn ? (
+          <div className="d-flex flex-column align-items-center justify-content-center" style={{ height: '60%' }}>
+            <button
+              className="btn"
+              style={{
+                fontWeight: 500,
+                fontSize: 14,
+                borderRadius: 8,
+                padding: '8px 18px',
+                background: 'var(--bg-primary)',
+                color: 'var(--text-primary)',
+                border: '1px solid var(--border-color)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+              }}
+              onClick={() => openSignIn()}
+            >
+              Login to see history
+            </button>
           </div>
-        </div>
+        ) : (
+          <div className="conversation-list">
+            <div className="px-3 py-2">
+              {(() => {
+                const categorizedChats = categorizeChatsByDate(userChats);
+                const sections = [
+                  { title: "Today", chats: categorizedChats.today },
+                  { title: "Yesterday", chats: categorizedChats.yesterday },
+                  { title: "Last 7 Days", chats: categorizedChats.last7Days },
+                  { title: "Last 30 Days", chats: categorizedChats.last30Days },
+                  { title: "Older", chats: categorizedChats.older }
+                ];
+
+                return sections.map((section, index) => (
+                  section.chats.length > 0 && (
+                    <div key={index} className="mb-3">
+                      <small className="conversation-date">{section.title}</small>
+                      {section.chats.map((chat) => (
+                        <div
+                          key={chat._id}
+                          className={`conversation-item ${chat._id === currentChatId ? 'active' : ''}`}
+                          onClick={() => handleChatSelect(chat._id)}
+                          style={{ position: 'relative' }}
+                        >
+                          <div className="d-flex justify-content-between align-items-center">
+                            <span className="conversation-title" title={chat.title || "New Chat"}>
+                              {chat.title || "New Chat"}
+                            </span>
+                            <button
+                              className="btn btn-link p-0"
+                              onClick={e => handleDropdownClick(e, chat._id)}
+                              data-chat-id={chat._id}
+                            >
+                              <MoreHorizontal size={16} />
+                            </button>
+                          </div>
+                          {renderDropdown(chat)}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                ));
+              })()}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Open Sidebar Button */}

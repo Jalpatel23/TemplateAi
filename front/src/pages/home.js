@@ -24,18 +24,19 @@ export default function App() {
   return (
     <ThemeProvider>
       <div className={`app-container d-flex ${sidebarOpen && user ? "sidebar-open" : "sidebar-closed"}`}>
-        {user && <SidebarAndHeader 
+        <SidebarAndHeader 
           sidebarOpen={sidebarOpen} 
           setSidebarOpen={setSidebarOpen} 
           onNewChat={handleNewChat}
           refreshChats={refreshChats}
           onChatSelect={handleChatSelect}
           currentChatId={currentChatId}
-        />}
+          isLoggedIn={!!user}
+        />
         <MainScreen 
           messages={messages} 
           setMessages={setMessages} 
-          sidebarOpen={sidebarOpen && user}
+          sidebarOpen={sidebarOpen}
           currentChatId={currentChatId}
           setCurrentChatId={setCurrentChatId}
           onMessageSent={() => setRefreshChats(prev => prev + 1)}
