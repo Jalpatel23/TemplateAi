@@ -23,7 +23,7 @@ const userChatsSchema = new mongoose.Schema({
 			default: () => new Date()
 		}
     }],
-});
+}, { timestamps: true });
 
 export default mongoose.models.userchats ||
   mongoose.model("userchats", userChatsSchema);
