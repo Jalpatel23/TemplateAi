@@ -67,7 +67,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
       if (!user || !user.id) return;
 
       try {
-        const response = await fetch(`http://localhost:8080/api/user-chats/${user.id}`);
+        const response = await fetch(`http://localhost:8080/api/v1/user-chats/${user.id}`);
         const data = await response.json();
         
         if (data.userChats && data.userChats.chats) {
@@ -113,7 +113,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
   const confirmDeleteChat = async () => {
     const chatId = deleteModal.chatId;
     try {
-      const response = await fetch(`http://localhost:8080/api/user-chats/${user.id}/remove-chat`, {
+      const response = await fetch(`http://localhost:8080/api/v1/user-chats/${user.id}/remove-chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chatId })
@@ -144,7 +144,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
       return;
     }
     try {
-      const response = await fetch(`http://localhost:8080/api/user-chats/${user.id}/update-chat-title`, {
+      const response = await fetch(`http://localhost:8080/api/v1/user-chats/${user.id}/update-chat-title`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chatId: renameModal.chatId, newTitle }),

@@ -68,7 +68,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       }
 
       try {
-        const response = await fetch(`http://localhost:8080/api/chats/${user.id}/${currentChatId}`);
+        const response = await fetch(`http://localhost:8080/api/v1/chats/${user.id}/${currentChatId}`);
         const data = await response.json();
         
         if (data.chat && data.chat.history) {
@@ -287,7 +287,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
           const words = (text || (selectedFile ? selectedFile.name : "")).split(/\s+/).filter(Boolean);
           chatTitle = words.slice(0, 3).join(" ");
         }
-        const response = await fetch("http://localhost:8080/api/chats", {
+        const response = await fetch("http://localhost:8080/api/v1/chats", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -305,7 +305,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
           setCurrentChatId(data.chat._id);
         }
         // Save model response to database
-        await fetch("http://localhost:8080/api/chats", {
+        await fetch("http://localhost:8080/api/v1/chats", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
