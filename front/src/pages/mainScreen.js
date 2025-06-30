@@ -39,6 +39,9 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   const [selectedModel, setSelectedModel] = useState("2.5 Flash");
   const modelMenuRef = useRef(null);
   const [hoveredItem, setHoveredItem] = useState(null);
+  // Add loading and error state for chat history fetch
+  const [fetchingChat, setFetchingChat] = useState(false);
+  const [fetchError, setFetchError] = useState("");
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -66,27 +69,30 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
         setMessages([]); // Clear messages if no chat is selected
         return;
       }
-
+      setFetchingChat(true);
+      setFetchError("");
       try {
         const response = await fetch(`http://localhost:8080/api/v1/chats/${user.id}/${currentChatId}`);
+        if (!response.ok) throw new Error("Failed to fetch chat history");
         const data = await response.json();
-        
         if (data.chat && data.chat.history) {
           const formattedMessages = data.chat.history.map(msg => ({
             type: msg.role === "user" ? "user" : "assistant",
             text: msg.parts[0].text
           }));
           setMessages(formattedMessages);
-          
           // Set the dummy response counter based on the number of model messages
           const modelMessages = data.chat.history.filter(msg => msg.role === "model").length;
           setDummyResponseCounter(modelMessages + 1);
         }
       } catch (error) {
+        setFetchError("Could not load chat history. Please try again.");
+        setMessages([]);
         console.error("Error fetching chat history:", error);
+      } finally {
+        setFetchingChat(false);
       }
     };
-
     fetchChatHistory();
   }, [user, setMessages, currentChatId]);
 
@@ -478,6 +484,8 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
 
       {/* Chat Area */}
       <div className="chat-area flex-grow-1" style={{ paddingBottom: inputAreaHeight - 70}}>
+        {fetchingChat && <div className="text-center my-3">Loading chat history...</div>}
+        {fetchError && <div className="alert alert-danger my-3">{fetchError}</div>}
         {messages.map((message, index) => (
           <div 
             key={index} 
@@ -566,6 +574,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                     className="btn btn-link" 
                     onClick={() => handleCopy(index, message.text)}
                     title="Copy message"
+                    aria-label="Copy message"
                   >
                     <Copy size={16} color={copiedMessages[index] ? "var(--text-primary)" : "var(--icon-color)"} fill={copiedMessages[index] ? "var(--text-primary)" : "none"} />
                   </button>
@@ -573,6 +582,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                     className="btn btn-link" 
                     onClick={() => toggleLike(index)}
                     title="Like message"
+                    aria-label="Like message"
                   >
                     <ThumbsUp size={16} color={likedMessages[index] ? "var(--text-primary)" : "var(--icon-color)"} fill={likedMessages[index] ? "var(--text-primary)" : "none"} />
                   </button>
@@ -580,6 +590,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                     className="btn btn-link" 
                     onClick={() => toggleDislike(index)}
                     title="Dislike message"
+                    aria-label="Dislike message"
                   >
                     <ThumbsDown size={16} color={dislikedMessages[index] ? "var(--text-primary)" : "var(--icon-color)"} fill={dislikedMessages[index] ? "var(--text-primary)" : "none"} />
                   </button>
@@ -658,6 +669,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                 type="button"
                 className="btn btn-link mb-0 p-0 d-flex align-items-center"
                 title="Upload file"
+                aria-label="Upload file"
                 style={{marginRight: 4}}
                 onClick={() => {
                   if (!user) {
@@ -706,6 +718,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                 className="btn btn-link"
                 disabled={isLoading}
                 title={isLoading ? "Please wait..." : "Send message"}
+                aria-label="Send message"
               >
                 <Send size={16} color={isLoading ? "var(--text-muted)" : "var(--icon-color)"} />
               </button>

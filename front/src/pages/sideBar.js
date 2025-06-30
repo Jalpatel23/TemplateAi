@@ -17,6 +17,8 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
   const [renameModal, setRenameModal] = useState({ open: false, chatId: null, currentTitle: "" });
   const [renameInput, setRenameInput] = useState("");
   const [deleteModal, setDeleteModal] = useState({ open: false, chatId: null });
+  const [deletingChat, setDeletingChat] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   // Function to categorize chats by date
   const categorizeChatsByDate = (chats) => {
@@ -112,11 +114,12 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
 
   const confirmDeleteChat = async () => {
     const chatId = deleteModal.chatId;
+    setDeletingChat(true);
+    setDeleteError("");
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/user-chats/${user.id}/remove-chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chatId })
+      const response = await fetch(`http://localhost:8080/api/v1/user-chats/${user.id}/remove-chat?chatId=${encodeURIComponent(chatId)}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || 'Failed to delete chat');
@@ -126,8 +129,10 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
       onNewChat();
       setDeleteModal({ open: false, chatId: null });
     } catch (error) {
-      alert(error.message || 'Failed to delete chat. Please try again.');
+      setDeleteError(error.message || 'Failed to delete chat. Please try again.');
       setDeleteModal({ open: false, chatId: null });
+    } finally {
+      setDeletingChat(false);
     }
   };
 
@@ -191,14 +196,16 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
         <button
           className="dropdown-item text-primary"
           onClick={e => handleRenameChat(e, chat._id, chat.title)}
+          aria-label="Rename chat"
         >
           <Edit2 size={16} className="me-2" color="#0d6efd" /> Rename
         </button>
         <button
           className="dropdown-item text-danger"
           onClick={e => handleDeleteChat(e, chat._id)}
+          aria-label="Delete chat"
         >
-          <Trash2 size={16} className="me-2" /> Delete
+          <Trash2 size={16} className="me-2" color="#dc3545" /> Delete
         </button>
       </div>,
       document.body
@@ -225,8 +232,12 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
         {/* Header and app title as top flex child */}
         <div style={{ flexShrink: 0 }}>
           <div className="d-flex justify-content-between align-items-center p-2">
-            <button className="btn btn-link" onClick={handleNewChat} disabled={!isLoggedIn}>
-              <Plus size={20} color="var(--icon-color)" />
+            <button
+              className="btn btn-link d-flex align-items-center gap-2"
+              onClick={handleNewChat}
+              aria-label="Start new chat"
+            >
+              <Plus size={18} />
             </button>
             <div className="d-flex">
               <button
@@ -308,9 +319,10 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
                                 {chat.title || "New Chat"}
                               </span>
                               <button
-                                className="btn btn-link p-0"
-                                onClick={e => handleDropdownClick(e, chat._id)}
+                                className="btn btn-link p-0 more-options-btn"
+                                onClick={(e) => handleDropdownClick(e, chat._id)}
                                 data-chat-id={chat._id}
+                                aria-label="Open chat options menu"
                               >
                                 <MoreHorizontal size={16} />
                               </button>
@@ -352,7 +364,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
 
       {/* Open Sidebar Button */}
       {!sidebarOpen && (
-        <button className="open-sidebar-btn" onClick={() => setSidebarOpen(true)}>
+        <button className="open-sidebar-btn" onClick={() => setSidebarOpen(true)} aria-label="Open sidebar">
           <ChevronsRight size={24} color="var(--icon-color)" />
         </button>
       )}
@@ -390,6 +402,10 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
           </div>
         </div>
       )}
+
+      {/* Render loading and error UI for chat deletion (e.g., in modal or near chat list) */}
+      {deletingChat && <div className="text-center my-2">Deleting chat...</div>}
+      {deleteError && <div className="alert alert-danger my-2">{deleteError}</div>}
     </>
   );
 }
