@@ -6,20 +6,22 @@ import { body, param, validationResult } from "express-validator";
 const router = express.Router();
 
 // Remove a chat from userchats collection
-router.post(
+router.delete(
   "/:userId/remove-chat",
   [
     param("userId").isString().notEmpty().withMessage("userId is required"),
-    body("chatId").isString().notEmpty().withMessage("chatId is required"),
+    // chatId will be sent as a query parameter
+    (req, res, next) => {
+      if (!req.query.chatId || typeof req.query.chatId !== 'string') {
+        return res.status(400).json({ errors: [{ msg: "chatId is required as a query parameter" }] });
+      }
+      next();
+    }
   ],
   async (req, res) => {
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array() });
-    }
     try {
       const { userId } = req.params;
-      const { chatId } = req.body;
+      const chatId = req.query.chatId;
 
       // First delete the chat from the chat collection
       const chatDeleteResult = await Chat.deleteOne({ userId, _id: chatId });

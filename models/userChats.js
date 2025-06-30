@@ -4,6 +4,7 @@ const userChatsSchema = new mongoose.Schema({
     userId: {
 		type: String,
 		required: true,
+        index: true
     },
     chats: [{
 		_id: {

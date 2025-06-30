@@ -3,11 +3,12 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import connectDB from "./config/db.js";
 import userChatsRoutes from "./routes/userChats.js";
-import Chat from "./models/chat.js"; // Import Chat model
+import Chat, { ROLE_USER, ROLE_MODEL } from "./models/chat.js"; // Import Chat model and role constants
 import UserChats from "./models/userChats.js"; // Import UserChats model
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
+import { body, validationResult } from "express-validator";
 
 dotenv.config();
 
@@ -69,77 +70,87 @@ const apiV1Router = express.Router();
 apiV1Router.use("/user-chats", userChatsRoutes);
 
 // Save chat messages to MongoDB
-apiV1Router.post("/chats", async (req, res) => {
-  try {
-    const { userId, text, role, chatId } = req.body;
-
-    if (!userId || !text) {
-      return res.status(400).json({ error: "userId and text are required" });
+apiV1Router.post(
+  "/chats",
+  [
+    body("userId").isString().notEmpty().withMessage("userId is required"),
+    body("text").isString().notEmpty().withMessage("text is required"),
+    body("role").optional().isIn([ROLE_USER, ROLE_MODEL]).withMessage(`role must be '${ROLE_USER}' or '${ROLE_MODEL}'`),
+    body("chatId").optional().isString(),
+    body("title").optional().isString(),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
+    try {
+      const { userId, text, role, chatId } = req.body;
 
-    // Find existing chat or create a new one
-    let chat;
-    if (chatId) {
-      chat = await Chat.findOne({ _id: chatId, userId });
-      if (!chat) {
-        return res.status(404).json({ error: "Chat not found" });
-      }
-      // Update the updatedAt timestamp for existing chat
-      const currentDate = new Date();
-      await UserChats.updateOne(
-        { userId, "chats._id": chatId },
-        { $set: { "chats.$.updatedAt": currentDate } }
-      );
-    } else {
-      chat = new Chat({ userId, history: [] });
-      await chat.save();
+      // Find existing chat or create a new one
+      let chat;
+      if (chatId) {
+        chat = await Chat.findOne({ _id: chatId, userId });
+        if (!chat) {
+          return res.status(404).json({ error: "Chat not found" });
+        }
+        // Update the updatedAt timestamp for existing chat
+        const currentDate = new Date();
+        await UserChats.updateOne(
+          { userId, "chats._id": chatId },
+          { $set: { "chats.$.updatedAt": currentDate } }
+        );
+      } else {
+        chat = new Chat({ userId, history: [] });
+        await chat.save();
 
-      // Create or update userChats document
-      let userChats = await UserChats.findOne({ userId });
-      
-      // Get the count of existing chats to determine the next number
-      const chatCount = userChats ? userChats.chats.length : 0;
-      const nextChatNumber = chatCount + 1;
-      // Use provided title or fallback
-      const chatTitle = req.body.title && req.body.title.trim() ? req.body.title.trim() : `Chat ${nextChatNumber}`;
-      
-      const currentDate = new Date();
-      if (!userChats) {
-        userChats = new UserChats({
-          userId,
-          chats: [{
+        // Create or update userChats document
+        let userChats = await UserChats.findOne({ userId });
+        
+        // Get the count of existing chats to determine the next number
+        const chatCount = userChats ? userChats.chats.length : 0;
+        const nextChatNumber = chatCount + 1;
+        // Use provided title or fallback
+        const chatTitle = req.body.title && req.body.title.trim() ? req.body.title.trim() : `Chat ${nextChatNumber}`;
+        
+        const currentDate = new Date();
+        if (!userChats) {
+          userChats = new UserChats({
+            userId,
+            chats: [{
+              _id: chat._id.toString(),
+              title: chatTitle,
+              createdAt: currentDate,
+              updatedAt: currentDate
+            }]
+          });
+        } else {
+          userChats.chats.push({
             _id: chat._id.toString(),
             title: chatTitle,
             createdAt: currentDate,
             updatedAt: currentDate
-          }]
-        });
-      } else {
-        userChats.chats.push({
-          _id: chat._id.toString(),
-          title: chatTitle,
-          createdAt: currentDate,
-          updatedAt: currentDate
-        });
+          });
+        }
+        
+        await userChats.save();
       }
-      
-      await userChats.save();
+
+      // Add message to chat history
+      chat.history.push({
+        role: role || ROLE_USER,
+        parts: [{ text }],
+      });
+
+      await chat.save();
+
+      res.status(200).json({ message: "Message saved", chat });
+    } catch (error) {
+      console.error("Error saving chat:", error);
+      res.status(500).json({ error: "Internal server error" }); // Already generic, keep as is
     }
-
-    // Add message to chat history
-    chat.history.push({
-      role: role || "user",
-      parts: [{ text }],
-    });
-
-    await chat.save();
-
-    res.status(200).json({ message: "Message saved", chat });
-  } catch (error) {
-    console.error("Error saving chat:", error);
-    res.status(500).json({ error: "Internal server error" });
   }
-});
+);
 
 // Fetch chat history for a user
 apiV1Router.get("/chats/:userId/:chatId", async (req, res) => {
@@ -154,7 +165,7 @@ apiV1Router.get("/chats/:userId/:chatId", async (req, res) => {
     res.status(200).json({ chat });
   } catch (error) {
     console.error("Error fetching chat history:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" }); // Already generic, keep as is
   }
 });
 
@@ -171,7 +182,7 @@ apiV1Router.get("/user-chats/:userId", async (req, res) => {
     res.status(200).json({ userChats });
   } catch (error) {
     console.error("Error fetching user chats:", error);
-    res.status(500).json({ error: "Internal server error" });
+    res.status(500).json({ error: "Internal server error" }); // Already generic, keep as is
   }
 });
 
@@ -191,7 +202,7 @@ app.use("*", (req, res) => {
 // Centralized error handling middleware
 app.use((error, req, res, next) => {
   console.error("Unhandled error:", error);
-  res.status(500).json({ error: "Internal server error" });
+  res.status(500).json({ error: "Internal server error" }); // Already generic, keep as is
 });
 
 app.listen(PORT, () => {
