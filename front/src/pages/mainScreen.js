@@ -295,7 +295,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
           body: JSON.stringify({ 
             userId: user.id, 
             text: text || (selectedFile ? selectedFile.name : ""),
-            chatId: currentChatId,
+            ...(currentChatId ? { chatId: currentChatId } : {}),
             ...(chatTitle ? { title: chatTitle } : {})
           }),
         });
@@ -674,7 +674,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                 name="text" 
                 placeholder={inputPlaceholder}
                 className="form-control" 
-                disabled={false}
+                disabled={isLoading}
                 autoComplete="off"
                 style={{
                   resize: 'none',
@@ -694,8 +694,10 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSubmit(e);
+                    if (!isLoading) {
+                      e.preventDefault();
+                      handleSubmit(e);
+                    }
                   }
                 }}
               />
