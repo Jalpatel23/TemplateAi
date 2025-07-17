@@ -5,6 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { useTheme } from "../context/theme-context.tsx";
 import { useUser, useClerk } from "@clerk/clerk-react";
 import { createPortal } from 'react-dom';
+import { chatAPI } from '../config/api.js';
 
 export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewChat, refreshChats, onChatSelect, currentChatId, isLoggedIn }) {
   const dropdownRef = useRef(null);
@@ -69,8 +70,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
       if (!user || !user.id) return;
 
       try {
-        const response = await fetch(`http://localhost:8080/api/v1/user-chats/${user.id}`);
-        const data = await response.json();
+        const data = await chatAPI.getUserChats(user.id);
         
         if (data.userChats && data.userChats.chats) {
           setUserChats(data.userChats.chats);
@@ -117,12 +117,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
     setDeletingChat(true);
     setDeleteError("");
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/user-chats/${user.id}/remove-chat?chatId=${encodeURIComponent(chatId)}`, {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Failed to delete chat');
+      await chatAPI.deleteChat(user.id, chatId);
       setUserChats(prevChats => prevChats.filter(chat => chat._id !== chatId));
       if (currentChatId === chatId) onChatSelect(null);
       setActiveDropdown(null);
@@ -149,13 +144,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
       return;
     }
     try {
-      const response = await fetch(`http://localhost:8080/api/v1/user-chats/${user.id}/update-chat-title`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chatId: renameModal.chatId, newTitle }),
-      });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.message || 'Failed to update chat title');
+      await chatAPI.updateChatTitle(user.id, renameModal.chatId, newTitle);
       setUserChats(prevChats => prevChats.map(chat => chat._id === renameModal.chatId ? { ...chat, title: newTitle } : chat));
       setRenameModal({ open: false, chatId: null, currentTitle: "" });
     } catch (error) {

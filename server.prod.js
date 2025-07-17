@@ -13,6 +13,11 @@ import { body, validationResult } from "express-validator";
 import logger from "./utils/logger.js";
 import { authMiddleware, optionalAuthMiddleware } from "./middleware/auth.js";
 import { validateChatMessage, handleValidationErrors, validateRateLimit } from "./middleware/validation.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -28,7 +33,7 @@ connectDB();
 
 const app = express();
 
-// Security middleware
+// Enhanced security middleware for production
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
@@ -43,7 +48,10 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false,
 }));
 
-// CORS configuration
+// Trust proxy for rate limiting
+app.set('trust proxy', 1);
+
+// CORS configuration for production
 const corsOptions = {
   origin: config.nodeEnv === 'production' 
     ? [config.frontendUrl] 
@@ -55,7 +63,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Rate limiting
+// Enhanced rate limiting for production
 const limiter = rateLimit({
   windowMs: config.rateLimitWindowMs,
   max: config.rateLimitMaxRequests,
@@ -252,6 +260,15 @@ app.get("/health", (req, res) => {
   });
 });
 
+// Serve static files in production
+if (config.nodeEnv === 'production') {
+  app.use(express.static(path.join(__dirname, 'front', 'build')));
+  
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'front', 'build', 'index.html'));
+  });
+}
+
 // 404 handler for undefined routes
 app.use("*", (req, res) => {
   logger.warn(`404 - Route not found: ${req.originalUrl}`);
@@ -279,4 +296,4 @@ app.listen(config.port, () => {
   logger.info(`Server running on port ${config.port}`);
   logger.info(`Environment: ${config.nodeEnv}`);
   logger.info(`API available at: http://localhost:${config.port}/api/v1`);
-});
+}); 

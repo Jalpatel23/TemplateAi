@@ -11,6 +11,7 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import React from 'react';
+import { chatAPI } from '../config/api.js';
 
 export default function MainScreen({ messages, setMessages, sidebarOpen, currentChatId, setCurrentChatId, onMessageSent }) {
   const chatEndRef = useRef(null);
@@ -72,9 +73,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       setFetchingChat(true);
       setFetchError("");
       try {
-        const response = await fetch(`http://localhost:8080/api/v1/chats/${user.id}/${currentChatId}`);
-        if (!response.ok) throw new Error("Failed to fetch chat history");
-        const data = await response.json();
+        const data = await chatAPI.getChatHistory(user.id, currentChatId);
         if (data.chat && data.chat.history) {
           const formattedMessages = data.chat.history.map(msg => ({
             type: msg.role === "user" ? "user" : "assistant",
@@ -167,6 +166,27 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     if (file) {
+      // Validate file size (10MB limit)
+      const maxSize = 10 * 1024 * 1024; // 10MB
+      if (file.size > maxSize) {
+        showNotification("File size must be less than 10MB");
+        return;
+      }
+
+      // Validate file type
+      const allowedTypes = ['image/', 'application/pdf', '.doc', '.docx', '.txt'];
+      const isValidType = allowedTypes.some(type => {
+        if (type.includes('*')) {
+          return file.type.startsWith(type.replace('*', ''));
+        }
+        return file.type === type || file.name.toLowerCase().endsWith(type);
+      });
+
+      if (!isValidType) {
+        showNotification("File type not allowed. Please upload images, PDFs, or documents.");
+        return;
+      }
+
       setSelectedFile(file);
       // For image preview
       if (file.type.startsWith('image/')) {
@@ -272,9 +292,15 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.REACT_APP_GEMINI_API_KEY}`
         },
         body: JSON.stringify(geminiRequest)
       });
+      
+      if (!geminiResponse.ok) {
+        throw new Error(`Gemini API error: ${geminiResponse.status}`);
+      }
+      
       const geminiData = await geminiResponse.json();
       let modelResponse = "";
       if (geminiData.candidates && geminiData.candidates[0]?.content?.parts[0]?.text) {
@@ -293,38 +319,35 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
           const words = (text || (selectedFile ? selectedFile.name : "")).split(/\s+/).filter(Boolean);
           chatTitle = words.slice(0, 3).join(" ");
         }
-        const response = await fetch("http://localhost:8080/api/v1/chats", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ 
-            userId: user.id, 
-            text: text || (selectedFile ? selectedFile.name : ""),
-            ...(currentChatId ? { chatId: currentChatId } : {}),
-            ...(chatTitle ? { title: chatTitle } : {})
-          }),
-        });
-        const data = await response.json();
-        // Set the current chat ID if this is a new chat
-        if (!currentChatId && data.chat._id) {
-          setCurrentChatId(data.chat._id);
+        
+        try {
+          const response = await chatAPI.saveMessage(
+            user.id, 
+            text || (selectedFile ? selectedFile.name : ""),
+            'user',
+            currentChatId,
+            chatTitle
+          );
+          
+          // Set the current chat ID if this is a new chat
+          if (!currentChatId && response.chat._id) {
+            setCurrentChatId(response.chat._id);
+          }
+          
+          // Save model response to database
+          await chatAPI.saveMessage(
+            user.id, 
+            modelResponse,
+            'model',
+            currentChatId || response.chat._id
+          );
+          
+          // Trigger sidebar refresh
+          onMessageSent();
+        } catch (error) {
+          console.error("Error saving to database:", error);
+          showNotification("Message sent but couldn't save to history. Please try again.");
         }
-        // Save model response to database
-        await fetch("http://localhost:8080/api/v1/chats", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ 
-            userId: user.id, 
-            text: modelResponse,
-            role: "model",
-            chatId: currentChatId || data.chat._id
-          }),
-        });
-        // Trigger sidebar refresh
-        onMessageSent();
       } else {
         // Increment guest message count for non-logged-in users
         setGuestMessageCount(prev => prev + 1);

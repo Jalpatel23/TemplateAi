@@ -133,25 +133,9 @@ v15 made admin dashboard for user and admin
 v16 added create-category and update caegory and get all categiry and get single category and delete category
     used slugigy slug 
 
-v17
 
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-Turning on GPU P100 will reduce the number of CPUs available and will only speed up image processing and neural networks.
-
-Availability is limited to 30 hours per week. You have 30 hours remaining.
