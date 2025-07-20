@@ -25,3 +25,5 @@ yarn-error.log*
 
 /reportttt.txt 
 get_code_context.sh
+all.log
+error.log
