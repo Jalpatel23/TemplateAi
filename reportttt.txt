@@ -139,3 +139,4 @@ v16 added create-category and update caegory and get all categiry and get single
 
 
 
+https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-thinking-exp:generateContent?key=

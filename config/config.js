@@ -16,9 +16,7 @@ const config = {
   // Authentication
   clerkPublishableKey: process.env.REACT_APP_CLERK_PUBLISHABLE_KEY,
   
-  // API Keys
-  geminiApiUrl: process.env.REACT_APP_GEMINI_API_URL,
-  geminiApiKey: process.env.REACT_APP_GEMINI_API_KEY,
+ 
   
   // Security
   jwtSecret: process.env.JWT_SECRET || 'fallback-secret-change-in-production',

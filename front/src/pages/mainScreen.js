@@ -292,7 +292,6 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.REACT_APP_GEMINI_API_KEY}`
         },
         body: JSON.stringify(geminiRequest)
       });
