@@ -23,7 +23,7 @@ export default function App() {
 
   return (
     <ThemeProvider>
-      <div className={`app-container d-flex ${sidebarOpen && user ? "sidebar-open" : "sidebar-closed"}`}>
+      <div className={`app-container d-flex ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
         <SidebarAndHeader 
           sidebarOpen={sidebarOpen} 
           setSidebarOpen={setSidebarOpen} 

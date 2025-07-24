@@ -702,10 +702,10 @@ code {
 }
 
 .sidebar-open .input-container {
-  margin-left: 16px;
+  margin-left: -20px;
 }
 
-.custom-notification-popup {
+.custom-notificat30n-popup {
   position: fixed;
   left: 50%;
   bottom: 90px;
@@ -829,4 +829,15 @@ code {
   max-width: 120px; /* Adjust as needed for your layout */
   display: inline-block;
   vertical-align: middle;
+}
+
+.card {
+  background: var(--bg-secondary) !important;
+  opacity: 1 !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+  border-radius: 12px;
+}
+
+:root.light .card {
+  background: #fff !important;
 }
