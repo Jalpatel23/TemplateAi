@@ -13,10 +13,11 @@ const authMiddleware = async (req, res, next) => {
 
     const token = authHeader.substring(7);
     
-    // Verify the token with Clerk
+    // Verify the token with Clerk with clock tolerance
     const payload = await verifyToken(token, {
       jwtKey: process.env.CLERK_JWT_KEY,
       issuer: process.env.CLERK_ISSUER_URL,
+      clockTolerance: 3600, // 1 hour tolerance
     });
 
     // Add user info to request
@@ -48,6 +49,7 @@ const optionalAuthMiddleware = async (req, res, next) => {
       const payload = await verifyToken(token, {
         jwtKey: process.env.CLERK_JWT_KEY,
         issuer: process.env.CLERK_ISSUER_URL,
+        clockTolerance: 3600, // 1 hour tolerance
       });
 
       req.user = {

@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Copy, ThumbsUp, ThumbsDown, User, Paperclip, ChevronDown } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useAuth } from "@clerk/clerk-react";
 import '.././styles.css';
 import { useClerk } from "@clerk/clerk-react";
 import { useTheme } from "../context/theme-context.tsx";
@@ -20,6 +20,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   const [dislikedMessages, setDislikedMessages] = useState({});
   const [copiedMessages, setCopiedMessages] = useState({});
   const { isLoaded, user } = useUser();
+  const { getToken } = useAuth();
   const [dummyResponseCounter, setDummyResponseCounter] = useState(1);
   const { openSignIn } = useClerk();
   const { theme } = useTheme();
@@ -73,7 +74,8 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       setFetchingChat(true);
       setFetchError("");
       try {
-        const data = await chatAPI.getChatHistory(user.id, currentChatId);
+        const token = await getToken();
+        const data = await chatAPI.getChatHistory(user.id, currentChatId, token);
         if (data.chat && data.chat.history) {
           const formattedMessages = data.chat.history.map(msg => ({
             type: msg.role === "user" ? "user" : "assistant",
@@ -93,7 +95,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       }
     };
     fetchChatHistory();
-  }, [user, setMessages, currentChatId]);
+  }, [user, setMessages, currentChatId, getToken]);
 
   // Update input placeholder based on loading state
   useEffect(() => {
@@ -320,12 +322,14 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
         }
         
         try {
+          const token = await getToken();
           const response = await chatAPI.saveMessage(
             user.id, 
             text || (selectedFile ? selectedFile.name : ""),
             'user',
             currentChatId,
-            chatTitle
+            chatTitle,
+            token
           );
           
           // Set the current chat ID if this is a new chat
@@ -338,7 +342,9 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
             user.id, 
             modelResponse,
             'model',
-            currentChatId || response.chat._id
+            currentChatId || response.chat._id,
+            null,
+            token
           );
           
           // Trigger sidebar refresh

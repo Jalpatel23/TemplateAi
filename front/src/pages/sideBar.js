@@ -3,7 +3,7 @@ import { useRef, useEffect, useState } from "react";
 import { Plus, ChevronsRight, ChevronsLeft, Sun, Moon, MoreHorizontal, Trash2, Edit2 } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useTheme } from "../context/theme-context.tsx";
-import { useUser, useClerk } from "@clerk/clerk-react";
+import { useUser, useClerk, useAuth } from "@clerk/clerk-react";
 import { createPortal } from 'react-dom';
 import { chatAPI } from '../config/api.js';
 
@@ -12,6 +12,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
   const { theme, toggleTheme } = useTheme();
   const { user } = useUser();
   const { openSignIn } = useClerk();
+  const { getToken } = useAuth();
   const [userChats, setUserChats] = useState([]);
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [dropdownDirection, setDropdownDirection] = useState('down');
@@ -70,7 +71,8 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
       if (!user || !user.id) return;
 
       try {
-        const data = await chatAPI.getUserChats(user.id);
+        const token = await getToken();
+        const data = await chatAPI.getUserChats(user.id, token);
         
         if (data.userChats && data.userChats.chats) {
           setUserChats(data.userChats.chats);
@@ -81,7 +83,7 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
     };
 
     fetchUserChats();
-  }, [user, refreshChats]);
+  }, [user, refreshChats, getToken]);
 
   const handleNewChat = () => {
     onNewChat();
@@ -117,7 +119,8 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
     setDeletingChat(true);
     setDeleteError("");
     try {
-      await chatAPI.deleteChat(user.id, chatId);
+      const token = await getToken();
+      await chatAPI.deleteChat(user.id, chatId, token);
       setUserChats(prevChats => prevChats.filter(chat => chat._id !== chatId));
       if (currentChatId === chatId) onChatSelect(null);
       setActiveDropdown(null);
@@ -144,7 +147,8 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
       return;
     }
     try {
-      await chatAPI.updateChatTitle(user.id, renameModal.chatId, newTitle);
+      const token = await getToken();
+      await chatAPI.updateChatTitle(user.id, renameModal.chatId, newTitle, token);
       setUserChats(prevChats => prevChats.map(chat => chat._id === renameModal.chatId ? { ...chat, title: newTitle } : chat));
       setRenameModal({ open: false, chatId: null, currentTitle: "" });
     } catch (error) {

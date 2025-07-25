@@ -10,10 +10,11 @@ export const API_ENDPOINTS = {
 };
 
 // API request helper
-export const apiRequest = async (endpoint, options = {}) => {
+export const apiRequest = async (endpoint, options = {}, authToken = null) => {
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
+      ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
       ...options.headers,
     },
   };
@@ -45,7 +46,7 @@ export const apiRequest = async (endpoint, options = {}) => {
 // Chat API functions
 export const chatAPI = {
   // Save chat message
-  saveMessage: async (userId, text, role = 'user', chatId = null, title = null) => {
+  saveMessage: async (userId, text, role = 'user', chatId = null, title = null, authToken = null) => {
     return apiRequest(API_ENDPOINTS.CHATS, {
       method: 'POST',
       body: JSON.stringify({
@@ -55,32 +56,32 @@ export const chatAPI = {
         ...(chatId && { chatId }),
         ...(title && { title }),
       }),
-    });
+    }, authToken);
   },
 
   // Get chat history
-  getChatHistory: async (userId, chatId) => {
-    return apiRequest(`${API_ENDPOINTS.CHATS}/${userId}/${chatId}`);
+  getChatHistory: async (userId, chatId, authToken = null) => {
+    return apiRequest(`${API_ENDPOINTS.CHATS}/${userId}/${chatId}`, {}, authToken);
   },
 
   // Get user chats
-  getUserChats: async (userId) => {
-    return apiRequest(`${API_ENDPOINTS.USER_CHATS}/${userId}`);
+  getUserChats: async (userId, authToken = null) => {
+    return apiRequest(`${API_ENDPOINTS.USER_CHATS}/${userId}`, {}, authToken);
   },
 
   // Delete chat
-  deleteChat: async (userId, chatId) => {
+  deleteChat: async (userId, chatId, authToken = null) => {
     return apiRequest(`${API_ENDPOINTS.USER_CHATS}/${userId}/remove-chat?chatId=${encodeURIComponent(chatId)}`, {
       method: 'DELETE',
-    });
+    }, authToken);
   },
 
   // Update chat title
-  updateChatTitle: async (userId, chatId, newTitle) => {
+  updateChatTitle: async (userId, chatId, newTitle, authToken = null) => {
     return apiRequest(`${API_ENDPOINTS.USER_CHATS}/${userId}/update-chat-title`, {
       method: 'PUT',
       body: JSON.stringify({ chatId, newTitle }),
-    });
+    }, authToken);
   },
 };
 

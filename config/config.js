@@ -13,10 +13,10 @@ const config = {
   // Frontend
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
   
-  // Authentication
+    // Authentication
   clerkPublishableKey: process.env.REACT_APP_CLERK_PUBLISHABLE_KEY,
-  
- 
+  clerkJwtKey: process.env.CLERK_JWT_KEY,
+  clerkIssuerUrl: process.env.CLERK_ISSUER_URL,
   
   // Security
   jwtSecret: process.env.JWT_SECRET || 'fallback-secret-change-in-production',
@@ -39,7 +39,7 @@ const config = {
   
   // Validation
   validate() {
-    const required = ['mongoUrl', 'clerkPublishableKey'];
+    const required = ['mongoUrl', 'clerkPublishableKey', 'clerkJwtKey', 'clerkIssuerUrl'];
     const missing = required.filter(key => !this[key]);
     
     if (missing.length > 0) {
