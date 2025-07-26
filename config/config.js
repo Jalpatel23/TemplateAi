@@ -19,8 +19,7 @@ const config = {
   clerkIssuerUrl: process.env.CLERK_ISSUER_URL,
   
   // Security
-  jwtSecret: process.env.JWT_SECRET || 'fallback-secret-change-in-production',
-  sessionSecret: process.env.SESSION_SECRET || 'fallback-session-secret',
+  jwtSecret: process.env.JWT_SECRET,
   
   // File Upload
   maxFileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024, // 10MB
@@ -39,7 +38,7 @@ const config = {
   
   // Validation
   validate() {
-    const required = ['mongoUrl', 'clerkPublishableKey', 'clerkJwtKey', 'clerkIssuerUrl'];
+    const required = ['mongoUrl', 'clerkPublishableKey', 'clerkJwtKey', 'clerkIssuerUrl', 'jwtSecret',];
     const missing = required.filter(key => !this[key]);
     
     if (missing.length > 0) {
@@ -49,8 +48,6 @@ const config = {
 };
 
 // Validate configuration on import
-if (config.nodeEnv === 'production') {
-  config.validate();
-}
+config.validate();
 
 export default config; 

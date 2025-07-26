@@ -42,6 +42,17 @@ export const validateFile = (field) => {
         throw new Error(`File type not allowed. Allowed types: ${allowedTypes.join(', ')}`);
       }
       
+      // Additional security checks
+      if (req.file.originalname.includes('..') || req.file.originalname.includes('/')) {
+        throw new Error('Invalid filename');
+      }
+      
+      // Check for malicious file extensions
+      const dangerousExtensions = ['.exe', '.bat', '.cmd', '.com', '.pif', '.scr', '.vbs', '.js'];
+      if (dangerousExtensions.includes(fileExtension.toLowerCase())) {
+        throw new Error('File type not allowed for security reasons');
+      }
+      
       return true;
     });
 };
