@@ -27,4 +27,8 @@ const chatSchema = new mongoose.Schema({
     }],
 }, { timestamps: true });
 
+// Add compound indexes for better query performance
+chatSchema.index({ userId: 1, createdAt: -1 });
+chatSchema.index({ userId: 1, updatedAt: -1 });
+
 export default mongoose.models.chat || mongoose.model("chat", chatSchema);

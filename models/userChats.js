@@ -26,5 +26,9 @@ const userChatsSchema = new mongoose.Schema({
     }],
 }, { timestamps: true });
 
+// Add indexes for better query performance
+userChatsSchema.index({ userId: 1, 'chats.updatedAt': -1 });
+userChatsSchema.index({ 'chats._id': 1 });
+
 export default mongoose.models.userchats ||
   mongoose.model("userchats", userChatsSchema);
