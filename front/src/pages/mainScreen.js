@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Send, Copy, ThumbsUp, ThumbsDown, User, Paperclip, ChevronDown } from 'lucide-react';
+import { Send, Copy, User, Paperclip, ChevronDown } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useUser, useAuth } from "@clerk/clerk-react";
 import '.././styles.css';
@@ -122,28 +122,6 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
     setInputAreaHeight(inputAreaRef.current.offsetHeight);
     return () => observer.disconnect();
   }, []);
-
-  const toggleLike = (index) => {
-    setLikedMessages((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
-    setDislikedMessages((prev) => ({
-      ...prev,
-      [index]: false,
-    }));
-  };
-
-  const toggleDislike = (index) => {
-    setDislikedMessages((prev) => ({
-      ...prev,
-      [index]: !prev[index],
-    }));
-    setLikedMessages((prev) => ({
-      ...prev,
-      [index]: false,
-    }));
-  };
 
   const handleCopy = (index, text) => {
     navigator.clipboard.writeText(text);
@@ -605,22 +583,6 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                     aria-label="Copy message"
                   >
                     <Copy size={16} color={copiedMessages[index] ? "var(--text-primary)" : "var(--icon-color)"} fill={copiedMessages[index] ? "var(--text-primary)" : "none"} />
-                  </button>
-                  <button 
-                    className="btn btn-link" 
-                    onClick={() => toggleLike(index)}
-                    title="Like message"
-                    aria-label="Like message"
-                  >
-                    <ThumbsUp size={16} color={likedMessages[index] ? "var(--text-primary)" : "var(--icon-color)"} fill={likedMessages[index] ? "var(--text-primary)" : "none"} />
-                  </button>
-                  <button 
-                    className="btn btn-link" 
-                    onClick={() => toggleDislike(index)}
-                    title="Dislike message"
-                    aria-label="Dislike message"
-                  >
-                    <ThumbsDown size={16} color={dislikedMessages[index] ? "var(--text-primary)" : "var(--icon-color)"} fill={dislikedMessages[index] ? "var(--text-primary)" : "none"} />
                   </button>
                 </div>
               )}
