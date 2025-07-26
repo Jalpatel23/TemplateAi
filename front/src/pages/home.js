@@ -31,7 +31,8 @@ export default function App() {
           refreshChats={refreshChats}
           onChatSelect={handleChatSelect}
           currentChatId={currentChatId}
-          isLoggedIn={!!user}
+          isLoggedIn={isLoaded && !!user}
+          isLoaded={isLoaded}
         />
         <MainScreen 
           messages={messages} 

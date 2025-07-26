@@ -7,7 +7,7 @@ import { useUser, useClerk, useAuth } from "@clerk/clerk-react";
 import { createPortal } from 'react-dom';
 import { chatAPI } from '../config/api.js';
 
-export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewChat, refreshChats, onChatSelect, currentChatId, isLoggedIn }) {
+export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewChat, refreshChats, onChatSelect, currentChatId, isLoggedIn, isLoaded }) {
   const dropdownRef = useRef(null);
   const { theme, toggleTheme } = useTheme();
   const { user } = useUser();
@@ -264,7 +264,13 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
         </div>
         {/* Chat list or login prompt as scrollable flex child */}
         <div style={{ flex: 1, overflowY: 'auto', minHeight: 0 }}>
-          {!isLoggedIn ? (
+          {!isLoaded ? (
+            <div className="d-flex flex-column align-items-center justify-content-center" style={{ height: '60%' }}>
+              <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            </div>
+          ) : !isLoggedIn ? (
             <div className="d-flex flex-column align-items-center justify-content-center" style={{ height: '60%' }}>
               <button
                 className="btn"
