@@ -31,7 +31,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
     const savedCount = localStorage.getItem('guestMessageCount');
     return savedCount ? parseInt(savedCount) : 0;
   });
-  const MAX_GUEST_MESSAGES = 3;
+  const MAX_GUEST_MESSAGES = 5;
   const [selectedFile, setSelectedFile] = useState(null);
   const [filePreview, setFilePreview] = useState(null);
   const [notification, setNotification] = useState("");
