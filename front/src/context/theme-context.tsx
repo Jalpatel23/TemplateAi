@@ -14,10 +14,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   // Initialize theme from localStorage if available
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as "dark" | "light" | null;
-    if (savedTheme) {
-      setTheme(savedTheme);
-      document.documentElement.classList.toggle("light", savedTheme === "light");
-    }
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const defaultTheme = savedTheme || (prefersDark ? "dark" : "light");
+    
+    setTheme(defaultTheme);
+    document.documentElement.classList.toggle("light", defaultTheme === "light");
   }, []);
 
   const toggleTheme = () => {
