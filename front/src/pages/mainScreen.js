@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Send, Copy, User, Paperclip, ChevronDown } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useUser, useAuth } from "@clerk/clerk-react";
@@ -47,6 +47,14 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   const [apiError, setApiError] = useState("");
   const [pagination, setPagination] = useState(null);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 3;
+
+  // Show notification for 2 seconds
+  const showNotification = useCallback((msg) => {
+    setNotification(msg);
+    setTimeout(() => setNotification(""), 2000);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -91,22 +99,41 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
           const modelMessages = data.chat.history.filter(msg => msg.role === "model").length;
           setDummyResponseCounter(modelMessages + 1);
         }
+        setRetryCount(0); // Reset retry count on success
       } catch (error) {
-        setFetchError("Could not load chat history. Please try again.");
-        setMessages([]);
-        setPagination(null);
         console.error("Error fetching chat history:", error);
+        if (retryCount < MAX_RETRIES) {
+          setRetryCount(prev => prev + 1);
+          setFetchError(`Failed to load chat. Retrying... (${retryCount + 1}/${MAX_RETRIES})`);
+          // Retry after 2 seconds
+          setTimeout(() => {
+            fetchChatHistory();
+          }, 2000);
+        } else {
+          setFetchError("Could not load chat history. Please try refreshing the page.");
+          setMessages([]);
+          setPagination(null);
+          setRetryCount(0);
+        }
       } finally {
         setFetchingChat(false);
       }
     };
     fetchChatHistory();
-  }, [user, setMessages, currentChatId, getToken]);
+  }, [user, setMessages, currentChatId, getToken, retryCount]);
 
   // Update input placeholder based on loading state
   useEffect(() => {
-    setInputPlaceholder(isLoading ? "AI is thinking..." : "Type Here");
-  }, [isLoading]);
+    if (isLoading) {
+      setInputPlaceholder("AI is thinking...");
+    } else if (isSubmitting) {
+      setInputPlaceholder("Sending message...");
+    } else if (fetchingChat) {
+      setInputPlaceholder("Loading chat...");
+    } else {
+      setInputPlaceholder("Type Here");
+    }
+  }, [isLoading, isSubmitting, fetchingChat]);
 
   // Ensure textarea is always at min height on mount
   useEffect(() => {
@@ -181,43 +208,56 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   // Add file input change handler
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      // Validate file size (10MB limit)
-      const maxSize = 10 * 1024 * 1024; // 10MB
-      if (file.size > maxSize) {
-        showNotification("File size must be less than 10MB");
-        return;
-      }
+    if (!file) return;
 
-      // Validate file type
-      const allowedTypes = ['image/', 'application/pdf', '.doc', '.docx', '.txt', '.csv', '.xls', '.xlsx', '.ppt', '.pptx', '.jpeg', '.png', '.gif', '.svg'];
-      const isValidType = allowedTypes.some(type => {
-        if (type.includes('*')) {
-          return file.type.startsWith(type.replace('*', ''));
-        }
-        return file.type === type || file.name.toLowerCase().endsWith(type);
-      });
+    // Enhanced file validation
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const allowedTypes = [
+      'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+      'application/pdf',
+      'text/plain',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    ];
 
-      if (!isValidType) {
-        showNotification("File type not allowed. Please upload images, PDFs, or documents.");
-        return;
-      }
+    // Check file size
+    if (file.size > maxSize) {
+      showNotification("File too large. Please select a file under 10MB.");
+      e.target.value = '';
+      return;
+    }
 
-      setSelectedFile(file);
-      // For image preview
-      if (file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setFilePreview(reader.result);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        setFilePreview(null);
-      }
+    // Check file type
+    if (!allowedTypes.includes(file.type)) {
+      showNotification("File type not supported. Please select an image, PDF, or document file.");
+      e.target.value = '';
+      return;
+    }
+
+    // Check for potentially malicious files
+    const fileName = file.name.toLowerCase();
+    const dangerousExtensions = ['.exe', '.bat', '.cmd', '.com', '.scr', '.vbs', '.js'];
+    if (dangerousExtensions.some(ext => fileName.endsWith(ext))) {
+      showNotification("This file type is not allowed for security reasons.");
+      e.target.value = '';
+      return;
+    }
+
+    setSelectedFile(file);
+
+    // Create preview for images
+    if (file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setFilePreview(e.target.result);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setFilePreview(null);
     }
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     
     // Prevent multiple submissions
@@ -234,15 +274,26 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       return;
     }
     
-    // Check for suspicious content
+    // Enhanced security checks
     const suspiciousPatterns = [
       /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
       /javascript:/gi,
-      /on\w+\s*=/gi
+      /on\w+\s*=/gi,
+      /data:text\/html/gi,
+      /vbscript:/gi,
+      /<iframe/gi,
+      /<object/gi,
+      /<embed/gi
     ];
     
     if (text && suspiciousPatterns.some(pattern => pattern.test(text))) {
       showNotification("Message contains invalid content. Please try again.");
+      return;
+    }
+
+    // Check for excessive whitespace or empty content
+    if (text && text.trim().length === 0) {
+      showNotification("Message cannot be empty.");
       return;
     }
 
@@ -385,17 +436,20 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
             token
           );
           
-          // Trigger sidebar refresh and clear cache to ensure fresh data
-          onMessageSent();
-          // Clear chat cache to ensure sidebar gets updated data
+          // Clear chat cache first to ensure fresh data
           const { clearChatCache } = await import('../config/api.js');
           clearChatCache();
+          
+          // Trigger sidebar refresh after cache is cleared
+          onMessageSent();
         } catch (error) {
           console.error("Error saving to database:", error);
           showNotification("Message sent but couldn't save to history. Please try again.");
           // Clear chat cache even on error to ensure consistency
           const { clearChatCache } = await import('../config/api.js');
           clearChatCache();
+          // Still trigger refresh to show the message was sent
+          onMessageSent();
         }
       } else {
         // Increment guest message count for non-logged-in users
@@ -431,13 +485,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       setIsLoading(false); // End loading regardless of success or failure
       setIsSubmitting(false);
     }
-  };
-
-  // Show notification for 2 seconds
-  const showNotification = (msg) => {
-    setNotification(msg);
-    setTimeout(() => setNotification(""), 2000);
-  };
+  }, [isSubmitting, isLoading, selectedFile, user, guestMessageCount, currentChatId, onMessageSent, getToken, openSignIn, showNotification]);
 
   return (
     <div className={`main-content ${sidebarOpen ? "" : "without-sidebar"} d-flex flex-column`}>

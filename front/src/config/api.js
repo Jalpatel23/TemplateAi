@@ -56,9 +56,22 @@ export const apiRequest = async (endpoint, options = {}, authToken = null) => {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       
-
+      // Categorize errors for better user experience
+      let errorMessage = errorData.error || `HTTP error! status: ${response.status}`;
       
-      throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      if (response.status === 401) {
+        errorMessage = "Authentication required. Please sign in again.";
+      } else if (response.status === 403) {
+        errorMessage = "Access denied. You don't have permission for this action.";
+      } else if (response.status === 404) {
+        errorMessage = "Resource not found. Please try again.";
+      } else if (response.status === 429) {
+        errorMessage = "Too many requests. Please wait a moment and try again.";
+      } else if (response.status >= 500) {
+        errorMessage = "Server error. Please try again later.";
+      }
+      
+      throw new Error(errorMessage);
     }
     
     const data = await response.json();

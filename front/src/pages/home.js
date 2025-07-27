@@ -2,6 +2,7 @@
 import { useState } from "react";
 import SidebarAndHeader from "./sideBar";
 import MainScreen from "./mainScreen";
+import ErrorBoundary from "../components/ErrorBoundary";
 import { ThemeProvider } from "../context/theme-context.tsx";
 import { useUser } from "@clerk/clerk-react";
 
@@ -22,27 +23,29 @@ export default function App() {
   };
 
   return (
-    <ThemeProvider>
-      <div className={`app-container d-flex ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
-        <SidebarAndHeader 
-          sidebarOpen={sidebarOpen} 
-          setSidebarOpen={setSidebarOpen} 
-          onNewChat={handleNewChat}
-          refreshChats={refreshChats}
-          onChatSelect={handleChatSelect}
-          currentChatId={currentChatId}
-          isLoggedIn={isLoaded && !!user}
-          isLoaded={isLoaded}
-        />
-        <MainScreen 
-          messages={messages} 
-          setMessages={setMessages} 
-          sidebarOpen={sidebarOpen}
-          currentChatId={currentChatId}
-          setCurrentChatId={setCurrentChatId}
-          onMessageSent={() => setRefreshChats(prev => prev + 1)}
-        />
-      </div>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <div className={`app-container d-flex ${sidebarOpen ? "sidebar-open" : "sidebar-closed"}`}>
+          <SidebarAndHeader 
+            sidebarOpen={sidebarOpen} 
+            setSidebarOpen={setSidebarOpen} 
+            onNewChat={handleNewChat}
+            refreshChats={refreshChats}
+            onChatSelect={handleChatSelect}
+            currentChatId={currentChatId}
+            isLoggedIn={isLoaded && !!user}
+            isLoaded={isLoaded}
+          />
+          <MainScreen 
+            messages={messages} 
+            setMessages={setMessages} 
+            sidebarOpen={sidebarOpen}
+            currentChatId={currentChatId}
+            setCurrentChatId={setCurrentChatId}
+            onMessageSent={() => setRefreshChats(prev => prev + 1)}
+          />
+        </div>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 }
