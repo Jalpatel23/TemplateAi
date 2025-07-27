@@ -45,6 +45,8 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   const [fetchingChat, setFetchingChat] = useState(false);
   const [fetchError, setFetchError] = useState("");
   const [apiError, setApiError] = useState("");
+  const [pagination, setPagination] = useState(null);
+  const [loadingMore, setLoadingMore] = useState(false);
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -70,19 +72,21 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
     const fetchChatHistory = async () => {
       if (!user || !user.id || !currentChatId) {
         setMessages([]); // Clear messages if no chat is selected
+        setPagination(null);
         return;
       }
       setFetchingChat(true);
       setFetchError("");
       try {
         const token = await getToken();
-        const data = await chatAPI.getChatHistory(user.id, currentChatId, token);
+        const data = await chatAPI.getChatHistory(user.id, currentChatId, 1, 50, token);
         if (data.chat && data.chat.history) {
           const formattedMessages = data.chat.history.map(msg => ({
             type: msg.role === "user" ? "user" : "assistant",
             text: msg.parts[0].text
           }));
           setMessages(formattedMessages);
+          setPagination(data.pagination);
           // Set the dummy response counter based on the number of model messages
           const modelMessages = data.chat.history.filter(msg => msg.role === "model").length;
           setDummyResponseCounter(modelMessages + 1);
@@ -90,6 +94,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       } catch (error) {
         setFetchError("Could not load chat history. Please try again.");
         setMessages([]);
+        setPagination(null);
         console.error("Error fetching chat history:", error);
       } finally {
         setFetchingChat(false);
@@ -136,6 +141,36 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
         [index]: false,
       }));
     }, 1000);
+  };
+
+  const loadMoreMessages = async () => {
+    if (!user || !user.id || !currentChatId || !pagination || !pagination.hasMore || loadingMore) {
+      return;
+    }
+    
+    setLoadingMore(true);
+    try {
+      const token = await getToken();
+      const nextPage = pagination.currentPage + 1;
+      const data = await chatAPI.getChatHistory(user.id, currentChatId, nextPage, 50, token);
+      
+      if (data.chat && data.chat.history) {
+        const formattedMessages = data.chat.history.map(msg => ({
+          type: msg.role === "user" ? "user" : "assistant",
+          text: msg.parts[0].text
+        }));
+        
+        // Prepend older messages to the beginning
+        setMessages(prev => [...formattedMessages, ...prev]);
+        setPagination(data.pagination);
+      }
+    } catch (error) {
+      console.error("Error loading more messages:", error);
+      setApiError("Failed to load more messages. Please try again.");
+      setTimeout(() => setApiError(""), 5000);
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
   // Auto-scroll to the latest message
@@ -539,6 +574,26 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
             {apiError}
           </div>
         )}
+        
+        {/* Load More Messages Button */}
+        {pagination && pagination.hasMore && !fetchingChat && (
+          <div className="text-center my-3">
+            <button 
+              onClick={loadMoreMessages}
+              disabled={loadingMore}
+              className="btn btn-outline-secondary btn-sm load-more-btn"
+            >
+              {loadingMore ? (
+                <span className="d-flex align-items-center">
+                  <LoadingSpinner size="small" text="Loading..." />
+                </span>
+              ) : (
+                `Load ${Math.min(50, pagination.totalMessages - (pagination.currentPage * 50))} more messages`
+              )}
+            </button>
+          </div>
+        )}
+        
         {messages.map((message, index) => (
           <div 
             key={index} 

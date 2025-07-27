@@ -112,9 +112,10 @@ export const chatAPI = {
     }, authToken);
   },
 
-  // Get chat history
-  getChatHistory: async (userId, chatId, authToken = null) => {
-    return apiRequest(`${API_ENDPOINTS.CHATS}/${userId}/${chatId}`, {}, authToken);
+  // Get chat history with pagination
+  getChatHistory: async (userId, chatId, page = 1, limit = 50, authToken = null) => {
+    const params = new URLSearchParams({ page, limit });
+    return apiRequest(`${API_ENDPOINTS.CHATS}/${userId}/${chatId}?${params}`, {}, authToken);
   },
 
   // Get user chats

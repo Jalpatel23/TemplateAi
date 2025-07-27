@@ -202,10 +202,11 @@ apiV1Router.post(
   }
 );
 
-// Fetch chat history for a user
+// Fetch chat history for a user with pagination
 apiV1Router.get("/chats/:userId/:chatId", authMiddleware, async (req, res) => {
   try {
     const { userId, chatId } = req.params;
+    const { page = 1, limit = 50 } = req.query;
     
     // Verify user can access this chat
     if (req.user.id !== userId) {
@@ -218,7 +219,33 @@ apiV1Router.get("/chats/:userId/:chatId", authMiddleware, async (req, res) => {
       return res.status(404).json({ error: "No chat history found" });
     }
 
-    res.status(200).json({ chat });
+    // Calculate pagination
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    const skip = (pageNum - 1) * limitNum;
+    const totalMessages = chat.history.length;
+    const totalPages = Math.ceil(totalMessages / limitNum);
+
+    // Get paginated messages (most recent first)
+    const paginatedHistory = chat.history
+      .slice()
+      .reverse() // Reverse to get most recent first
+      .slice(skip, skip + limitNum)
+      .reverse(); // Reverse back to maintain chronological order
+
+    res.status(200).json({ 
+      chat: {
+        ...chat.toObject(),
+        history: paginatedHistory
+      },
+      pagination: {
+        currentPage: pageNum,
+        totalPages,
+        totalMessages,
+        hasMore: pageNum < totalPages,
+        hasPrevious: pageNum > 1
+      }
+    });
   } catch (error) {
     logger.error("Error fetching chat history:", error);
     res.status(500).json({ error: "Internal server error" });

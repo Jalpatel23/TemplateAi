@@ -675,6 +675,24 @@ code {
   }
 }
 
+/* Pagination Styles */
+.load-more-btn {
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  padding: 0.5rem 1rem;
+}
+
+.load-more-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.load-more-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* Responsive 404 page */
 @media (max-width: 768px) {
   .notfound-404 {
