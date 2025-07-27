@@ -1,5 +1,5 @@
 "use client";
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Send, Copy, User, Paperclip, ChevronDown } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useUser, useAuth } from "@clerk/clerk-react";
@@ -12,12 +12,11 @@ import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { oneDark, oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import React from 'react';
 import { chatAPI } from '../config/api.js';
+import LoadingSpinner from '../components/LoadingSpinner';
 
 export default function MainScreen({ messages, setMessages, sidebarOpen, currentChatId, setCurrentChatId, onMessageSent }) {
   const chatEndRef = useRef(null);
   const inputRef = useRef(null);
-  const [likedMessages, setLikedMessages] = useState({});
-  const [dislikedMessages, setDislikedMessages] = useState({});
   const [copiedMessages, setCopiedMessages] = useState({});
   const { isLoaded, user } = useUser();
   const { getToken } = useAuth();
@@ -25,6 +24,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   const { openSignIn } = useClerk();
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [inputPlaceholder, setInputPlaceholder] = useState("Type Here");
   const [guestMessageCount, setGuestMessageCount] = useState(() => {
     // Initialize from localStorage or default to 0
@@ -44,6 +44,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   // Add loading and error state for chat history fetch
   const [fetchingChat, setFetchingChat] = useState(false);
   const [fetchError, setFetchError] = useState("");
+  const [apiError, setApiError] = useState("");
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -183,9 +184,32 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Prevent multiple submissions
+    if (isSubmitting || isLoading) return;
+    
     const text = inputRef.current.value.trim();
-    // If neither text nor file, do nothing
+    
+    // Validate input
     if (!text && !selectedFile) return;
+    
+    // Check for excessive length
+    if (text && text.length > 10000) {
+      showNotification("Message too long. Please keep it under 10,000 characters.");
+      return;
+    }
+    
+    // Check for suspicious content
+    const suspiciousPatterns = [
+      /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi,
+      /javascript:/gi,
+      /on\w+\s*=/gi
+    ];
+    
+    if (text && suspiciousPatterns.some(pattern => pattern.test(text))) {
+      showNotification("Message contains invalid content. Please try again.");
+      return;
+    }
 
     // Check if user is not logged in and has reached the message limit
     if (!user && guestMessageCount >= MAX_GUEST_MESSAGES) {
@@ -195,6 +219,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
     }
 
     try {
+      setIsSubmitting(true);
       setIsLoading(true); // Start loading
       // Add user message to UI with animation
       let userMessage = { type: "user", text, animation: "fade-in" };
@@ -325,11 +350,17 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
             token
           );
           
-          // Trigger sidebar refresh
+          // Trigger sidebar refresh and clear cache to ensure fresh data
           onMessageSent();
+          // Clear chat cache to ensure sidebar gets updated data
+          const { clearChatCache } = await import('../config/api.js');
+          clearChatCache();
         } catch (error) {
           console.error("Error saving to database:", error);
           showNotification("Message sent but couldn't save to history. Please try again.");
+          // Clear chat cache even on error to ensure consistency
+          const { clearChatCache } = await import('../config/api.js');
+          clearChatCache();
         }
       } else {
         // Increment guest message count for non-logged-in users
@@ -347,16 +378,23 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       }
     } catch (error) {
       console.error("Error in chat:", error);
+      setApiError(error.message || "An unexpected error occurred");
+      
       // Remove loading message if it exists
       setMessages(prev => prev.filter(msg => !msg.isLoading));
+      
       // Show error message to user with animation
       setMessages(prev => [...prev, { 
         type: "assistant", 
         text: "I apologize, but I encountered an error processing your request. Please try again.",
         animation: "fade-in"
       }]);
+      
+      // Clear error after 5 seconds
+      setTimeout(() => setApiError(""), 5000);
     } finally {
       setIsLoading(false); // End loading regardless of success or failure
+      setIsSubmitting(false);
     }
   };
 
@@ -490,8 +528,17 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
 
       {/* Chat Area */}
       <div className="chat-area flex-grow-1" style={{ paddingBottom: inputAreaHeight - 70}}>
-        {fetchingChat && <div className="text-center my-3">Loading chat history...</div>}
+        {fetchingChat && (
+          <div className="text-center my-3">
+            <LoadingSpinner size="small" text="Loading chat history..." />
+          </div>
+        )}
         {fetchError && <div className="alert alert-danger my-3">{fetchError}</div>}
+        {apiError && (
+          <div className="alert alert-danger my-3" style={{ position: 'sticky', top: 0, zIndex: 1000 }}>
+            {apiError}
+          </div>
+        )}
         {messages.map((message, index) => (
           <div 
             key={index} 
@@ -502,10 +549,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
               <p>
                 {message.isLoading ? (
                   <span className="d-flex align-items-center">
-                    <div className="spinner-border spinner-border-sm me-2" role="status">
-                      <span className="visually-hidden">Thinking...</span>
-                    </div>
-                    <span className="typing-animation"></span>
+                    <LoadingSpinner size="small" text="Thinking..." />
                   </span>
                 ) : (
                   <ReactMarkdown
@@ -706,11 +750,11 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
               <button 
                 type="submit" 
                 className="btn btn-link"
-                disabled={isLoading}
-                title={isLoading ? "Please wait..." : "Send message"}
+                disabled={isLoading || isSubmitting}
+                title={isLoading || isSubmitting ? "Please wait..." : "Send message"}
                 aria-label="Send message"
               >
-                <Send size={16} color={isLoading ? "var(--text-muted)" : "var(--icon-color)"} />
+                <Send size={16} color={isLoading || isSubmitting ? "var(--text-muted)" : "var(--icon-color)"} />
               </button>
             </div>
           </div>
