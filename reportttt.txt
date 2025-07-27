@@ -136,7 +136,8 @@ v16 added create-category and update caegory and get all categiry and get single
 add csurd
 file submision fix. to show error message when file is not excepted
 check error boundry
-
+when something very long is set to chat, the message displayer verry long and not in next line.
+also at many places when some error occurs the message dosent popup.
 
 
 
