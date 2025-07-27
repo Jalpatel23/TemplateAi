@@ -20,7 +20,7 @@ const config = {
   
   // Security
   jwtSecret: process.env.JWT_SECRET,
-  
+
   // File Upload
   maxFileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024, // 10MB
   allowedFileTypes: process.env.ALLOWED_FILE_TYPES?.split(',') || [
@@ -38,7 +38,7 @@ const config = {
   
   // Validation
   validate() {
-    const required = ['mongoUrl', 'clerkPublishableKey', 'clerkJwtKey', 'clerkIssuerUrl', 'jwtSecret',];
+    const required = ['mongoUrl', 'clerkPublishableKey', 'clerkJwtKey', 'clerkIssuerUrl', 'jwtSecret'];
     const missing = required.filter(key => !this[key]);
     
     if (missing.length > 0) {
