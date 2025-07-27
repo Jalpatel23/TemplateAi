@@ -155,7 +155,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       }
 
       // Validate file type
-      const allowedTypes = ['image/', 'application/pdf', '.doc', '.docx', '.txt'];
+      const allowedTypes = ['image/', 'application/pdf', '.doc', '.docx', '.txt', '.csv', '.xls', '.xlsx', '.ppt', '.pptx', '.jpeg', '.png', '.gif', '.svg'];
       const isValidType = allowedTypes.some(type => {
         if (type.includes('*')) {
           return file.type.startsWith(type.replace('*', ''));
@@ -693,7 +693,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
             <div className="input-container mb-3 d-flex align-items-center gap-2 w-100">
               <input
                 type="file"
-                accept="image/*,application/pdf,.doc,.docx,.txt"
+                accept="image/*,application/pdf,.doc,.docx,.txt,.csv,.xls,.xlsx,.ppt,.pptx,.jpeg,.png,.gif,.svg"
                 style={{ display: 'none' }}
                 id="file-upload-input"
                 onChange={handleFileChange}
