@@ -126,9 +126,15 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
       setActiveDropdown(null);
       onNewChat();
       setDeleteModal({ open: false, chatId: null });
+      // Clear chat cache to ensure fresh data
+      const { clearChatCache } = await import('../config/api.js');
+      clearChatCache();
     } catch (error) {
       setDeleteError(error.message || 'Failed to delete chat. Please try again.');
       setDeleteModal({ open: false, chatId: null });
+      // Clear chat cache even on error to ensure consistency
+      const { clearChatCache } = await import('../config/api.js');
+      clearChatCache();
     } finally {
       setDeletingChat(false);
     }
@@ -151,9 +157,15 @@ export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewCha
       await chatAPI.updateChatTitle(user.id, renameModal.chatId, newTitle, token);
       setUserChats(prevChats => prevChats.map(chat => chat._id === renameModal.chatId ? { ...chat, title: newTitle } : chat));
       setRenameModal({ open: false, chatId: null, currentTitle: "" });
+      // Clear chat cache to ensure fresh data
+      const { clearChatCache } = await import('../config/api.js');
+      clearChatCache();
     } catch (error) {
       alert(error.message || 'Failed to rename chat. Please try again.');
       setRenameModal({ open: false, chatId: null, currentTitle: "" });
+      // Clear chat cache even on error to ensure consistency
+      const { clearChatCache } = await import('../config/api.js');
+      clearChatCache();
     }
   };
 

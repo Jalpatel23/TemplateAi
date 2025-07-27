@@ -7,16 +7,38 @@ export const API_ENDPOINTS = {
   CHATS: `${API_BASE_URL}/api/${API_VERSION}/chats`,
   USER_CHATS: `${API_BASE_URL}/api/${API_VERSION}/user-chats`,
   HEALTH: `${API_BASE_URL}/health`,
+
 };
+
+// Simple cache implementation
+const cache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+const CHAT_CACHE_DURATION = 30 * 1000; // 30 seconds for chat data
+
+
 
 // API request helper
 export const apiRequest = async (endpoint, options = {}, authToken = null) => {
+  const cacheKey = `${endpoint}-${JSON.stringify(options)}-${authToken}`;
+  
+  // Check cache for GET requests
+  if (options.method === 'GET' || !options.method) {
+    const cached = cache.get(cacheKey);
+    const isChatEndpoint = endpoint.includes('/user-chats') || endpoint.includes('/chats/');
+    const cacheDuration = isChatEndpoint ? CHAT_CACHE_DURATION : CACHE_DURATION;
+    
+    if (cached && Date.now() - cached.timestamp < cacheDuration) {
+      return cached.data;
+    }
+  }
+  
   const defaultOptions = {
     headers: {
       'Content-Type': 'application/json',
       ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
       ...options.headers,
     },
+    credentials: 'include', // Include cookies for session
   };
 
   const config = {
@@ -33,13 +55,44 @@ export const apiRequest = async (endpoint, options = {}, authToken = null) => {
     
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      
+
+      
       throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
     }
     
-    return await response.json();
+    const data = await response.json();
+    
+    // Cache GET requests
+    if (options.method === 'GET' || !options.method) {
+      const isChatEndpoint = endpoint.includes('/user-chats') || endpoint.includes('/chats/');
+      const cacheDuration = isChatEndpoint ? CHAT_CACHE_DURATION : CACHE_DURATION;
+      
+      cache.set(cacheKey, {
+        data,
+        timestamp: Date.now(),
+        duration: cacheDuration
+      });
+    }
+    
+    return data;
   } catch (error) {
     console.error('API request failed:', error);
     throw error;
+  }
+};
+
+// Clear cache function
+export const clearCache = () => {
+  cache.clear();
+};
+
+// Clear chat-related cache entries
+export const clearChatCache = () => {
+  for (const [key] of cache) {
+    if (key.includes('/user-chats') || key.includes('/chats/')) {
+      cache.delete(key);
+    }
   }
 };
 
