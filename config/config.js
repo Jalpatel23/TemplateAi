@@ -31,10 +31,18 @@ const config = {
     '.txt'
   ],
   
-  // Rate Limiting
+  // Rate Limiting - General API
   rateLimitWindowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
   rateLimitMaxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS) || 100,
-  chatRateLimitMaxRequests: parseInt(process.env.CHAT_RATE_LIMIT_MAX_REQUESTS) || 10,
+  
+  // Rate Limiting - Chat Endpoints (Tiered)
+  chatRateLimitWindowMs: parseInt(process.env.CHAT_RATE_LIMIT_WINDOW_MS) || 1 * 60 * 1000, // 1 minute
+  chatRateLimitMaxRequestsAuthenticated: parseInt(process.env.CHAT_RATE_LIMIT_MAX_REQUESTS_AUTH) || 20, // Higher limit for authenticated users
+  chatRateLimitMaxRequestsUnauthenticated: parseInt(process.env.CHAT_RATE_LIMIT_MAX_REQUESTS_UNAUTH) || 5, // Lower limit for unauthenticated users
+  
+  // Rate Limiting - User-Specific (for authenticated users)
+  userRateLimitWindowMs: parseInt(process.env.USER_RATE_LIMIT_WINDOW_MS) || 15 * 60 * 1000, // 15 minutes
+  userRateLimitMaxRequests: parseInt(process.env.USER_RATE_LIMIT_MAX_REQUESTS) || 200, // Higher limit per user
   
   // Validation
   validate() {

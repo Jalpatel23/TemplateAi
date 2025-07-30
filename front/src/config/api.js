@@ -83,6 +83,9 @@ export const apiRequest = async (endpoint, options = {}, authToken = null) => {
           case 'CHAT_RATE_LIMIT_EXCEEDED':
             errorMessage = "Too many chat requests. Please slow down.";
             break;
+          case 'USER_RATE_LIMIT_EXCEEDED':
+            errorMessage = "Too many requests for this user. Please wait a moment and try again.";
+            break;
           case 'VALIDATION_FAILED':
             errorMessage = "Invalid input. Please check your data and try again.";
             break;

@@ -23,6 +23,7 @@ export const ERROR_CODES = {
   // Rate limiting
   RATE_LIMIT_EXCEEDED: 'RATE_LIMIT_EXCEEDED',
   CHAT_RATE_LIMIT_EXCEEDED: 'CHAT_RATE_LIMIT_EXCEEDED',
+  USER_RATE_LIMIT_EXCEEDED: 'USER_RATE_LIMIT_EXCEEDED',
   
   // Server errors
   INTERNAL_SERVER_ERROR: 'INTERNAL_SERVER_ERROR',
@@ -49,6 +50,7 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.ROUTE_NOT_FOUND]: 'Route not found',
   [ERROR_CODES.RATE_LIMIT_EXCEEDED]: 'Too many requests, please try again later',
   [ERROR_CODES.CHAT_RATE_LIMIT_EXCEEDED]: 'Too many chat requests, please slow down',
+  [ERROR_CODES.USER_RATE_LIMIT_EXCEEDED]: 'Too many requests for this user, please try again later',
   [ERROR_CODES.INTERNAL_SERVER_ERROR]: 'Internal server error',
   [ERROR_CODES.DATABASE_ERROR]: 'Database operation failed',
   [ERROR_CODES.INVALID_REQUEST]: 'Invalid request',

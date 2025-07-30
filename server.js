@@ -63,8 +63,10 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-// Rate limiting
-const limiter = rateLimit({
+// Tiered Rate Limiting Implementation
+
+// General API rate limiting (IP-based)
+const generalLimiter = rateLimit({
   windowMs: config.rateLimitWindowMs,
   max: config.rateLimitMaxRequests,
   message: { 
@@ -78,7 +80,7 @@ const limiter = rateLimit({
     return req.ip || req.connection.remoteAddress;
   },
   handler: (req, res) => {
-    logger.warn(`Rate limit exceeded for IP: ${req.ip}`);
+    logger.warn(`General rate limit exceeded for IP: ${req.ip}`);
     res.status(429).json({
       error: 'Too many requests from this IP, please try again later.',
       code: 'RATE_LIMIT_EXCEEDED',
@@ -87,10 +89,19 @@ const limiter = rateLimit({
   }
 });
 
-// More strict rate limiting for chat endpoints
-const chatLimiter = rateLimit({
-  windowMs: 1 * 60 * 1000, // 1 minute
-  max: config.chatRateLimitMaxRequests,
+// Tiered chat rate limiting based on authentication status
+const tieredChatLimiter = rateLimit({
+  windowMs: config.chatRateLimitWindowMs,
+  max: (req) => {
+    // Use different limits based on authentication status
+    if (req.user) {
+      // Authenticated users get higher limits
+      return config.chatRateLimitMaxRequestsAuthenticated;
+    } else {
+      // Unauthenticated users get lower limits
+      return config.chatRateLimitMaxRequestsUnauthenticated;
+    }
+  },
   message: { 
     error: 'Too many chat requests, please slow down.',
     code: 'CHAT_RATE_LIMIT_EXCEEDED'
@@ -99,12 +110,59 @@ const chatLimiter = rateLimit({
   legacyHeaders: false,
   skipSuccessfulRequests: false,
   keyGenerator: (req) => {
-    return req.ip || req.connection.remoteAddress;
+    // Use user ID for authenticated users, IP for unauthenticated
+    if (req.user) {
+      return `user:${req.user.id}`;
+    } else {
+      return `ip:${req.ip || req.connection.remoteAddress}`;
+    }
+  },
+  handler: (req, res) => {
+    const userType = req.user ? 'authenticated user' : 'unauthenticated user';
+    const identifier = req.user ? req.user.id : req.ip;
+    logger.warn(`Chat rate limit exceeded for ${userType}: ${identifier}`);
+    res.status(429).json({
+      error: 'Too many chat requests, please slow down.',
+      code: 'CHAT_RATE_LIMIT_EXCEEDED',
+      retryAfter: Math.ceil(config.chatRateLimitWindowMs / 1000)
+    });
   }
 });
 
-app.use('/api/', limiter);
-app.use('/api/chats', chatLimiter);
+// User-specific rate limiting for authenticated users (higher limits)
+const userSpecificLimiter = rateLimit({
+  windowMs: config.userRateLimitWindowMs,
+  max: config.userRateLimitMaxRequests,
+  message: { 
+    error: 'Too many requests for this user, please try again later.',
+    code: 'USER_RATE_LIMIT_EXCEEDED'
+  },
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false,
+  keyGenerator: (req) => {
+    // Only apply to authenticated users
+    return req.user ? `user:${req.user.id}` : req.ip;
+  },
+  handler: (req, res) => {
+    const identifier = req.user ? req.user.id : req.ip;
+    logger.warn(`User-specific rate limit exceeded for: ${identifier}`);
+    res.status(429).json({
+      error: 'Too many requests for this user, please try again later.',
+      code: 'USER_RATE_LIMIT_EXCEEDED',
+      retryAfter: Math.ceil(config.userRateLimitWindowMs / 1000)
+    });
+  },
+  skip: (req) => {
+    // Skip this limiter for unauthenticated users
+    return !req.user;
+  }
+});
+
+// Apply rate limiters
+app.use('/api/', generalLimiter);
+app.use('/api/chats', tieredChatLimiter);
+app.use('/api/user-chats', userSpecificLimiter);
 
 // Middlewares
 app.use(express.json({ limit: '10mb' }));
