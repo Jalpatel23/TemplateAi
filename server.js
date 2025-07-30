@@ -14,6 +14,7 @@ import logger from "./utils/logger.js";
 import { authMiddleware, optionalAuthMiddleware } from "./middleware/auth.js";
 import { validateChatMessage, handleValidationErrors, validateRateLimit } from "./middleware/validation.js";
 import { handleApiError, createErrorResponse, ERROR_CODES, asyncErrorHandler, errorHandler } from "./utils/errorHandler.js";
+import { upload, handleFileUploadError, validateUploadedFile, cleanupUploadedFile } from "./middleware/fileUpload.js";
 
 dotenv.config();
 
@@ -181,10 +182,14 @@ const apiV1Router = express.Router();
 // Mount user chats routes with authentication
 apiV1Router.use("/user-chats", authMiddleware, userChatsRoutes);
 
-// Save chat messages to MongoDB with enhanced validation
+// Save chat messages to MongoDB with enhanced validation and file upload support
 apiV1Router.post(
   "/chats",
   validateRateLimit,
+  upload.single('file'), // Handle file upload
+  handleFileUploadError,
+  validateUploadedFile,
+  cleanupUploadedFile,
   validateChatMessage(),
   handleValidationErrors,
   optionalAuthMiddleware,
@@ -250,16 +255,53 @@ apiV1Router.post(
       await userChats.save();
     }
 
+    // Prepare message parts
+    const messageParts = [];
+    
+    // Add text if provided
+    if (text && text.trim()) {
+      messageParts.push({ text: text.trim() });
+    }
+    
+    // Add file if uploaded
+    if (req.fileMetadata) {
+      messageParts.push({
+        file: {
+          filename: req.fileMetadata.filename,
+          originalName: req.fileMetadata.originalName,
+          path: req.fileMetadata.path,
+          size: req.fileMetadata.size,
+          mimetype: req.fileMetadata.mimetype,
+          uploadedAt: req.fileMetadata.uploadedAt
+        }
+      });
+    }
+    
+    // Validate that at least text or file is provided
+    if (messageParts.length === 0) {
+      return res.status(400).json(createErrorResponse(ERROR_CODES.VALIDATION_FAILED, "Message must contain text or file"));
+    }
+
     // Add message to chat history
     chat.history.push({
       role: role || ROLE_USER,
-      parts: [{ text }],
+      parts: messageParts,
     });
 
     await chat.save();
 
-    logger.info(`Chat message saved for user: ${authenticatedUserId}, chat: ${chat._id}`);
-    res.status(200).json({ message: "Message saved", chat });
+    logger.info(`Chat message saved for user: ${authenticatedUserId}, chat: ${chat._id}${req.fileMetadata ? ` with file: ${req.fileMetadata.originalName}` : ''}`);
+    res.status(200).json({ 
+      message: "Message saved", 
+      chat,
+      fileUploaded: !!req.fileMetadata,
+      fileInfo: req.fileMetadata ? {
+        filename: req.fileMetadata.filename,
+        originalName: req.fileMetadata.originalName,
+        size: req.fileMetadata.size,
+        mimetype: req.fileMetadata.mimetype
+      } : null
+    });
   })
 );
 

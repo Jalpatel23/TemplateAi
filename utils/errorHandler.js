@@ -31,7 +31,15 @@ export const ERROR_CODES = {
   
   // API errors
   INVALID_REQUEST: 'INVALID_REQUEST',
-  METHOD_NOT_ALLOWED: 'METHOD_NOT_ALLOWED'
+  METHOD_NOT_ALLOWED: 'METHOD_NOT_ALLOWED',
+  
+  // File upload errors
+  FILE_TOO_LARGE: 'FILE_TOO_LARGE',
+  TOO_MANY_FILES: 'TOO_MANY_FILES',
+  FIELD_TOO_LARGE: 'FIELD_TOO_LARGE',
+  FILE_UPLOAD_ERROR: 'FILE_UPLOAD_ERROR',
+  INVALID_FILE_TYPE: 'INVALID_FILE_TYPE',
+  DANGEROUS_FILE: 'DANGEROUS_FILE'
 };
 
 // Standard error messages
@@ -54,7 +62,13 @@ export const ERROR_MESSAGES = {
   [ERROR_CODES.INTERNAL_SERVER_ERROR]: 'Internal server error',
   [ERROR_CODES.DATABASE_ERROR]: 'Database operation failed',
   [ERROR_CODES.INVALID_REQUEST]: 'Invalid request',
-  [ERROR_CODES.METHOD_NOT_ALLOWED]: 'Method not allowed'
+  [ERROR_CODES.METHOD_NOT_ALLOWED]: 'Method not allowed',
+  [ERROR_CODES.FILE_TOO_LARGE]: 'File size exceeds the maximum allowed limit',
+  [ERROR_CODES.TOO_MANY_FILES]: 'Too many files uploaded at once',
+  [ERROR_CODES.FIELD_TOO_LARGE]: 'Field data exceeds the maximum allowed size',
+  [ERROR_CODES.FILE_UPLOAD_ERROR]: 'File upload failed',
+  [ERROR_CODES.INVALID_FILE_TYPE]: 'File type not allowed',
+  [ERROR_CODES.DANGEROUS_FILE]: 'File type not allowed for security reasons'
 };
 
 // Create standardized error response

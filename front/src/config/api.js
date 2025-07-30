@@ -98,6 +98,24 @@ export const apiRequest = async (endpoint, options = {}, authToken = null) => {
           case 'TITLE_TOO_LONG':
             errorMessage = "Title must be less than 100 characters.";
             break;
+          case 'FILE_TOO_LARGE':
+            errorMessage = "File size exceeds the maximum allowed limit.";
+            break;
+          case 'TOO_MANY_FILES':
+            errorMessage = "Too many files uploaded at once.";
+            break;
+          case 'FIELD_TOO_LARGE':
+            errorMessage = "Field data exceeds the maximum allowed size.";
+            break;
+          case 'FILE_UPLOAD_ERROR':
+            errorMessage = "File upload failed. Please try again.";
+            break;
+          case 'INVALID_FILE_TYPE':
+            errorMessage = "File type not allowed. Please select a supported file type.";
+            break;
+          case 'DANGEROUS_FILE':
+            errorMessage = "File type not allowed for security reasons.";
+            break;
           case 'ROUTE_NOT_FOUND':
             errorMessage = "Resource not found. Please try again.";
             break;
@@ -220,4 +238,66 @@ export const chatAPI = {
 // Health check
 export const healthCheck = async () => {
   return apiRequest(API_ENDPOINTS.HEALTH);
+};
+
+// File upload helper functions
+export const uploadFile = async (file, authToken = null) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const endpoint = API_ENDPOINTS.CHATS;
+  
+  const options = {
+    method: 'POST',
+    headers: {
+      ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
+    },
+    body: formData,
+  };
+
+  try {
+    const response = await fetch(endpoint, options);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Upload failed: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('File upload failed:', error);
+    throw error;
+  }
+};
+
+// Upload file with chat message
+export const uploadFileWithMessage = async (file, message, authToken = null) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('text', message);
+  formData.append('role', 'user');
+  
+  const endpoint = API_ENDPOINTS.CHATS;
+  
+  const options = {
+    method: 'POST',
+    headers: {
+      ...(authToken && { 'Authorization': `Bearer ${authToken}` }),
+    },
+    body: formData,
+  };
+
+  try {
+    const response = await fetch(endpoint, options);
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Upload failed: ${response.status}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('File upload with message failed:', error);
+    throw error;
+  }
 }; 
