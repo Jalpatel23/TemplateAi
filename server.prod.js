@@ -46,7 +46,23 @@ app.use(helmet({
     },
   },
   crossOriginEmbedderPolicy: false,
+  hsts: {
+    maxAge: 31536000,
+    includeSubDomains: true,
+    preload: true
+  },
+  noSniff: true,
+  referrerPolicy: { policy: 'strict-origin-when-cross-origin' }
 }));
+
+// Additional security headers for production
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  next();
+});
 
 // Trust proxy for rate limiting
 app.set('trust proxy', 1);
@@ -104,15 +120,32 @@ const chatLimiter = rateLimit({
 });
 
 app.use('/api/', limiter);
-app.use('/api/chats', chatLimiter);
+// Note: chatLimiter is now applied at the route level instead of globally
 
 // Middlewares
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan('combined', { stream: logger.stream }));
 
+// Request logging middleware for security monitoring
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.path} - ${req.ip} - User: ${req.user?.id || 'unauthenticated'}`);
+  next();
+});
+
 // API versioning - all routes under /api/v1
 const apiV1Router = express.Router();
+
+// Security middleware to ensure all chat operations require authentication
+const requireAuth = (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ 
+      error: "Authentication required for all chat operations",
+      code: "AUTH_REQUIRED"
+    });
+  }
+  next();
+};
 
 // Mount user chats routes with authentication
 apiV1Router.use("/user-chats", authMiddleware, userChatsRoutes);
@@ -120,26 +153,36 @@ apiV1Router.use("/user-chats", authMiddleware, userChatsRoutes);
 // Save chat messages to MongoDB with enhanced validation
 apiV1Router.post(
   "/chats",
-  validateRateLimit,
   validateChatMessage(),
   handleValidationErrors,
-  optionalAuthMiddleware,
+  authMiddleware, // Changed from optionalAuthMiddleware to authMiddleware for production
+  requireAuth, // Additional security check
+  chatLimiter, // Rate limiting applied after authentication
   async (req, res) => {
     try {
       const { userId, text, role, chatId } = req.body;
 
       // Validate user authentication for protected operations
-      if (!req.user && userId) {
+      if (!req.user) {
         return res.status(401).json({ 
           error: "Authentication required for this operation",
           code: "AUTH_REQUIRED"
         });
       }
 
+      // Use the authenticated user's ID from the token
+      const authenticatedUserId = req.user.id;
+      if (userId && userId !== authenticatedUserId) {
+        return res.status(403).json({ 
+          error: "Access denied - user ID mismatch",
+          code: "ACCESS_DENIED"
+        });
+      }
+
       // Find existing chat or create a new one
       let chat;
       if (chatId) {
-        chat = await Chat.findOne({ _id: chatId, userId });
+        chat = await Chat.findOne({ _id: chatId, userId: authenticatedUserId });
         if (!chat) {
           return res.status(404).json({ error: "Chat not found" });
         }
@@ -147,15 +190,15 @@ apiV1Router.post(
         // Update the updatedAt timestamp for existing chat
         const currentDate = new Date();
         await UserChats.updateOne(
-          { userId, "chats._id": chatId },
+          { userId: authenticatedUserId, "chats._id": chatId },
           { $set: { "chats.$.updatedAt": currentDate } }
         );
       } else {
-        chat = new Chat({ userId, history: [] });
+        chat = new Chat({ userId: authenticatedUserId, history: [] });
         await chat.save();
 
         // Create or update userChats document
-        let userChats = await UserChats.findOne({ userId });
+        let userChats = await UserChats.findOne({ userId: authenticatedUserId });
         
         const chatCount = userChats ? userChats.chats.length : 0;
         const nextChatNumber = chatCount + 1;
@@ -164,7 +207,7 @@ apiV1Router.post(
         const currentDate = new Date();
         if (!userChats) {
           userChats = new UserChats({
-            userId,
+            userId: authenticatedUserId,
             chats: [{
               _id: chat._id.toString(),
               title: chatTitle,
@@ -192,7 +235,7 @@ apiV1Router.post(
 
       await chat.save();
 
-      logger.info(`Chat message saved for user: ${userId}, chat: ${chat._id}`);
+      logger.info(`Chat message saved for user: ${authenticatedUserId}, chat: ${chat._id}`);
       res.status(200).json({ message: "Message saved", chat });
     } catch (error) {
       logger.error("Error saving chat:", error);
@@ -201,8 +244,16 @@ apiV1Router.post(
   }
 );
 
+// Security audit logging for unauthorized access attempts
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api/v1/chats') && !req.user) {
+    logger.warn(`Unauthorized access attempt to chat endpoint: ${req.method} ${req.path} from IP: ${req.ip}`);
+  }
+  next();
+});
+
 // Fetch chat history for a user with pagination
-apiV1Router.get("/chats/:userId/:chatId", authMiddleware, async (req, res) => {
+apiV1Router.get("/chats/:userId/:chatId", authMiddleware, requireAuth, async (req, res) => {
   try {
     const { userId, chatId } = req.params;
     const { page = 1, limit = 50 } = req.query;
@@ -252,7 +303,7 @@ apiV1Router.get("/chats/:userId/:chatId", authMiddleware, async (req, res) => {
 });
 
 // Fetch user's chat list
-apiV1Router.get("/user-chats/:userId", authMiddleware, async (req, res) => {
+apiV1Router.get("/user-chats/:userId", authMiddleware, requireAuth, async (req, res) => {
   try {
     const { userId } = req.params;
     
