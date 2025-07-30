@@ -859,3 +859,65 @@ code {
 :root.light .card {
   background: #fff !important;
 }
+
+/* Global Error Overlay Styles */
+#global-error-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  backdrop-filter: blur(4px);
+}
+
+#global-error-overlay button {
+  transition: all 0.2s ease;
+}
+
+#global-error-overlay button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+#global-error-overlay button:active {
+  transform: translateY(0);
+}
+
+/* Ensure error overlay appears above everything */
+#global-error-overlay * {
+  box-sizing: border-box;
+}
+
+/* Hide React's default error overlay in development */
+body > div[data-reactroot] > div:last-child {
+  display: none !important;
+}
+
+/* Custom scrollbar for error details */
+#global-error-overlay pre {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+#global-error-overlay pre::-webkit-scrollbar {
+  width: 6px;
+}
+
+#global-error-overlay pre::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+#global-error-overlay pre::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 3px;
+}
+
+#global-error-overlay pre::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-secondary);
+}
