@@ -56,22 +56,84 @@ export const apiRequest = async (endpoint, options = {}, authToken = null) => {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       
-      // Categorize errors for better user experience
+      // Use standardized error handling with error codes
       let errorMessage = errorData.error || `HTTP error! status: ${response.status}`;
       
-      if (response.status === 401) {
-        errorMessage = "Authentication required. Please sign in again.";
-      } else if (response.status === 403) {
-        errorMessage = "Access denied. You don't have permission for this action.";
-      } else if (response.status === 404) {
-        errorMessage = "Resource not found. Please try again.";
-      } else if (response.status === 429) {
-        errorMessage = "Too many requests. Please wait a moment and try again.";
-      } else if (response.status >= 500) {
-        errorMessage = "Server error. Please try again later.";
+      // Handle specific error codes from backend
+      if (errorData.code) {
+        switch (errorData.code) {
+          case 'AUTH_REQUIRED':
+            errorMessage = "Authentication required. Please sign in again.";
+            break;
+          case 'INVALID_TOKEN':
+            errorMessage = "Your session has expired. Please sign in again.";
+            break;
+          case 'ACCESS_DENIED':
+            errorMessage = "Access denied. You don't have permission for this action.";
+            break;
+          case 'CHAT_NOT_FOUND':
+            errorMessage = "Chat not found. It may have been deleted.";
+            break;
+          case 'USER_CHATS_NOT_FOUND':
+            errorMessage = "No chats found for this user.";
+            break;
+          case 'RATE_LIMIT_EXCEEDED':
+            errorMessage = "Too many requests. Please wait a moment and try again.";
+            break;
+          case 'CHAT_RATE_LIMIT_EXCEEDED':
+            errorMessage = "Too many chat requests. Please slow down.";
+            break;
+          case 'VALIDATION_FAILED':
+            errorMessage = "Invalid input. Please check your data and try again.";
+            break;
+          case 'MISSING_CHAT_ID':
+            errorMessage = "Chat ID is required.";
+            break;
+          case 'MISSING_TITLE':
+            errorMessage = "Title is required and cannot be empty.";
+            break;
+          case 'TITLE_TOO_LONG':
+            errorMessage = "Title must be less than 100 characters.";
+            break;
+          case 'ROUTE_NOT_FOUND':
+            errorMessage = "Resource not found. Please try again.";
+            break;
+          default:
+            // Fallback to HTTP status code handling
+            if (response.status === 401) {
+              errorMessage = "Authentication required. Please sign in again.";
+            } else if (response.status === 403) {
+              errorMessage = "Access denied. You don't have permission for this action.";
+            } else if (response.status === 404) {
+              errorMessage = "Resource not found. Please try again.";
+            } else if (response.status === 429) {
+              errorMessage = "Too many requests. Please wait a moment and try again.";
+            } else if (response.status >= 500) {
+              errorMessage = "Server error. Please try again later.";
+            }
+        }
+      } else {
+        // Fallback to HTTP status code handling for legacy responses
+        if (response.status === 401) {
+          errorMessage = "Authentication required. Please sign in again.";
+        } else if (response.status === 403) {
+          errorMessage = "Access denied. You don't have permission for this action.";
+        } else if (response.status === 404) {
+          errorMessage = "Resource not found. Please try again.";
+        } else if (response.status === 429) {
+          errorMessage = "Too many requests. Please wait a moment and try again.";
+        } else if (response.status >= 500) {
+          errorMessage = "Server error. Please try again later.";
+        }
       }
       
-      throw new Error(errorMessage);
+      // Create enhanced error object with code
+      const enhancedError = new Error(errorMessage);
+      enhancedError.code = errorData.code;
+      enhancedError.status = response.status;
+      enhancedError.timestamp = errorData.timestamp;
+      
+      throw enhancedError;
     }
     
     const data = await response.json();
