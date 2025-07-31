@@ -11,7 +11,7 @@ cd front
 npm run front
 
 # In another terminal, start the backend
-npm run jp
+npm run dev
 ```
 
 ### **2. Open Browser Developer Tools**

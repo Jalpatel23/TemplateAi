@@ -104,7 +104,7 @@ Ensure MongoDB is running and accessible at the URL specified in your `.env` fil
 
 ```bash
 # Development mode (runs both frontend and backend)
-npm run jp
+npm run dev
 
 # Or run separately:
 # Backend only

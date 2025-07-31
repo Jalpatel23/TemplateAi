@@ -133,7 +133,7 @@ switch (error.code) {
 ### Running Error Handling Tests
 ```bash
 # Start your server
-npm run jp
+npm run dev
 
 # In another terminal, run error handling tests
 node test-error-handling.js

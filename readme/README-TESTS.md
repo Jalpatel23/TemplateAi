@@ -19,7 +19,7 @@ This directory contains security test files to validate your application's authe
 ### 1. Test Development Server
 ```bash
 # Start development server
-npm run jp
+npm run dev
 
 # In another terminal, run tests
 node test-security-simple.js
