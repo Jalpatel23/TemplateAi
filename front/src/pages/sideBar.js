@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Plus, ChevronsRight, ChevronsLeft, Sun, Moon, MoreHorizontal, Trash2, Edit2 } from 'lucide-react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { useTheme } from "../context/theme-context.tsx";
@@ -8,7 +8,7 @@ import { createPortal } from 'react-dom';
 import { chatAPI } from '../config/api.js';
 
 export default function SidebarAndHeader({ sidebarOpen, setSidebarOpen, onNewChat, refreshChats, onChatSelect, currentChatId, isLoggedIn, isLoaded }) {
-  const dropdownRef = useRef(null);
+  // const dropdownRef = useRef(null); // Removed unused variable
   const { theme, toggleTheme } = useTheme();
   const { user } = useUser();
   const { openSignIn } = useClerk();

@@ -1,0 +1,29 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "server.vercel.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "front/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/server.vercel.js"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/front/$1"
+    }
+  ],
+  "env": {
+    "NODE_ENV": "production"
+  }
+} 

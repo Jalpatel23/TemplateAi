@@ -20,7 +20,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
   const [copiedMessages, setCopiedMessages] = useState({});
   const { isLoaded, user } = useUser();
   const { getToken } = useAuth();
-  const [dummyResponseCounter, setDummyResponseCounter] = useState(1);
+  // Removed unused variable completely
   const { openSignIn } = useClerk();
   const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
@@ -95,9 +95,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
           }));
           setMessages(formattedMessages);
           setPagination(data.pagination);
-          // Set the dummy response counter based on the number of model messages
-          const modelMessages = data.chat.history.filter(msg => msg.role === "model").length;
-          setDummyResponseCounter(modelMessages + 1);
+          // Removed unused variable completely
         }
         setRetryCount(0); // Reset retry count on success
       } catch (error) {
@@ -485,7 +483,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
       setIsLoading(false); // End loading regardless of success or failure
       setIsSubmitting(false);
     }
-  }, [isSubmitting, isLoading, selectedFile, user, guestMessageCount, currentChatId, onMessageSent, getToken, openSignIn, showNotification]);
+  }, [isSubmitting, isLoading, selectedFile, filePreview, user, guestMessageCount, currentChatId, onMessageSent, getToken, openSignIn, showNotification, setMessages, setCurrentChatId]);
 
   return (
     <div className={`main-content ${sidebarOpen ? "" : "without-sidebar"} d-flex flex-column`}>
@@ -529,10 +527,10 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
             <div className="card-body p-3 pb-2">
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginBottom: 10 }}>Choose your model</div>
               <div className="list-group list-group-flush" style={{ borderRadius: 8, overflow: 'hidden' }}>
-                <a
-                  href="#"
+                <button
+                  type="button"
                   className="list-group-item list-group-item-action d-flex align-items-center"
-                  style={{ background: hoveredItem === '2.5 Flash' ? 'var(--hover-bg)' : 'transparent', color: 'var(--text-primary)', fontSize: 15, padding: '10px 12px', border: 'none', position: 'relative' }}
+                  style={{ background: hoveredItem === '2.5 Flash' ? 'var(--hover-bg)' : 'transparent', color: 'var(--text-primary)', fontSize: 15, padding: '10px 12px', border: 'none', position: 'relative', width: '100%', textAlign: 'left' }}
                   onClick={e => { e.preventDefault(); setSelectedModel("2.5 Flash"); setIsModelMenuOpen(false); }}
                   onMouseEnter={() => setHoveredItem('2.5 Flash')}
                   onMouseLeave={() => setHoveredItem(null)}
@@ -541,11 +539,11 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                     <div style={{ fontWeight: 500 }}>2.5 Flash</div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Fast all-round help</div>
                   </div>
-                </a>
-                <a
-                  href="#"
+                </button>
+                <button
+                  type="button"
                   className="list-group-item list-group-item-action d-flex align-items-center"
-                  style={{ background: hoveredItem === '2.5 Pro' ? 'var(--hover-bg)' : 'transparent', color: 'var(--text-primary)', fontSize: 15, padding: '10px 12px', border: 'none', position: 'relative' }}
+                  style={{ background: hoveredItem === '2.5 Pro' ? 'var(--hover-bg)' : 'transparent', color: 'var(--text-primary)', fontSize: 15, padding: '10px 12px', border: 'none', position: 'relative', width: '100%', textAlign: 'left' }}
                   onClick={e => { e.preventDefault(); setSelectedModel("2.5 Pro"); setIsModelMenuOpen(false); }}
                   onMouseEnter={() => setHoveredItem('2.5 Pro')}
                   onMouseLeave={() => setHoveredItem(null)}
@@ -554,11 +552,11 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                     <div style={{ fontWeight: 500 }}>2.5 Pro <span className="badge bg-primary" style={{ fontSize: 11, marginLeft: 4 }}>New</span></div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Reasoning, maths and code</div>
                   </div>
-                </a>
-                <a
-                  href="#"
+                </button>
+                <button
+                  type="button"
                   className="list-group-item list-group-item-action d-flex align-items-center"
-                  style={{ background: hoveredItem === 'Personalisation' ? 'var(--hover-bg)' : 'transparent', color: 'var(--text-primary)', fontSize: 15, padding: '10px 12px', border: 'none', position: 'relative' }}
+                  style={{ background: hoveredItem === 'Personalisation' ? 'var(--hover-bg)' : 'transparent', color: 'var(--text-primary)', fontSize: 15, padding: '10px 12px', border: 'none', position: 'relative', width: '100%', textAlign: 'left' }}
                   onClick={e => { e.preventDefault(); setSelectedModel("Personalisation"); setIsModelMenuOpen(false); }}
                   onMouseEnter={() => setHoveredItem('Personalisation')}
                   onMouseLeave={() => setHoveredItem(null)}
@@ -567,7 +565,7 @@ export default function MainScreen({ messages, setMessages, sidebarOpen, current
                     <div style={{ fontWeight: 500 }}>Personalisation (preview) <span className="badge bg-primary" style={{ fontSize: 11, marginLeft: 4 }}>New</span></div>
                     <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Based on your Search history</div>
                   </div>
-                </a>
+                </button>
               </div>
               <div className="mt-3 mb-1">
                 <button 

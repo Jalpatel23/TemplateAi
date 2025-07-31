@@ -29,3 +29,4 @@ all.log
 error.log
 .cursorignore
 jp.txt
+.vercel
